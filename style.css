@@ -312,6 +312,18 @@ body {
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
 }
+
+/* 锚点滚动时预留二级导航栏高度，防止标题被遮挡 */
+[id^="enc-"],
+[id^="sch-"],
+[id^="tms-"],
+[id^="lot-"] {
+    scroll-margin-top: calc(var(--subnav-h) + var(--topbar-h) + 8px);
+}
+/* 球员动态卡片单独设置更大的偏移，因为它在分组一览上方 */
+#tms-players {
+    scroll-margin-top: calc(var(--subnav-h) + var(--topbar-h) + 8px);
+}
 .subnav::-webkit-scrollbar { display: none; }
 .subnav.active { display: block; }
 .subnav-item {
@@ -578,16 +590,21 @@ body {
     font-size: 13px;
     white-space: nowrap;
     flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+}
+.news-scroll-wrap {
+    flex: 1;
+    overflow: hidden;
+    min-width: 0;
+    position: relative;
 }
 .news-scroll {
     display: flex;
     gap: 40px;
     padding: 10px 16px;
-    overflow: hidden;
     white-space: nowrap;
     animation: scrollNews 20s linear infinite;
-    flex: 1;
-    min-width: 0;
 }
 .news-scroll span { font-size: 12px; color: var(--text-light); flex-shrink: 0; }
 @keyframes scrollNews {
@@ -970,7 +987,7 @@ body {
     margin-right: 4px;
 }
 
-.calc-config-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.calc-config-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .calc-config-label { font-size: 13px; font-weight: 700; white-space: nowrap; min-width: 72px; }
 .calc-config-select {
     flex: 1;
@@ -1824,6 +1841,210 @@ body {
     border-top: 1px solid var(--border);
     background: var(--white-alpha-02);
 }
+
+/* ---------- 球员动态 ---------- */
+.player-status-filter {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0 0 12px 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.player-status-filter::-webkit-scrollbar { display: none; }
+.ps-filter-btn {
+    border-radius: 16px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--white-alpha-04);
+    color: var(--text-light);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+.ps-filter-btn.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+}
+
+.player-status-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ps-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+.ps-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.ps-team-flag { font-size: 18px; }
+.ps-team-name { font-weight: 700; font-size: 13px; color: var(--text); }
+.ps-player-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.ps-name { font-weight: 600; font-size: 13px; color: var(--text); }
+.ps-pos {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+.ps-pos-前锋 { background: rgba(255,71,87,0.15); color: var(--red); }
+.ps-pos-中场 { background: rgba(77,171,247,0.15); color: var(--blue); }
+.ps-pos-后卫 { background: rgba(64,192,87,0.15); color: var(--green); }
+.ps-pos-门将 { background: rgba(255,146,43,0.15); color: var(--orange); }
+
+.ps-status {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.ps-status-healthy { background: rgba(64,192,87,0.15); color: var(--green); }
+.ps-status-injured { background: rgba(255,71,87,0.15); color: var(--red); }
+.ps-status-suspended { background: rgba(255,212,59,0.2); color: var(--gold); }
+.ps-status-doubtful { background: rgba(255,146,43,0.15); color: var(--orange); }
+.ps-status-recovered { background: rgba(77,171,247,0.15); color: var(--blue); }
+
+.ps-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-light);
+}
+.ps-meta-item { display: flex; align-items: center; gap: 4px; }
+.ps-meta-label { color: var(--text-dim); font-size: 10px; }
+.ps-value { font-weight: 600; }
+.ps-value-gold { color: var(--gold); }
+
+.ps-form {
+    margin-top: 6px;
+    padding: 8px 10px;
+    background: var(--white-alpha-03);
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+.ps-note {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--accent);
+    font-style: italic;
+}
+.ps-updated {
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    text-align: right;
+}
+
+.player-status-footer {
+    text-align: center;
+    padding: 12px 0 0;
+    font-size: 10px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+}
+
+/* 球员搜索框 */
+.ps-search-inp {
+    width: 100%;
+    padding: 9px 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text);
+    font-size: 13px;
+    font-family: var(--font);
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+.ps-search-inp:focus { border-color: var(--accent); }
+
+/* 查看全部按钮 */
+.ps-view-all-btn {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 0;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    background: var(--white-alpha-04);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.ps-view-all-btn:hover { background: var(--white-alpha-08); border-color: var(--accent); }
+
+/* 全屏弹窗 */
+.ps-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--bg);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: psSlideIn 0.25s ease;
+}
+.ps-overlay.show { display: block; }
+@keyframes psSlideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.ps-overlay-inner {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px;
+}
+.ps-overlay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+.ps-overlay-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+}
+.ps-overlay-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-light);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.ps-overlay-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
 
 /* ---------- Broadcast Links ---------- */
 .broadcast-list { display: flex; flex-direction: column; gap: 10px; }

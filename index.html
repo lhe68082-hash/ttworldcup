@@ -109,19 +109,21 @@
 
             <div class="news-bar">
                 <span class="news-tag">📢</span>
-                <div class="news-scroll">
-                    <span>🔥 世界杯首次三国联办！</span>
-                    <span>🏟 决赛在纽约大都会人寿体育场</span>
-                    <span>🌎 48队分12组每组4队</span>
-                    <span>🎯 32强晋级淘汰赛</span>
-                    <span>⚡ 梅西C罗最后一舞？</span>
-                    <span>🏆 卫冕冠军阿根廷</span>
-                    <span>🔥 世界杯首次三国联办！</span>
-                    <span>🏟 决赛在纽约大都会人寿体育场</span>
-                    <span>🌎 48队分12组每组4队</span>
-                    <span>🎯 32强晋级淘汰赛</span>
-                    <span>⚡ 梅西C罗最后一舞？</span>
-                    <span>🏆 卫冕冠军阿根廷</span>
+                <div class="news-scroll-wrap">
+                    <div class="news-scroll">
+                        <span>🔥 世界杯首次三国联办！</span>
+                        <span>🏟 决赛在纽约大都会人寿体育场</span>
+                        <span>🌎 48队分12组每组4队</span>
+                        <span>🎯 32强晋级淘汰赛</span>
+                        <span>⚡ 梅西C罗最后一舞？</span>
+                        <span>🏆 卫冕冠军阿根廷</span>
+                        <span>🔥 世界杯首次三国联办！</span>
+                        <span>🏟 决赛在纽约大都会人寿体育场</span>
+                        <span>🌎 48队分12组每组4队</span>
+                        <span>🎯 32强晋级淘汰赛</span>
+                        <span>⚡ 梅西C罗最后一舞？</span>
+                        <span>🏆 卫冕冠军阿根廷</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -318,6 +320,7 @@
         <div class="subnav" id="subnav-teams">
             <button class="subnav-item" data-anchor="tms-groups">🏴 分组一览</button>
             <button class="subnav-item" data-anchor="tms-standings">📊 积分榜</button>
+            <button class="subnav-item" data-anchor="tms-players">🩺 球员动态</button>
             <button class="subnav-item" data-anchor="tms-search">🔍 搜索球队</button>
         </div>
         <div class="card" id="tms-groups">
@@ -333,6 +336,33 @@
                 <span class="standings-hint" id="standingsHint">小组赛开赛后实时更新</span>
             </div>
             <div class="standings-table" id="standingsTable"></div>
+        </div>
+        <!-- 球员动态 -->
+        <div class="card" id="tms-players">
+            <div class="card-title">🩺 球员动态</div>
+            <p class="card-desc">核心球员伤停、身价与近期状态追踪</p>
+            <input type="text" class="ps-search-inp" placeholder="🔍 搜索球员姓名..." id="playerSearch" oninput="renderPlayerStatus()">
+            <div class="player-status-filter" id="playerStatusFilter"></div>
+            <div class="player-status-grid" id="playerStatusGrid"></div>
+            <button class="ps-view-all-btn" id="psViewAllBtn" onclick="showAllPlayers()">👥 查看全部球员</button>
+            <div class="player-status-footer">
+                <span id="playerStatusTime">数据更新中…</span>
+            </div>
+        </div>
+        <!-- 球员动态全屏弹窗 -->
+        <div class="ps-overlay" id="psOverlay">
+            <div class="ps-overlay-inner">
+                <div class="ps-overlay-header">
+                    <span class="ps-overlay-title">👥 全部球员动态</span>
+                    <button class="ps-overlay-close" onclick="closeAllPlayers()">✕</button>
+                </div>
+                <input type="text" class="ps-search-inp" placeholder="🔍 搜索球员姓名..." id="psOverlaySearch" oninput="renderAllPlayers()">
+                <div class="player-status-filter" id="psOverlayFilter"></div>
+                <div class="player-status-grid" id="psOverlayGrid"></div>
+                <div class="player-status-footer">
+                    <span id="psOverlayTime">数据更新中…</span>
+                </div>
+            </div>
         </div>
         <div id="tms-search">
         <input type="text" class="search-inp" placeholder="🔍 搜索球队..." id="teamSearch" oninput="filterTeams()">

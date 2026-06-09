@@ -1775,6 +1775,80 @@ function getGroupStandings() {
     return standings;
 }
 
+// ============== 球员伤停/身价/动态 ==============
+// status: healthy / injured / suspended / doubtful / recovered
+const PLAYER_STATUS_DATA = [
+    // ---- 阿根廷 ----
+    { team: '阿根廷', teamFlag: '🇦🇷', players: [
+        { name: '梅西', enName: 'Lionel_Messi', pos: '前锋', num: 10, club: '迈阿密国际', status: 'healthy', statusLabel: '健康', marketValue: '€3500万', valueColor: 'gold', recentForm: '本赛季37场29球18助，状态火热', note: '最后一届世界杯，目标卫冕', updated: '2026-06-08' },
+        { name: '劳塔罗·马丁内斯', enName: 'Lautaro_Mart%C3%ADnez', pos: '前锋', num: 22, club: '国际米兰', status: 'doubtful', statusLabel: '轻伤疑出', marketValue: '€1.1亿', valueColor: 'gold', recentForm: '意甲35场24球，金靴争夺者', note: '踝关节轻微扭伤，预计开幕前恢复', updated: '2026-06-07' },
+        { name: 'E.马丁内斯', enName: 'Emiliano_Mart%C3%ADnez', pos: '门将', num: 23, club: '阿斯顿维拉', status: 'healthy', statusLabel: '健康', marketValue: '€3000万', valueColor: 'normal', recentForm: '英超赛季13场零封，点球专家', note: '2022世界杯金手套', updated: '2026-06-06' },
+    ]},
+    // ---- 巴西 ----
+    { team: '巴西', teamFlag: '🇧🇷', players: [
+        { name: '维尼修斯', enName: 'Vin%C3%ADcius_J%C3%BAnior', pos: '前锋', num: 7, club: '皇家马德里', status: 'healthy', statusLabel: '健康', marketValue: '€2亿', valueColor: 'gold', recentForm: '西甲+欧冠42场31球15助', note: '金球奖热门，巴西进攻核心', updated: '2026-06-08' },
+        { name: '罗德里戈', enName: 'Rodrygo', pos: '前锋', num: 11, club: '皇家马德里', status: 'healthy', statusLabel: '健康', marketValue: '€1.2亿', valueColor: 'gold', recentForm: '赛季38场20球10助', note: '与维尼修斯组成皇马双翼', updated: '2026-06-05' },
+        { name: '阿利松', enName: 'Alisson_Becker', pos: '门将', num: 1, club: '利物浦', status: 'recovered', statusLabel: '刚伤愈', marketValue: '€2800万', valueColor: 'normal', recentForm: '季末复出状态待验证', note: '3月腿筋受伤，6月初恢复训练', updated: '2026-06-04' },
+    ]},
+    // ---- 法国 ----
+    { team: '法国', teamFlag: '🇫🇷', players: [
+        { name: '姆巴佩', enName: 'Kylian_Mbapp%C3%A9', pos: '前锋', num: 10, club: '皇家马德里', status: 'healthy', statusLabel: '健康', marketValue: '€1.8亿', valueColor: 'gold', recentForm: '西甲48场44球，各项赛事大杀四方', note: '队长身份出战，冲击第二座世界杯', updated: '2026-06-08' },
+        { name: '楚阿梅尼', enName: 'Aur%C3%A9lien_Tchouam%C3%A9ni', pos: '中场', num: 8, club: '皇家马德里', status: 'doubtful', statusLabel: '轻伤疑出', marketValue: '€1亿', valueColor: 'gold', recentForm: '赛季表现稳健，防守中场主力', note: '肌肉疲劳，首场可能轮休', updated: '2026-06-07' },
+    ]},
+    // ---- 英格兰 ----
+    { team: '英格兰', teamFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', players: [
+        { name: '贝林厄姆', enName: 'Jude_Bellingham', pos: '中场', num: 10, club: '皇家马德里', status: 'healthy', statusLabel: '健康', marketValue: '€1.8亿', valueColor: 'gold', recentForm: '44场26球19助，统治级表现', note: '英格兰中场核心，攻防俱佳', updated: '2026-06-08' },
+        { name: '凯恩', enName: 'Harry_Kane', pos: '前锋', num: 9, club: '拜仁慕尼黑', status: 'healthy', statusLabel: '健康', marketValue: '€1亿', valueColor: 'gold', recentForm: '德甲39场41球，进球机器', note: '英格兰历史射手王', updated: '2026-06-06' },
+        { name: '萨卡', enName: 'Bukayo_Saka', pos: '前锋', num: 7, club: '阿森纳', status: 'recovered', statusLabel: '刚伤愈', marketValue: '€1.5亿', valueColor: 'gold', recentForm: '赛季末复出2场1球', note: '5月腿筋拉伤已痊愈', updated: '2026-06-05' },
+    ]},
+    // ---- 德国 ----
+    { team: '德国', teamFlag: '🇩🇪', players: [
+        { name: '穆西亚拉', enName: 'Jamal_Musiala', pos: '中场', num: 10, club: '拜仁慕尼黑', status: 'healthy', statusLabel: '健康', marketValue: '€1.4亿', valueColor: 'gold', recentForm: '39场21球14助，突破能力极强', note: '德国新一代领军人物', updated: '2026-06-08' },
+        { name: '特尔施特根', enName: 'Marc-Andr%C3%A9_ter_Stegen', pos: '门将', num: 1, club: '巴塞罗那', status: 'injured', statusLabel: '🚨 伤缺', marketValue: '€2500万', valueColor: 'normal', recentForm: '赛季初重伤赛季报销', note: '膝盖手术恢复中，确定缺席小组赛', updated: '2026-06-03' },
+    ]},
+    // ---- 西班牙 ----
+    { team: '西班牙', teamFlag: '🇪🇸', players: [
+        { name: '亚马尔', enName: 'Lamine_Yamal', pos: '前锋', num: 19, club: '巴塞罗那', status: 'healthy', statusLabel: '健康', marketValue: '€1.5亿', valueColor: 'gold', recentForm: '18岁新星，赛季20球12助', note: '世界杯最年轻进球纪录有望刷新', updated: '2026-06-08' },
+        { name: '佩德里', enName: 'Pedri', pos: '中场', num: 8, club: '巴塞罗那', status: 'recovered', statusLabel: '刚伤愈', marketValue: '€1亿', valueColor: 'gold', recentForm: '季末复出状态回升', note: '3月肌肉伤，6月恢复合练', updated: '2026-06-06' },
+        { name: '罗德里', enName: 'Rodri_(footballer,_born_1996)', pos: '中场', num: 16, club: '曼城', status: 'injured', statusLabel: '🚨 伤缺', marketValue: '€1.3亿', valueColor: 'gold', recentForm: 'ACL撕裂赛季报销', note: '严重膝伤，确定无缘世界杯', updated: '2026-06-02' },
+    ]},
+    // ---- 葡萄牙 ----
+    { team: '葡萄牙', teamFlag: '🇵🇹', players: [
+        { name: 'C罗', enName: 'Cristiano_Ronaldo', pos: '前锋', num: 7, club: '利雅得胜利', status: 'healthy', statusLabel: '健康', marketValue: '€1200万', valueColor: 'normal', recentForm: '沙特联赛44场41球', note: '41岁第六次世界杯，传奇继续', updated: '2026-06-08' },
+        { name: 'B席', enName: 'Bernardo_Silva', pos: '中场', num: 10, club: '曼城', status: 'healthy', statusLabel: '健康', marketValue: '€8000万', valueColor: 'gold', recentForm: '英超42场11球9助', note: '葡萄牙中场节拍器', updated: '2026-06-05' },
+    ]},
+    // ---- 意大利 ----
+    { team: '意大利', teamFlag: '🇮🇹', players: [
+        { name: '多纳鲁马', enName: 'Gianluigi_Donnarumma', pos: '门将', num: 21, club: '巴黎圣日耳曼', status: 'healthy', statusLabel: '健康', marketValue: '€4500万', valueColor: 'normal', recentForm: '法甲赛季表现出色', note: '2021欧洲杯MVP', updated: '2026-06-04' },
+        { name: '托纳利', enName: 'Sandro_Tonali', pos: '中场', num: 8, club: '纽卡斯尔', status: 'suspended', statusLabel: '⛔ 停赛', marketValue: '€6000万', valueColor: 'gold', recentForm: '复出后状态良好', note: '赌球禁赛期满，可出战', updated: '2026-06-08' },
+    ]},
+    // ---- 荷兰 ----
+    { team: '荷兰', teamFlag: '🇳🇱', players: [
+        { name: '范戴克', enName: 'Virgil_van_Dijk', pos: '后卫', num: 4, club: '利物浦', status: 'healthy', statusLabel: '健康', marketValue: '€3000万', valueColor: 'normal', recentForm: '英超赛季防线指挥官', note: '队长身份率队出征', updated: '2026-06-06' },
+        { name: '加克波', enName: 'Cody_Gakpo', pos: '前锋', num: 8, club: '利物浦', status: 'healthy', statusLabel: '健康', marketValue: '€7500万', valueColor: 'gold', recentForm: '赛季28球12助', note: '荷兰锋线头号杀手', updated: '2026-06-05' },
+    ]},
+    // ---- 摩洛哥 ----
+    { team: '摩洛哥', teamFlag: '🇲🇦', players: [
+        { name: '阿什拉夫', enName: 'Achraf_Hakimi', pos: '后卫', num: 2, club: '巴黎圣日耳曼', status: 'healthy', statusLabel: '健康', marketValue: '€7000万', valueColor: 'gold', recentForm: '右路攻防核心，连续多个赛季稳定', note: '世界最佳右后卫之一', updated: '2026-06-08' },
+    ]},
+    // ---- 日本 ----
+    { team: '日本', teamFlag: '🇯🇵', players: [
+        { name: '三笘薫', enName: 'Kaoru_Mitoma', pos: '中场', num: 7, club: '布莱顿', status: 'healthy', statusLabel: '健康', marketValue: '€5500万', valueColor: 'gold', recentForm: '英超赛季10球8助', note: '日本边路进攻核心', updated: '2026-06-07' },
+    ]},
+    // ---- 韩国 ----
+    { team: '韩国', teamFlag: '🇰🇷', players: [
+        { name: '孙兴慜', enName: 'Son_Heung-min', pos: '前锋', num: 7, club: '热刺', status: 'healthy', statusLabel: '健康', marketValue: '€4000万', valueColor: 'gold', recentForm: '英超赛季18球10助', note: '韩国队长，精神领袖', updated: '2026-06-08' },
+    ]},
+    // ---- 墨西哥 ----
+    { team: '墨西哥', teamFlag: '🇲🇽', players: [
+        { name: '圣地亚哥·吉梅内斯', enName: 'Santiago_Gim%C3%A9nez', pos: '前锋', num: 9, club: '费耶诺德', status: 'healthy', statusLabel: '健康', marketValue: '€6000万', valueColor: 'gold', recentForm: '荷甲+欧战37场30球', note: '墨西哥新锋霸，东道主之矛', updated: '2026-06-06' },
+    ]},
+    // ---- 美国 ----
+    { team: '美国', teamFlag: '🇺🇸', players: [
+        { name: '普利西奇', enName: 'Christian_Pulisic', pos: '前锋', num: 10, club: 'AC米兰', status: 'healthy', statusLabel: '健康', marketValue: '€5000万', valueColor: 'gold', recentForm: '意甲赛季15球9助', note: '美国队长，东道主领军', updated: '2026-06-08' },
+    ]},
+];
+
 // ============== 球队历史对战记录 (H2H) ==============
 const H2H_DATA = {
     '阿根廷': {

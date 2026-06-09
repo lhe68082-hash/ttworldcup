@@ -194,6 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initCityDetails();
     initHostCountries();
     initLiveUpdates();
+    initNewsTicker();
+    initPlayerStatus();
 });
 
 // ==================== 底部导航 ====================
@@ -439,6 +441,66 @@ function updateProgress() {
     setText('remainingCount', total - played);
 }
 
+// ==================== 广播消息栏 ====================
+function initNewsTicker() {
+    const scroll = document.querySelector('.news-scroll');
+    if (!scroll) return;
+
+    const now = new Date();
+    const opening = new Date(2026, 5, 11, 0, 0, 0); // 6月11日开幕
+
+    let messages;
+    if (now < opening) {
+        // 开幕前：预热消息
+        messages = [
+            '🔥 世界杯首次三国联办！',
+            '🏟 决赛在纽约大都会人寿体育场',
+            '🌎 48队分12组每组4队',
+            '🎯 32强晋级淘汰赛',
+            '⚡ 梅西C罗最后一舞？',
+            '🏆 卫冕冠军阿根廷',
+        ];
+    } else {
+        // 比赛期间：基于赛程数据动态生成
+        messages = generateLiveMessages();
+    }
+
+    // 复制一遍用于无缝滚动
+    const allMessages = [...messages, ...messages];
+    scroll.innerHTML = allMessages.map(m => `<span>${m}</span>`).join('');
+}
+
+function generateLiveMessages() {
+    const messages = [];
+    const now = new Date();
+
+    const live = SCHEDULE_DATA.filter(m => m.status === 'live');
+    const recent = SCHEDULE_DATA.filter(m => m.status === 'played').slice(-3);
+    const upcoming = SCHEDULE_DATA.filter(m => m.status !== 'played' && m.date > now).slice(0, 3);
+
+    if (live.length > 0) {
+        live.forEach(m => {
+            const score = m.score ? `${m.score.home}:${m.score.away}` : 'vs';
+            messages.push(`🔴 LIVE ${m.homeFlag}${m.home} ${score} ${m.away}${m.awayFlag}`);
+        });
+    }
+
+    recent.forEach(m => {
+        messages.push(`🏁 ${m.homeFlag}${m.home} ${m.score.home}:${m.score.away} ${m.away}${m.awayFlag}`);
+    });
+
+    upcoming.forEach(m => {
+        const ds = m.date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        messages.push(`⏰ ${ds} ${m.homeFlag}${m.home} vs ${m.away}${m.awayFlag}`);
+    });
+
+    if (messages.length === 0) {
+        messages.push('🏆 2026世界杯火热进行中！');
+    }
+
+    return messages;
+}
+
 // ==================== 实时更新 ====================
 function initLiveUpdates() {
     // 每30秒自动更新赛程和积分榜
@@ -453,6 +515,178 @@ function initLiveUpdates() {
         // 同步更新积分榜
         renderStandings(currentGroup);
     }, 30000);
+}
+
+// ==================== 球员动态 ====================
+let playerStatusFilter = 'all'; // all / healthy / injured / suspended / doubtful / recovered
+let psOverlayFilter = 'all';
+
+function initPlayerStatus() {
+    renderPlayerStatusFilter();
+    renderPlayerStatus();
+}
+
+function renderPlayerStatusFilter() {
+    const el = document.getElementById('playerStatusFilter');
+    if (!el) return;
+    const filters = [
+        { value: 'all', label: '全部', icon: '👥' },
+        { value: 'healthy', label: '健康', icon: '✅' },
+        { value: 'doubtful', label: '疑出', icon: '⚠️' },
+        { value: 'recovered', label: '伤愈', icon: '💊' },
+        { value: 'injured', label: '伤缺', icon: '🚨' },
+        { value: 'suspended', label: '停赛', icon: '⛔' },
+    ];
+    el.innerHTML = filters.map(f =>
+        `<button class="ps-filter-btn${playerStatusFilter === f.value ? ' active' : ''}" onclick="setPlayerStatusFilter('${f.value}')">${f.icon} ${f.label}</button>`
+    ).join('');
+}
+
+window.setPlayerStatusFilter = function(filter) {
+    playerStatusFilter = filter;
+    renderPlayerStatusFilter();
+    renderPlayerStatus();
+};
+
+function getFilteredPlayers() {
+    const search = (document.getElementById('playerSearch')?.value || '').trim().toLowerCase();
+    let allData = PLAYER_STATUS_DATA.flatMap(team => team.players.map(p => ({
+        ...p, team: team.team, teamFlag: team.teamFlag
+    })));
+
+    if (playerStatusFilter !== 'all') {
+        allData = allData.filter(p => p.status === playerStatusFilter);
+    }
+    if (search) {
+        allData = allData.filter(p => p.name.toLowerCase().includes(search));
+    }
+    return allData;
+}
+
+function renderPlayerStatus() {
+    const grid = document.getElementById('playerStatusGrid');
+    const timeEl = document.getElementById('playerStatusTime');
+    const btn = document.getElementById('psViewAllBtn');
+    if (!grid) return;
+
+    let allData = getFilteredPlayers();
+    const totalCount = allData.length;
+    const showData = allData.slice(0, 5);
+
+    if (allData.length === 0) {
+        grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:13px;">暂无符合条件的球员动态</div>';
+    } else {
+        grid.innerHTML = showData.map(p => renderPlayerStatusCard(p)).join('');
+    }
+
+    // 查看全部按钮
+    if (btn) {
+        btn.style.display = totalCount > 5 ? 'block' : 'none';
+        btn.textContent = `👥 查看全部球员（共${totalCount}名）`;
+    }
+
+    // 更新时间
+    const now = new Date();
+    const opening = new Date(2026, 5, 11, 0, 0, 0);
+    if (timeEl) {
+        if (now < opening) {
+            timeEl.textContent = `🕐 赛前动态 · 更新于 ${now.toLocaleDateString('zh-CN')} · 开赛后实时更新`;
+        } else {
+            timeEl.textContent = `🔴 实时更新 · ${now.toLocaleDateString('zh-CN')} ${now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+    }
+}
+
+// ----- 全屏查看全部球员 -----
+window.showAllPlayers = function() {
+    const overlay = document.getElementById('psOverlay');
+    if (!overlay) return;
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    renderOverlayFilter();
+    renderAllPlayers();
+};
+
+window.closeAllPlayers = function() {
+    const overlay = document.getElementById('psOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+};
+
+function renderOverlayFilter() {
+    const el = document.getElementById('psOverlayFilter');
+    if (!el) return;
+    const filters = [
+        { value: 'all', label: '全部', icon: '👥' },
+        { value: 'healthy', label: '健康', icon: '✅' },
+        { value: 'doubtful', label: '疑出', icon: '⚠️' },
+        { value: 'recovered', label: '伤愈', icon: '💊' },
+        { value: 'injured', label: '伤缺', icon: '🚨' },
+        { value: 'suspended', label: '停赛', icon: '⛔' },
+    ];
+    el.innerHTML = filters.map(f =>
+        `<button class="ps-filter-btn${psOverlayFilter === f.value ? ' active' : ''}" onclick="setOverlayFilter('${f.value}')">${f.icon} ${f.label}</button>`
+    ).join('');
+}
+
+window.setOverlayFilter = function(filter) {
+    psOverlayFilter = filter;
+    renderOverlayFilter();
+    renderAllPlayers();
+};
+
+window.renderAllPlayers = function() {
+    const grid = document.getElementById('psOverlayGrid');
+    const timeEl = document.getElementById('psOverlayTime');
+    if (!grid) return;
+
+    const search = (document.getElementById('psOverlaySearch')?.value || '').trim().toLowerCase();
+    let allData = PLAYER_STATUS_DATA.flatMap(team => team.players.map(p => ({
+        ...p, team: team.team, teamFlag: team.teamFlag
+    })));
+
+    if (psOverlayFilter !== 'all') {
+        allData = allData.filter(p => p.status === psOverlayFilter);
+    }
+    if (search) {
+        allData = allData.filter(p => p.name.toLowerCase().includes(search));
+    }
+
+    if (allData.length === 0) {
+        grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:13px;">暂无符合条件的球员</div>';
+    } else {
+        grid.innerHTML = allData.map(p => renderPlayerStatusCard(p)).join('');
+    }
+
+    const now = new Date();
+    if (timeEl) {
+        timeEl.textContent = `共 ${allData.length} 名球员 · 数据更新中`;
+    }
+};
+
+function renderPlayerStatusCard(p) {
+    const valueClass = p.valueColor === 'gold' ? ' ps-value-gold' : '';
+    return `
+    <div class="ps-card">
+        <div class="ps-card-header">
+            <span class="ps-team-flag">${p.teamFlag}</span>
+            <span class="ps-team-name">${p.team}</span>
+        </div>
+        <div class="ps-player-info">
+            <span class="ps-name">${p.name}</span>
+            <span class="ps-pos ps-pos-${p.pos}">${p.pos}</span>
+            <span class="ps-status ps-status-${p.status}">${p.statusLabel}</span>
+        </div>
+        <div class="ps-meta-row">
+            <span class="ps-meta-item"><span class="ps-meta-label">球衣</span> #${p.num}</span>
+            <span class="ps-meta-item"><span class="ps-meta-label">俱乐部</span> ${p.club}</span>
+            <span class="ps-meta-item"><span class="ps-meta-label">身价</span> <span class="ps-value${valueClass}">${p.marketValue}</span></span>
+        </div>
+        <div class="ps-form">📊 ${p.recentForm}</div>
+        ${p.note ? `<div class="ps-note">💡 ${p.note}</div>` : ''}
+        <div class="ps-updated">更新于 ${p.updated}</div>
+    </div>`;
 }
 
 // ==================== 问答 ====================
