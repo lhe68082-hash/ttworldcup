@@ -851,6 +851,49 @@ const PLAYERS_DATA = {
     ],
 };
 
+// ============== 积分榜计算 ==============
+function getGroupStandings() {
+    const standings = {};
+    GROUPS.forEach(g => {
+        standings[g] = {};
+        if (!GROUPED_TEAMS[g]) return;
+        GROUPED_TEAMS[g].forEach(t => {
+            standings[g][t.name] = { team: t, P: 0, W: 0, D: 0, L: 0, GF: 0, GA: 0, GD: 0, Pts: 0 };
+        });
+    });
+
+    // 遍历已赛小组赛
+    SCHEDULE_DATA.filter(m => m.stage === 'group' && m.status === 'played' && m.score).forEach(m => {
+        const gm = m.id.match(/^G([A-L])-/);
+        if (!gm) return;
+        const group = gm[1];
+        if (!standings[group]) return;
+
+        const ht = standings[group][m.home];
+        const at = standings[group][m.away];
+        if (!ht || !at) return;
+
+        const hg = m.score.home, ag = m.score.away;
+        ht.P++; at.P++;
+        ht.GF += hg; ht.GA += ag;
+        at.GF += ag; at.GA += hg;
+        if (hg > ag) { ht.W++; ht.Pts += 3; at.L++; }
+        else if (hg < ag) { at.W++; at.Pts += 3; ht.L++; }
+        else { ht.D++; ht.Pts++; at.D++; at.Pts++; }
+    });
+
+    // 计算净胜球并排序
+    GROUPS.forEach(g => {
+        if (!standings[g]) return;
+        Object.values(standings[g]).forEach(t => { t.GD = t.GF - t.GA; });
+        standings[g] = Object.values(standings[g]).sort((a, b) =>
+            b.Pts - a.Pts || b.GD - a.GD || b.GF - a.GF
+        );
+    });
+
+    return standings;
+}
+
 // ============== 球队历史对战记录 (H2H) ==============
 const H2H_DATA = {
     '阿根廷': {

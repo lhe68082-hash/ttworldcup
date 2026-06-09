@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>花生世界杯助手</title>
-    <link rel="stylesheet" href="style.css?v=20260609c">
+    <link rel="stylesheet" href="style.css?v=20260609d">
 </head>
 <body>
 
@@ -223,14 +223,22 @@
         </div>
     </section>
 
-    <!-- ======== Tab 4: 球队 ======== -->
+    <!-- ======== Tab 4: 球队/积分榜 ======== -->
     <section id="teams" class="page">
-        <div class="page-title">🏴 48支参赛球队</div>
+        <div class="page-title">🏴 球队/积分榜</div>
         <div class="card">
             <div class="card-text">
                 <div class="group-tabs" id="groupTabs"></div>
                 <div class="group-content" id="groupContent"></div>
             </div>
+        </div>
+        <!-- 积分榜 -->
+        <div class="standings-section" id="standingsSection">
+            <div class="standings-header">
+                <span class="standings-title">📊 积分榜</span>
+                <span class="standings-hint" id="standingsHint">小组赛开赛后实时更新</span>
+            </div>
+            <div class="standings-table" id="standingsTable"></div>
         </div>
         <input type="text" class="search-inp" placeholder="🔍 搜索球队..." id="teamSearch" oninput="filterTeams()">
         <div class="team-cards" id="teamsGrid"></div>
@@ -297,7 +305,7 @@
     </button>
     <button class="bnav-item" data-tab="teams">
         <span class="bnav-icon">🏴</span>
-        <span class="bnav-label">球队</span>
+        <span class="bnav-label">球队/积分榜</span>
     </button>
     <button class="bnav-item bnav-lottery" data-tab="lottery">
         <span class="bnav-icon">🎰</span>
@@ -305,8 +313,8 @@
     </button>
 </nav>
 
-<script src="data.js?v=20260609c"></script>
-<script src="lottery-api.js?v=20260609c"></script>
-<script src="app.js?v=20260609c"></script>
+<script src="data.js?v=20260609d"></script>
+<script src="lottery-api.js?v=20260609d"></script>
+<script src="app.js?v=20260609d"></script>
 </body>
 </html>

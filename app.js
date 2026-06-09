@@ -207,7 +207,7 @@ function updateProgress() {
 
 // ==================== 实时更新 ====================
 function initLiveUpdates() {
-    // 每30秒自动更新赛程（如果赛程标签页可见）
+    // 每30秒自动更新赛程和积分榜
     setInterval(() => {
         const schedulePage = document.getElementById('schedule');
         if (schedulePage && schedulePage.classList.contains('active')) {
@@ -216,6 +216,8 @@ function initLiveUpdates() {
         // 更新时间戳
         const refEl = document.getElementById('scheduleRefresh');
         if (refEl) refEl.innerHTML = `<span class="live-indicator"></span> 更新于 ${new Date().toLocaleTimeString('zh-CN')}`;
+        // 同步更新积分榜
+        renderStandings(currentGroup);
     }, 30000);
 }
 
@@ -702,6 +704,8 @@ function showResultModal(rec) {
 }
 
 // ==================== 球队分组 ====================
+let currentGroup = 'A';
+
 function initTeamsGroup() {
     const groupTabs = document.getElementById('groupTabs');
     if (!groupTabs) return;
@@ -711,6 +715,7 @@ function initTeamsGroup() {
 }
 
 window.showGroup = function(g) {
+    currentGroup = g;
     document.querySelectorAll('.gtab').forEach(t => t.classList.remove('active'));
     const active = document.querySelector(`.gtab[data-group="${g}"]`);
     if (active) active.classList.add('active');
@@ -730,7 +735,70 @@ window.showGroup = function(g) {
     content.querySelectorAll('.group-team').forEach(el => {
         el.addEventListener('click', function() { showTeamDetail(null, this.dataset.team, this.dataset.flag); });
     });
+
+    // 同步更新积分榜
+    renderStandings(g);
 };
+
+// ==================== 积分榜 ====================
+function renderStandings(group) {
+    const table = document.getElementById('standingsTable');
+    const hint = document.getElementById('standingsHint');
+    if (!table) return;
+
+    const allStandings = getGroupStandings();
+    const gs = allStandings[group] || [];
+
+    const hasResults = gs.some(t => t.P > 0);
+    if (hint) {
+        hint.textContent = hasResults ? '✅ 实时更新中' : '小组赛开赛后实时更新';
+    }
+
+    if (gs.length === 0) {
+        table.innerHTML = '<div class="standings-empty">暂无数据</div>';
+        return;
+    }
+
+    // 小组前2名大概率晋级，前8个小组第三也有机会
+    table.innerHTML = `
+    <div class="st-table">
+        <div class="st-header">
+            <span class="st-col-rank">#</span>
+            <span class="st-col-team">球队</span>
+            <span class="st-col-stat">场</span>
+            <span class="st-col-stat">胜</span>
+            <span class="st-col-stat">平</span>
+            <span class="st-col-stat">负</span>
+            <span class="st-col-stat">进</span>
+            <span class="st-col-stat">失</span>
+            <span class="st-col-stat">净</span>
+            <span class="st-col-pts">分</span>
+        </div>
+        ${gs.map((t, i) => {
+            let rowClass = '';
+            if (hasResults) {
+                if (i === 0) rowClass = 'st-qualify st-top1';
+                else if (i === 1) rowClass = 'st-qualify';
+            }
+            return `<div class="st-row ${rowClass}">
+                <span class="st-col-rank">${i + 1}</span>
+                <span class="st-col-team">
+                    <span class="st-flag">${t.team.flag}</span>
+                    <span class="st-name">${t.team.name}</span>
+                </span>
+                <span class="st-col-stat">${t.P}</span>
+                <span class="st-col-stat">${t.W}</span>
+                <span class="st-col-stat">${t.D}</span>
+                <span class="st-col-stat">${t.L}</span>
+                <span class="st-col-stat">${t.GF}</span>
+                <span class="st-col-stat">${t.GA}</span>
+                <span class="st-col-stat st-gd">${t.GD > 0 ? '+' + t.GD : t.GD}</span>
+                <span class="st-col-pts">${t.Pts}</span>
+            </div>`;
+        }).join('')}
+    </div>
+    <div class="st-legend">🏷 绿色高亮 = 直接晋级区（小组前2）</div>`;
+}
 
 function renderAllTeams(filter = '') {
     const list = filter ? TEAMS_DATA.filter(t => t.name.includes(filter) || t.confederation.includes(filter.toUpperCase())) : TEAMS_DATA;

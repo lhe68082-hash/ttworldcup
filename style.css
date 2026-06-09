@@ -1256,6 +1256,119 @@ body {
     animation: dotPulse 1.5s ease-in-out infinite;
 }
 
+/* ===== 积分榜 ===== */
+.standings-section {
+    margin-bottom: 12px;
+}
+.standings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.standings-title {
+    font-size: 15px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.standings-hint {
+    font-size: 10px;
+    color: var(--text-dim);
+}
+.standings-table {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+.standings-empty {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-dim);
+    font-size: 13px;
+}
+.st-table {
+    width: 100%;
+    font-size: 11px;
+}
+.st-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    background: var(--white-alpha-04);
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    color: var(--text-dim);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+}
+.st-row {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--white-alpha-02);
+    transition: background 0.2s;
+}
+.st-row:last-child { border-bottom: none; }
+.st-qualify {
+    background: rgba(0,212,170,0.06);
+    border-left: 2px solid var(--accent);
+}
+.st-top1 {
+    background: rgba(0,212,170,0.1);
+}
+.st-col-rank {
+    width: 22px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+.st-qualify .st-col-rank { color: var(--accent); }
+.st-col-team {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+.st-flag { font-size: 16px; flex-shrink: 0; }
+.st-name {
+    font-weight: 600;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.st-col-stat {
+    width: 28px;
+    text-align: center;
+    color: var(--text-light);
+    flex-shrink: 0;
+}
+.st-col-pts {
+    width: 32px;
+    text-align: center;
+    font-weight: 900;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+.st-gd {
+    font-weight: 600;
+    color: var(--text);
+}
+.st-legend {
+    text-align: center;
+    padding: 8px;
+    font-size: 10px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    background: var(--white-alpha-02);
+}
+
 /* Responsive */
 @media (min-width: 768px) {
     .content { max-width: 580px; }
