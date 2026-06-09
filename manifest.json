@@ -1,0 +1,21 @@
+{
+  "name": "花生世界杯助手",
+  "short_name": "世界杯助手",
+  "description": "2026世界杯赛事资讯、竞彩模拟、球队百科，一站式世界杯观赛工具",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121926",
+  "theme_color": "#121926",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "https://cdn.jsdelivr.net/gh/emojikeyboard/CDN@master/img/%E7%AF%AE%E7%90%83/%F0%9F%8F%80.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "entertainment", "utilities"]
+}

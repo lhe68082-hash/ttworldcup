@@ -23,13 +23,82 @@ function generateLotteryCodes() {
 }
 generateLotteryCodes();
 
-// ==================== 卡密验证 ====================
+// ==================== 卡密验证（设备限制版） ====================
 const KEY_STORAGE = 'hw2026_activated_key';
+const DEVICE_KEY = 'hw2026_device_id';
+const KEY_DEVICES_KEY = 'hw2026_key_devices';
+const MAX_DEVICES = 5; // 每个卡密最多绑定5个设备
+
+// 生成/获取设备唯一ID
+function getDeviceId() {
+    let deviceId = localStorage.getItem(DEVICE_KEY);
+    if (!deviceId) {
+        deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem(DEVICE_KEY, deviceId);
+    }
+    return deviceId;
+}
+
+// 获取所有卡密的设备注册表
+function getKeyDeviceRegistry() {
+    try {
+        return JSON.parse(localStorage.getItem(KEY_DEVICES_KEY) || '{}');
+    } catch(e) { return {}; }
+}
+
+// 保存设备注册表
+function saveKeyDeviceRegistry(registry) {
+    localStorage.setItem(KEY_DEVICES_KEY, JSON.stringify(registry));
+}
+
+// 检查卡密是否有效且未超设备限制
+function checkKeyDeviceLimit(key) {
+    const registry = getKeyDeviceRegistry();
+    const deviceId = getDeviceId();
+    const keyReg = registry[key] || { devices: [] };
+
+    // 情况1：此设备已注册过此卡密（换浏览器后重新激活）
+    if (keyReg.devices.includes(deviceId)) {
+        return { ok: true, alreadyRegistered: true, usedBy: keyReg.devices.length };
+    }
+
+    // 情况2：卡密已达最大设备数
+    if (keyReg.devices.length >= MAX_DEVICES) {
+        return { ok: false, reason: 'limit', usedBy: MAX_DEVICES };
+    }
+
+    // 情况3：正常注册
+    return { ok: true, alreadyRegistered: false, usedBy: keyReg.devices.length };
+}
+
+// 注册设备到卡密
+function registerDeviceToKey(key) {
+    const registry = getKeyDeviceRegistry();
+    const deviceId = getDeviceId();
+    if (!registry[key]) registry[key] = { devices: [] };
+    if (!registry[key].devices.includes(deviceId)) {
+        registry[key].devices.push(deviceId);
+    }
+    saveKeyDeviceRegistry(registry);
+}
+
+// 显示设备使用情况
+function getKeyUsageInfo(key) {
+    const registry = getKeyDeviceRegistry();
+    const info = registry[key];
+    if (!info) return { used: 0, max: MAX_DEVICES };
+    return { used: info.devices.length, max: MAX_DEVICES };
+}
 
 function isKeyActivated() {
     const saved = localStorage.getItem(KEY_STORAGE);
     if (!saved) return false;
-    return VALID_KEYS.includes(saved);
+    if (!VALID_KEYS.includes(saved)) {
+        // 卡密被禁用，从激活状态移除
+        localStorage.removeItem(KEY_STORAGE);
+        return false;
+    }
+    return true;
 }
 
 function activateKey() {
@@ -39,29 +108,12 @@ function activateKey() {
     const key = input ? input.value.trim().toUpperCase() : '';
 
     if (!key) {
-        if (errorEl) errorEl.textContent = '请输入卡密';
+        if (errorEl) errorEl.textContent = '⚠️ 请输入卡密';
         return;
     }
 
-    if (validateKey(key)) {
-        localStorage.setItem(KEY_STORAGE, key);
-        if (errorEl) errorEl.textContent = '';
-        if (btn) { btn.disabled = true; btn.innerHTML = '<span>✅ 验证通过，正在进入...</span>'; }
-        // 延迟隐藏，给用户反馈
-        setTimeout(() => {
-            const overlay = document.getElementById('keyActivationOverlay');
-            if (overlay) {
-                overlay.style.opacity = '0';
-                overlay.style.transition = 'opacity 0.4s ease';
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                }, 400);
-            }
-        }, 600);
-    } else {
-        if (errorEl) errorEl.textContent = '❌ 卡密无效，请检查后重试';
-        if (input) { input.value = ''; input.focus(); }
-        // 震动反馈
+    if (!validateKey(key)) {
+        if (errorEl) errorEl.innerHTML = '❌ 卡密无效，请检查后重试';
         if (input) {
             input.style.borderColor = 'var(--red)';
             input.style.boxShadow = '0 0 0 8px rgba(255,71,87,0.12)';
@@ -70,7 +122,43 @@ function activateKey() {
                 input.style.boxShadow = 'none';
             }, 800);
         }
+        return;
     }
+
+    // 检查设备限制
+    const check = checkKeyDeviceLimit(key);
+    if (!check.ok) {
+        const usageInfo = getKeyUsageInfo(key);
+        if (errorEl) {
+            errorEl.innerHTML = `⚠️ 此卡密已在 ${usageInfo.used} 台设备激活<br><small style="color:var(--text-light);">每个卡密最多支持 ${MAX_DEVICES} 台设备，如需更多请重新购买</small>`;
+        }
+        return;
+    }
+
+    // 注册设备
+    registerDeviceToKey(key);
+    localStorage.setItem(KEY_STORAGE, key);
+
+    if (errorEl) {
+        const usageInfo = getKeyUsageInfo(key);
+        errorEl.innerHTML = `✅ 激活成功！<br><small style="color:var(--green);">已在设备列表注册（${usageInfo.used}/${MAX_DEVICES}）</small>`;
+        errorEl.style.color = 'var(--green)';
+    }
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>✅ 验证通过，正在进入...</span>';
+    }
+
+    setTimeout(() => {
+        const overlay = document.getElementById('keyActivationOverlay');
+        if (overlay) {
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.4s ease';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 400);
+        }
+    }, 1000);
 }
 
 // 回车键激活
@@ -491,6 +579,31 @@ let calcHistory = [];
 let calcMultiplier = 1;
 let calcParlayType = 'single';
 let calcPlayType = 'spf';
+let calcStrategy = 'balanced'; // 保守 conservative / 稳健 balanced / 激进 aggressive
+
+// 切换投注策略
+window.setCalcStrategy = function(s) {
+    calcStrategy = s;
+    const tabs = document.querySelectorAll('.calc-strategy-tab');
+    tabs.forEach(t => t.classList.remove('active'));
+    const activeTab = Array.from(tabs).find(t => t.textContent.includes(s === 'conservative' ? '保守' : s === 'aggressive' ? '激进' : '稳健'));
+    if (activeTab) activeTab.classList.add('active');
+
+    // 策略提示（自动调整倍数建议）
+    const hintEl = document.getElementById('calcParlayNote');
+    if (hintEl) {
+        if (s === 'conservative') {
+            hintEl.textContent = '单关为主，降低风险';
+            hintEl.style.color = 'var(--blue)';
+        } else if (s === 'aggressive') {
+            hintEl.textContent = '高倍串关，追求回报';
+            hintEl.style.color = 'var(--red)';
+        } else {
+            hintEl.textContent = '2-3场串关为主';
+            hintEl.style.color = 'var(--accent)';
+        }
+    }
+};
 
 const PLAY_TYPES = [
     { value: 'spf', label: '胜平负', icon: '⚽', desc: '猜胜/平/负' },
@@ -685,13 +798,16 @@ function renderLedger() {
     const sumWinEl = document.getElementById('sumWin');
     const sumNetEl = document.getElementById('sumNet');
     const netRow = document.getElementById('ledgerNetRow');
+    const analysisEl = document.getElementById('ledgerAnalysis');
     if (!tbody) return;
 
     if (ledgerData.length === 0) {
         tbody.innerHTML = '';
         if (emptyEl) emptyEl.style.display = 'block';
+        if (analysisEl) analysisEl.style.display = 'none';
     } else {
         if (emptyEl) emptyEl.style.display = 'none';
+        if (analysisEl) analysisEl.style.display = 'block';
         tbody.innerHTML = ledgerData.map(e => {
             const net = e.win - e.buy;
             const netCls = net >= 0 ? 'ledger-net-pos' : 'ledger-net-neg';
@@ -721,6 +837,65 @@ function renderLedger() {
         if (totalNet > 0) netRow.classList.add('positive');
         else if (totalNet < 0) netRow.classList.add('negative');
     }
+
+    // 投注分析统计
+    renderLedgerAnalysis();
+}
+
+function renderLedgerAnalysis() {
+    const analysisEl = document.getElementById('ledgerAnalysis');
+    const winRateEl = document.getElementById('laWinRate');
+    const avgOddsEl = document.getElementById('laAvgOdds');
+    const totalBetsEl = document.getElementById('laTotalBets');
+    const strategyTagEl = document.getElementById('laStrategyTag');
+    const strategyDescEl = document.getElementById('laStrategyDesc');
+    if (!analysisEl) return;
+
+    if (ledgerData.length < 3) {
+        analysisEl.style.display = 'none';
+        return;
+    }
+    analysisEl.style.display = 'block';
+
+    // 胜率
+    const wins = ledgerData.filter(e => e.win > e.buy).length;
+    const winRate = ledgerData.length > 0 ? (wins / ledgerData.length * 100) : 0;
+
+    // 平均赔率（用中奖金额/购彩金额估算）
+    const avgOdds = ledgerData.reduce((sum, e) => {
+        return sum + (e.buy > 0 ? e.win / e.buy : 0);
+    }, 0) / ledgerData.length;
+
+    // 总投注额
+    const totalBuy = ledgerData.reduce((s,e) => s + e.buy, 0);
+
+    if (winRateEl) winRateEl.textContent = winRate.toFixed(0) + '%';
+    if (avgOddsEl) avgOddsEl.textContent = avgOdds.toFixed(2) + 'x';
+    if (totalBetsEl) totalBetsEl.textContent = '¥' + totalBuy.toFixed(0);
+
+    // 策略建议
+    const net = totalBuy > 0 ? (ledgerData.reduce((s,e) => s + e.win - e.buy, 0)) : 0;
+    let strategy, strategyDesc, strategyClass;
+
+    if (winRate >= 45 && avgOdds >= 1.8 && net >= 0) {
+        strategy = '🏆 激进型';
+        strategyClass = 'aggressive';
+        strategyDesc = `胜率 ${winRate.toFixed(0)}%、均赔 ${avgOdds.toFixed(2)}，表现优秀！可适当加大投注，但建议单次不超过总资金的20%。`;
+    } else if (winRate >= 38 && avgOdds >= 1.4) {
+        strategy = '⚖️ 稳健型';
+        strategyClass = 'balanced';
+        strategyDesc = `胜率 ${winRate.toFixed(0)}%、均赔 ${avgOdds.toFixed(2)}，整体盈利。继续当前策略，控制串关场次（≤3场）。`;
+    } else {
+        strategy = '🛡️ 保守型';
+        strategyClass = 'conservative';
+        strategyDesc = `胜率 ${winRate.toFixed(0)}%、均赔 ${avgOdds.toFixed(2)}，建议减少投注频率，只投注胜率较高的选项，单关为主。`;
+    }
+
+    if (strategyTagEl) {
+        strategyTagEl.textContent = strategy;
+        strategyTagEl.className = 'ledger-strategy-tag ' + strategyClass;
+    }
+    if (strategyDescEl) strategyDescEl.textContent = strategyDesc;
 }
 
 function renderCalc(container) {
@@ -737,6 +912,12 @@ function renderCalc(container) {
         <div id="calcOddsArea" style="text-align:center;color:var(--text-dim);font-size:13px;padding:10px;">👆 选比赛后点"添加"</div>
         <div class="calc-slip" id="calcSlip">
             <div class="calc-slip-empty">📋 请添加比赛到投注单</div>
+        </div>
+        <!-- 投注策略建议 -->
+        <div class="calc-strategy-tabs">
+            <div class="calc-strategy-tab conservative${calcStrategy==='conservative'?' active':''}" onclick="setCalcStrategy('conservative')">🛡️ 保守</div>
+            <div class="calc-strategy-tab${calcStrategy==='balanced'||!calcStrategy?' active':''}" onclick="setCalcStrategy('balanced')">⚖️ 稳健</div>
+            <div class="calc-strategy-tab aggressive${calcStrategy==='aggressive'?' active':''}" onclick="setCalcStrategy('aggressive')">🚀 激进</div>
         </div>
         <div class="calc-config-row">
             <label class="calc-config-label">🎲 玩法</label>
@@ -976,7 +1157,26 @@ window.submitSlip = function() {
     let finalPayout = '0', isWin = false;
     if (calcParlayType === 'single') { const winSlips = calcSlip.filter(() => Math.random() < 0.33); finalPayout = winSlips.reduce((sum, s) => sum + s.odds * 2 * calcMultiplier, 0).toFixed(2); isWin = winSlips.length > 0; }
     else { isWin = calcSlip.every(() => Math.random() < 0.33); finalPayout = isWin ? payout.toFixed(2) : '0'; }
-    const rec = { id: Date.now(), picks: calcSlip.map(s => ({ ...s })), combine: getParlayOptions(n).find(o => o.value === calcParlayType)?.label || '单关', betCount, multiplier: calcMultiplier, amount: totalAmount, isWin, payout: finalPayout, time: new Date().toLocaleString('zh-CN') };
+
+    // 策略提示
+    let strategyTip = '';
+    if (isWin) {
+        const tips = {
+            conservative: '🛡️ 保守策略效果不错！稳稳的收益，继续保持~',
+            balanced: '⚖️ 稳健投注命中！策略得当，继续保持节奏~',
+            aggressive: '🚀 激进串关命中！高风险高回报，你做到了！'
+        };
+        strategyTip = tips[calcStrategy] || tips.balanced;
+    } else {
+        const tips = {
+            conservative: '🛡️ 未中也没关系，保守策略降低了损失，下次继续加油！',
+            balanced: '⚖️ 这次差一点，不要气馁，分析后再战！',
+            aggressive: '🚀 激进串关风险高，建议下次适当降低串关场次~'
+        };
+        strategyTip = tips[calcStrategy] || tips.balanced;
+    }
+
+    const rec = { id: Date.now(), picks: calcSlip.map(s => ({ ...s })), combine: getParlayOptions(n).find(o => o.value === calcParlayType)?.label || '单关', betCount, multiplier: calcMultiplier, amount: totalAmount, isWin, payout: finalPayout, strategy: calcStrategy, strategyTip, time: new Date().toLocaleString('zh-CN') };
     calcHistory.unshift(rec);
     if (calcHistory.length > 10) calcHistory.pop();
     clearSlip(); renderHistory(); rerenderCalc(); showResultModal(rec);
@@ -1000,6 +1200,7 @@ function showResultModal(rec) {
     document.querySelectorAll('.sim-modal-overlay, .sim-modal').forEach(e => e.remove());
     const overlay = document.createElement('div'); overlay.className = 'sim-modal-overlay';
     const modal = document.createElement('div'); modal.className = 'sim-modal';
+    const strategyTip = rec.strategyTip || '';
     modal.innerHTML = `<button class="sim-modal-close" onclick="this.parentElement.remove();document.querySelector('.sim-modal-overlay').remove()">✕</button>
         <div style="text-align:center;padding:8px 0 16px">
             <div style="font-size:48px;margin-bottom:8px">${rec.isWin ? '🎉' : '😢'}</div>
@@ -1007,7 +1208,9 @@ function showResultModal(rec) {
             <div style="color:var(--text-light);font-size:12px;margin-top:8px;line-height:1.8">${rec.picks.map(p => `[${p.lotteryCode}] <span style="background:rgba(0,212,170,0.1);padding:1px 6px;border-radius:4px;font-size:10px;color:var(--accent)">${(PLAY_TYPES.find(x=>x.value===p.playType)||{label:p.playType}).label}</span> ${p.betLabel}(@${p.odds})`).join('<br>')}</div>
             <div style="margin-top:10px;font-size:12px;color:var(--text-light)">${rec.combine} · ${rec.betCount}注×${rec.multiplier}倍</div>
             <div style="font-size:28px;font-weight:900;color:${rec.isWin?'var(--green)':'var(--text-dim)'};margin:10px 0">${rec.isWin?'¥'+rec.payout:'¥0'}</div>
-            <div style="font-size:12px;color:var(--text-dim)">投注金额 ¥${rec.amount}</div></div>`;
+            <div style="font-size:12px;color:var(--text-dim)">投注金额 ¥${rec.amount}</div>
+            ${strategyTip ? `<div style="margin-top:12px;font-size:12px;color:${rec.isWin?'var(--green)':'var(--text-light)'};background:${rec.isWin?'rgba(64,192,87,0.08)':'rgba(255,255,255,0.04)'};padding:10px 12px;border-radius:8px;border-left:3px solid ${rec.isWin?'var(--green)':'var(--text-dim)'};text-align:left;line-height:1.6">${strategyTip}</div>` : ''}
+        </div>`;
     overlay.onclick = () => { overlay.remove(); modal.remove(); };
     document.body.appendChild(overlay); document.body.appendChild(modal);
 }

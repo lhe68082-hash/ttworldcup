@@ -7,8 +7,25 @@
     <meta name="referrer" content="no-referrer">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="世界杯助手">
+    <link rel="apple-touch-icon" href="icon.svg">
     <title>花生世界杯助手 - 卡密验证</title>
-    <link rel="stylesheet" href="style.css?v=20260609f">
+    <link rel="stylesheet" href="style.css?v=20260610a">
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('[App] ServiceWorker 注册成功，作用域:', reg.scope);
+                }).catch(function(err) {
+                    console.warn('[App] ServiceWorker 注册失败:', err);
+                });
+            });
+        }
+    </script>
 </head>
 <body>
 
@@ -433,6 +450,28 @@
                 </div>
                 <div class="ledger-sum-row ledger-net" id="ledgerNetRow">
                     <span>📊 净盈亏</span><strong id="sumNet">¥0.00</strong>
+                </div>
+            </div>
+            <!-- 投注分析统计 -->
+            <div class="ledger-analysis" id="ledgerAnalysis" style="display:none">
+                <div class="ledger-analysis-title">📊 投注分析</div>
+                <div class="ledger-stat-grid">
+                    <div class="ledger-stat-item">
+                        <div class="ledger-stat-val green" id="laWinRate">0%</div>
+                        <div class="ledger-stat-label">胜率</div>
+                    </div>
+                    <div class="ledger-stat-item">
+                        <div class="ledger-stat-val orange" id="laAvgOdds">0</div>
+                        <div class="ledger-stat-label">平均赔率</div>
+                    </div>
+                    <div class="ledger-stat-item">
+                        <div class="ledger-stat-val" id="laTotalBets">0</div>
+                        <div class="ledger-stat-label">总投注</div>
+                    </div>
+                </div>
+                <div class="ledger-strategy" id="laStrategy">
+                    <div class="ledger-strategy-tag balanced" id="laStrategyTag">稳健型</div>
+                    <div class="ledger-strategy-desc" id="laStrategyDesc">暂无足够数据分析...</div>
                 </div>
             </div>
         </div>
