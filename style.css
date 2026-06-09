@@ -591,13 +591,26 @@ body {
     white-space: nowrap;
     flex-shrink: 0;
     position: relative;
-    z-index: 2;
+    z-index: 10;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 .news-scroll-wrap {
     flex: 1;
     overflow: hidden;
     min-width: 0;
     position: relative;
+    z-index: 1;
+}
+/* 左侧渐变遮罩，防止文字溢出到标签区域 */
+.news-scroll-wrap::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 24px;
+    background: linear-gradient(to right, var(--bg-card), transparent);
+    z-index: 5;
+    pointer-events: none;
 }
 .news-scroll {
     display: flex;
@@ -991,6 +1004,7 @@ body {
 .calc-config-label { font-size: 13px; font-weight: 700; white-space: nowrap; min-width: 72px; }
 .calc-config-select {
     flex: 1;
+    min-width: 0;
     padding: 9px 10px;
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -1002,8 +1016,8 @@ body {
     transition: border-color 0.2s;
 }
 .calc-config-select:focus { border-color: var(--accent); }
-.calc-config-hint { font-size: 11px; color: var(--text-dim); white-space: nowrap; }
-.calc-config-note { font-size: 11px; color: var(--orange); background: var(--orange-glass); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.calc-config-hint { font-size: 11px; color: var(--text-dim); white-space: nowrap; display: inline-block; max-width: 100%; }
+.calc-config-note { font-size: 11px; color: var(--orange); background: var(--orange-glass); padding: 3px 8px; border-radius: 6px; white-space: nowrap; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 
 .calc-slip {
     background: var(--white-alpha-015);
@@ -2002,14 +2016,19 @@ body {
 .ps-overlay {
     display: none;
     position: fixed;
-    inset: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     z-index: 200;
     background: var(--bg);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+}
+.ps-overlay.show {
+    display: block;
     animation: psSlideIn 0.25s ease;
 }
-.ps-overlay.show { display: block; }
+.ps-overlay:not(.show) {
+    display: none !important;
+}
 @keyframes psSlideIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
