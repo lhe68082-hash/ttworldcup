@@ -23,8 +23,74 @@ function generateLotteryCodes() {
 }
 generateLotteryCodes();
 
+// ==================== 卡密验证 ====================
+const KEY_STORAGE = 'hw2026_activated_key';
+
+function isKeyActivated() {
+    const saved = localStorage.getItem(KEY_STORAGE);
+    if (!saved) return false;
+    return VALID_KEYS.includes(saved);
+}
+
+function activateKey() {
+    const input = document.getElementById('keyInput');
+    const errorEl = document.getElementById('keyError');
+    const btn = document.getElementById('keyActivateBtn');
+    const key = input ? input.value.trim().toUpperCase() : '';
+
+    if (!key) {
+        if (errorEl) errorEl.textContent = '请输入卡密';
+        return;
+    }
+
+    if (validateKey(key)) {
+        localStorage.setItem(KEY_STORAGE, key);
+        if (errorEl) errorEl.textContent = '';
+        if (btn) { btn.disabled = true; btn.innerHTML = '<span>✅ 验证通过，正在进入...</span>'; }
+        // 延迟隐藏，给用户反馈
+        setTimeout(() => {
+            const overlay = document.getElementById('keyActivationOverlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'opacity 0.4s ease';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 400);
+            }
+        }, 600);
+    } else {
+        if (errorEl) errorEl.textContent = '❌ 卡密无效，请检查后重试';
+        if (input) { input.value = ''; input.focus(); }
+        // 震动反馈
+        if (input) {
+            input.style.borderColor = 'var(--red)';
+            input.style.boxShadow = '0 0 0 8px rgba(255,71,87,0.12)';
+            setTimeout(() => {
+                input.style.borderColor = 'var(--border)';
+                input.style.boxShadow = 'none';
+            }, 800);
+        }
+    }
+}
+
+// 回车键激活
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        const overlay = document.getElementById('keyActivationOverlay');
+        if (overlay && overlay.style.display !== 'none') {
+            activateKey();
+        }
+    }
+});
+
 // ---------- 初始化 ----------
 document.addEventListener('DOMContentLoaded', () => {
+    // 卡密验证：已激活则隐藏验证界面
+    if (isKeyActivated()) {
+        const overlay = document.getElementById('keyActivationOverlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+
     initTheme();
     initBottomNav();
     initDateDisplay();

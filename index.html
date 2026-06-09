@@ -6,10 +6,29 @@
     <meta name="theme-color" content="#121926" id="metaThemeColor">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>花生世界杯助手</title>
-    <link rel="stylesheet" href="style.css?v=20260609e">
+    <title>花生世界杯助手 - 卡密验证</title>
+    <link rel="stylesheet" href="style.css?v=20260609f">
 </head>
 <body>
+
+<!-- ======== 卡密验证界面 ======== -->
+<div class="key-activation-overlay" id="keyActivationOverlay">
+    <div class="key-activation-card">
+        <div class="key-logo">🥜</div>
+        <h1 class="key-title">花生世界杯助手</h1>
+        <p class="key-subtitle">FIFA World Cup 2026™</p>
+        <div class="key-divider"></div>
+        <p class="key-label">请输入激活卡密</p>
+        <div class="key-input-row">
+            <input type="text" id="keyInput" class="key-input" placeholder="HW2026-XXXX-XXXX-XXXX" maxlength="24" autocomplete="off" autofocus>
+        </div>
+        <button class="key-btn" id="keyActivateBtn" onclick="activateKey()">
+            <span>🔑 激活进入</span>
+        </button>
+        <p class="key-error" id="keyError"></p>
+        <p class="key-hint">输入卡密解锁全部功能 · 一卡一用</p>
+    </div>
+</div>
 
 <!-- 顶部状态栏 -->
 <header class="topbar">
@@ -322,8 +341,9 @@
     </button>
 </nav>
 
-<script src="data.js?v=20260609e"></script>
-<script src="lottery-api.js?v=20260609e"></script>
-<script src="app.js?v=20260609e"></script>
+<script src="keys.js?v=20260609f"></script>
+<script src="data.js?v=20260609f"></script>
+<script src="lottery-api.js?v=20260609f"></script>
+<script src="app.js?v=20260609f"></script>
 </body>
 </html>

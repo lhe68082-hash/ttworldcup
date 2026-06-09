@@ -104,6 +104,130 @@ body {
 /* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 0; height: 0; }
 
+/* ---------- 卡密激活界面 ---------- */
+.key-activation-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--bg);
+    background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(108,92,231,0.15) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 100%, rgba(0,212,170,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(255,212,59,0.05) 0%, transparent 60%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.5s ease;
+}
+.key-activation-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    animation: pageIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.key-logo {
+    font-size: 52px;
+    margin-bottom: 8px;
+    animation: lotteryPulse 2s ease-in-out infinite;
+}
+.key-title {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, var(--accent), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+}
+.key-subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+.key-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 auto 20px;
+    width: 60%;
+}
+.key-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+}
+.key-input-row {
+    margin-bottom: 16px;
+}
+.key-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    background: var(--bg);
+    color: var(--accent);
+    text-align: center;
+    letter-spacing: 1.5px;
+    outline: none;
+    transition: all 0.3s;
+    text-transform: uppercase;
+}
+.key-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 8px rgba(0,212,170,0.08);
+}
+.key-input::placeholder {
+    color: var(--text-dim);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+.key-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent), #00b894);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.2s;
+    letter-spacing: 1px;
+}
+.key-btn:active {
+    transform: scale(0.96);
+    opacity: 0.85;
+}
+.key-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.key-error {
+    font-size: 12px;
+    color: var(--red);
+    min-height: 20px;
+    margin-top: 8px;
+    font-weight: 600;
+    text-align: center;
+}
+.key-hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 16px;
+    opacity: 0.7;
+}
+
 /* ---------- Top Bar ---------- */
 .topbar {
     position: fixed;
