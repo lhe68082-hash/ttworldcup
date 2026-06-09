@@ -160,6 +160,34 @@
             <div class="card-text" id="hostCountries"></div>
         </div>
 
+        <!-- 直播地址 -->
+        <div class="card">
+            <div class="card-title">📺 直播观看平台</div>
+            <div class="card-text">
+                <div class="broadcast-list">
+                    <div class="broadcast-item">
+                        <div class="bc-header"><span class="bc-icon">📡</span><strong>央视（CCTV5/CCTV5+）</strong></div>
+                        <div class="bc-detail">电视：CCTV5（主）、CCTV5+（补）、CCTV16（4K）</div>
+                        <div class="bc-detail">网页：<a href="https://tv.cctv.com" target="_blank">tv.cctv.com</a>（央视网）</div>
+                        <div class="bc-detail">App：央视频、央视体育、央视影音</div>
+                    </div>
+                    <div class="broadcast-item">
+                        <div class="bc-header"><span class="bc-icon">🎥</span><strong>咪咕视频</strong></div>
+                        <div class="bc-detail">网页：<a href="https://sports.miguvideo.com" target="_blank">sports.miguvideo.com</a></div>
+                        <div class="bc-detail">App：咪咕视频（4K 高清、多机位）</div>
+                    </div>
+                    <div class="broadcast-item">
+                        <div class="bc-header"><span class="bc-icon">🎵</span><strong>抖音</strong></div>
+                        <div class="bc-detail">App / 网页：抖音搜索 "世界杯" 入口</div>
+                    </div>
+                    <div class="broadcast-item">
+                        <div class="bc-header"><span class="bc-icon">📕</span><strong>小红书</strong></div>
+                        <div class="bc-detail">App：搜索 "2026 世界杯直播"，全程 4K</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 主办城市 -->
         <div class="card">
             <div class="card-title">🏙 16座主办城市</div>
@@ -304,14 +332,59 @@
                     <span>自动</span>
                 </label>
             </div>
-            <div class="sync-hint" id="syncHint" style="display:none">
-                💡 运行 <code>node server.js</code> 获取实时官方数据
-            </div>
         </div>
 
         <div class="card calc-card">
             <div class="card-title">🧮 竞彩模拟计算器</div>
             <div class="card-text calc-container" id="calcContainer"></div>
+        </div>
+
+        <!-- 个人购彩记账本 -->
+        <div class="card bet-ledger-card">
+            <div class="card-title">📒 我的购彩记账本</div>
+            <div class="ledger-form">
+                <div class="ledger-row">
+                    <div class="ledger-field">
+                        <label>日期</label>
+                        <input type="date" id="ledgerDate" class="ledger-input">
+                    </div>
+                    <div class="ledger-field">
+                        <label>购彩金额（元）</label>
+                        <input type="number" id="ledgerBuy" class="ledger-input" placeholder="0.00" min="0" step="0.01">
+                    </div>
+                    <div class="ledger-field">
+                        <label>中奖金额（元）</label>
+                        <input type="number" id="ledgerWin" class="ledger-input" placeholder="0.00" min="0" step="0.01">
+                    </div>
+                </div>
+                <button class="btn btn-ledger-add" onclick="addLedgerEntry()">➕ 添加记录</button>
+            </div>
+            <div class="ledger-table-wrap">
+                <table class="ledger-table" id="ledgerTable">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>购彩金额</th>
+                            <th>中奖金额</th>
+                            <th>盈亏</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledgerBody"></tbody>
+                </table>
+                <div class="ledger-empty" id="ledgerEmpty" style="display:none">暂无记录，上方添加第一条</div>
+            </div>
+            <div class="ledger-summary" id="ledgerSummary">
+                <div class="ledger-sum-row">
+                    <span>💰 总购彩</span><strong id="sumBuy">¥0.00</strong>
+                </div>
+                <div class="ledger-sum-row">
+                    <span>🏆 总中奖</span><strong id="sumWin">¥0.00</strong>
+                </div>
+                <div class="ledger-sum-row ledger-net" id="ledgerNetRow">
+                    <span>📊 净盈亏</span><strong id="sumNet">¥0.00</strong>
+                </div>
+            </div>
         </div>
     </section>
 

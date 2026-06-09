@@ -101,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLottery();
     // 竞彩模拟器可能因 lottery-api.js 加载失败而出错，不影响核心功能
     try { initSimBet(); } catch(e) { console.warn('竞彩模块加载失败:', e.message); }
+    try { initLedger(); } catch(e) { console.warn('记账本加载失败:', e.message); }
     initTeamsGroup();
     initCityDetails();
     initHostCountries();
@@ -474,6 +475,92 @@ window.toggleAutoSync = function(enabled) {
 function rerenderCalc() {
     const container = document.getElementById('calcContainer');
     if (container) renderCalc(container);
+}
+
+// ==================== 个人购彩记账本 ====================
+let ledgerData = [];
+const LEDGER_KEY = 'wc_bet_ledger';
+
+function loadLedger() {
+    try { ledgerData = JSON.parse(localStorage.getItem(LEDGER_KEY) || '[]'); } catch(e) { ledgerData = []; }
+}
+function saveLedger() {
+    try { localStorage.setItem(LEDGER_KEY, JSON.stringify(ledgerData)); } catch(e) {}
+}
+function initLedger() {
+    loadLedger();
+    const dateInput = document.getElementById('ledgerDate');
+    if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+    renderLedger();
+}
+
+window.addLedgerEntry = function() {
+    const dateEl = document.getElementById('ledgerDate');
+    const buyEl = document.getElementById('ledgerBuy');
+    const winEl = document.getElementById('ledgerWin');
+    const date = dateEl ? dateEl.value : '';
+    const buy = parseFloat(buyEl ? buyEl.value : 0) || 0;
+    const win = parseFloat(winEl ? winEl.value : 0) || 0;
+    if (!date) { alert('请选择日期'); return; }
+    if (buy <= 0 && win <= 0) { alert('购彩金额和中奖金额至少填写一项'); return; }
+
+    ledgerData.push({ id: Date.now(), date, buy, win });
+    ledgerData.sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+    saveLedger();
+    renderLedger();
+    if (buyEl) buyEl.value = '';
+    if (winEl) winEl.value = '';
+};
+
+window.delLedgerEntry = function(id) {
+    ledgerData = ledgerData.filter(e => e.id !== id);
+    saveLedger();
+    renderLedger();
+};
+
+function renderLedger() {
+    const tbody = document.getElementById('ledgerBody');
+    const emptyEl = document.getElementById('ledgerEmpty');
+    const sumBuyEl = document.getElementById('sumBuy');
+    const sumWinEl = document.getElementById('sumWin');
+    const sumNetEl = document.getElementById('sumNet');
+    const netRow = document.getElementById('ledgerNetRow');
+    if (!tbody) return;
+
+    if (ledgerData.length === 0) {
+        tbody.innerHTML = '';
+        if (emptyEl) emptyEl.style.display = 'block';
+    } else {
+        if (emptyEl) emptyEl.style.display = 'none';
+        tbody.innerHTML = ledgerData.map(e => {
+            const net = e.win - e.buy;
+            const netCls = net >= 0 ? 'ledger-net-pos' : 'ledger-net-neg';
+            const netSign = net >= 0 ? '+' : '';
+            return `<tr>
+                <td>${e.date}</td>
+                <td class="ledger-amount buy">-¥${e.buy.toFixed(2)}</td>
+                <td class="ledger-amount win">+¥${e.win.toFixed(2)}</td>
+                <td class="${netCls}">${netSign}¥${net.toFixed(2)}</td>
+                <td><button class="ledger-del" onclick="delLedgerEntry(${e.id})" title="删除">🗑</button></td>
+            </tr>`;
+        }).join('');
+    }
+
+    const totalBuy = ledgerData.reduce((s,e) => s + e.buy, 0);
+    const totalWin = ledgerData.reduce((s,e) => s + e.win, 0);
+    const totalNet = totalWin - totalBuy;
+
+    if (sumBuyEl) sumBuyEl.textContent = '¥' + totalBuy.toFixed(2);
+    if (sumWinEl) sumWinEl.textContent = '¥' + totalWin.toFixed(2);
+    if (sumNetEl) {
+        const sign = totalNet >= 0 ? '+' : '';
+        sumNetEl.textContent = sign + '¥' + totalNet.toFixed(2);
+    }
+    if (netRow) {
+        netRow.classList.remove('positive', 'negative');
+        if (totalNet > 0) netRow.classList.add('positive');
+        else if (totalNet < 0) netRow.classList.add('negative');
+    }
 }
 
 function renderCalc(container) {
