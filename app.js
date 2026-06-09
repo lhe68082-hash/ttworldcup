@@ -438,7 +438,6 @@ function updateSyncUI() {
     const text = document.getElementById('syncText');
     const btn = document.getElementById('syncBtn');
     const autoCheck = document.getElementById('syncAutoCheck');
-    const hint = document.getElementById('syncHint');
 
     if (dot) {
         dot.className = 'sync-dot';
@@ -455,9 +454,6 @@ function updateSyncUI() {
         btn.textContent = status.status === 'syncing' ? '⏳ 同步中...' : '🔄 同步官方';
     }
     if (autoCheck) autoCheck.checked = LotteryAPI.isAutoSyncEnabled();
-    if (hint) {
-        hint.style.display = (status.source !== 'official' && status.status !== 'syncing') ? 'block' : 'none';
-    }
 }
 
 window.triggerSync = async function() {
@@ -484,6 +480,14 @@ function renderCalc(container) {
     if (!container) return;
     const parlayOpts = getParlayOptions(Math.max(calcSlip.length, 1));
     container.innerHTML = `
+        <div class="calc-pick-row">
+            <select id="calcMatchPicker">
+                <option value="">-- 选择比赛 --</option>
+                ${buildMatchPickerOptions()}
+            </select>
+            <button class="btn" onclick="addMatchToSlip()" style="flex-shrink:0;padding:10px 14px;">+ 添加</button>
+        </div>
+        <div id="calcOddsArea" style="text-align:center;color:var(--text-dim);font-size:13px;padding:10px;">👆 选比赛后点"添加"</div>
         <div class="calc-slip" id="calcSlip">
             <div class="calc-slip-empty">📋 请添加比赛到投注单</div>
         </div>
@@ -508,14 +512,6 @@ function renderCalc(container) {
             </select>
             <span class="calc-config-hint">2元/注 × 倍数</span>
         </div>
-        <div class="calc-pick-row">
-            <select id="calcMatchPicker">
-                <option value="">-- 选择比赛 --</option>
-                ${buildMatchPickerOptions()}
-            </select>
-            <button class="btn" onclick="addMatchToSlip()" style="flex-shrink:0;padding:10px 14px;">+ 添加</button>
-        </div>
-        <div id="calcOddsArea" style="text-align:center;color:var(--text-dim);font-size:13px;padding:10px;">👆 选比赛后点"添加"</div>
         <div class="calc-summary" id="calcSummary" style="display:none">
             <div class="csm-row"><span>数据来源</span><span id="csrSource">${typeof LotteryAPI !== 'undefined' ? LotteryAPI.getStatusText() : '📋 模拟数据'}</span></div>
             <div class="csm-row"><span>场次</span><span id="csrMatches">0场</span></div>
@@ -1005,6 +1001,34 @@ window.switchTeamTab = function(section) {
 };
 
 // ==================== 单个球员详情弹窗 ====================
+// Wikipedia 头像缓存 (localStorage)
+const PHOTO_CACHE = (() => {
+    try { return JSON.parse(localStorage.getItem('wc_photo_cache') || '{}'); } catch(e) { return {}; }
+})();
+function savePhotoCache() { try { localStorage.setItem('wc_photo_cache', JSON.stringify(PHOTO_CACHE)); } catch(e) {} }
+
+function fetchPlayerPhoto(enName, imgEl, fallbackImg) {
+    // 优先从缓存读取
+    if (PHOTO_CACHE[enName]) {
+        imgEl.src = PHOTO_CACHE[enName];
+        return;
+    }
+    // 调用 Wikipedia API
+    const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${enName}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
+    fetch(apiUrl)
+        .then(r => r.json())
+        .then(data => {
+            const pages = data.query.pages;
+            const page = Object.values(pages)[0];
+            if (page && page.thumbnail && page.thumbnail.source) {
+                PHOTO_CACHE[enName] = page.thumbnail.source;
+                savePhotoCache();
+                imgEl.src = page.thumbnail.source;
+            }
+        })
+        .catch(() => {});
+}
+
 function showPlayerDetail(player, teamName, teamFlag) {
     document.querySelectorAll('.pdetail-modal-overlay, .pdetail-modal').forEach(e => e.remove());
 
@@ -1052,4 +1076,10 @@ function showPlayerDetail(player, teamName, teamFlag) {
             <button class="pdetail-btn-back" onclick="this.closest('.pdetail-modal').remove();document.querySelector('.pdetail-modal-overlay').remove()">← 返回球员列表</button>
         </div>`;
     document.body.appendChild(overlay); document.body.appendChild(detailModal);
+
+    // 如果球员有 enName，用 Wikipedia API 获取真实头像
+    if (player.enName) {
+        const photoImg = detailModal.querySelector('.pdetail-photo');
+        fetchPlayerPhoto(player.enName, photoImg, fallbackImg);
+    }
 }
