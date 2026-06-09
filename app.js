@@ -1467,26 +1467,67 @@ const PHOTO_CACHE = (() => {
 })();
 function savePhotoCache() { try { localStorage.setItem('wc_photo_cache', JSON.stringify(PHOTO_CACHE)); } catch(e) {} }
 
-function fetchPlayerPhoto(enName, imgEl, fallbackImg) {
+// 生成本地 SVG 头像（不依赖外部网络）
+function generateLocalAvatar(name, pos) {
+    const initial = name.charAt(0);
+    const posColors = {
+        '前锋': { bg1: '#ff4757', bg2: '#c0392b' },
+        '中场': { bg1: '#4dabf7', bg2: '#2d6da4' },
+        '后卫': { bg1: '#40c057', bg2: '#1e7a34' },
+        '门将': { bg1: '#ff922b', bg2: '#d47516' }
+    };
+    const c = posColors[pos] || { bg1: '#636e72', bg2: '#2d3436' };
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c.bg1}"/><stop offset="100%" stop-color="${c.bg2}"/></linearGradient></defs><circle cx="100" cy="100" r="100" fill="url(#g)"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="#fff" font-size="95" font-weight="900" font-family="-apple-system,BlinkMacSystemFont,Arial,sans-serif">${initial}</text></svg>`;
+    return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+}
+
+// 预加载图片验证，成功后才替换
+function preloadAndSet(imgEl, url, fallbackSvg, onSuccess) {
+    const testImg = new Image();
+    testImg.onload = function() {
+        imgEl.src = url;
+        if (onSuccess) onSuccess();
+    };
+    testImg.onerror = function() {
+        // 保持 fallback，不做替换
+    };
+    testImg.src = url;
+}
+
+function fetchPlayerPhoto(enName, imgEl, fallbackSvg) {
     // 优先从缓存读取
     if (PHOTO_CACHE[enName]) {
-        imgEl.src = PHOTO_CACHE[enName];
+        preloadAndSet(imgEl, PHOTO_CACHE[enName], fallbackSvg);
         return;
     }
-    // 调用 Wikipedia API
-    const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${enName}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
+
+    // 6秒超时保护
+    let timedOut = false;
+    const timeoutId = setTimeout(() => { timedOut = true; }, 6000);
+
+    const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(enName)}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
     fetch(apiUrl)
-        .then(r => r.json())
+        .then(r => {
+            if (timedOut) throw new Error('timeout');
+            return r.json();
+        })
         .then(data => {
+            if (timedOut) return;
+            clearTimeout(timeoutId);
             const pages = data.query.pages;
             const page = Object.values(pages)[0];
             if (page && page.thumbnail && page.thumbnail.source) {
-                PHOTO_CACHE[enName] = page.thumbnail.source;
-                savePhotoCache();
-                imgEl.src = page.thumbnail.source;
+                let imgUrl = page.thumbnail.source;
+                // 强制 https，避免混合内容被浏览器阻止
+                if (imgUrl.startsWith('http:')) imgUrl = 'https:' + imgUrl.slice(5);
+                // 预加载验证成功后才替换
+                preloadAndSet(imgEl, imgUrl, fallbackSvg, () => {
+                    PHOTO_CACHE[enName] = imgUrl;
+                    savePhotoCache();
+                });
             }
         })
-        .catch(() => {});
+        .catch(() => { clearTimeout(timeoutId); });
 }
 
 function showPlayerDetail(player, teamName, teamFlag) {
@@ -1500,7 +1541,7 @@ function showPlayerDetail(player, teamName, teamFlag) {
     };
     const posEmoji = { '前锋': '⚽', '中场': '🎯', '后卫': '🛡', '门将': '🧤' };
     const posColor = { '前锋': '#ff4757', '中场': '#4dabf7', '后卫': '#40c057', '门将': '#ff922b' };
-    const fallbackImg = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&size=200&background=1a1d2e&color=00d4aa&bold=true`;
+    const fallbackSvg = generateLocalAvatar(player.name, player.pos);
 
     const overlay = document.createElement('div'); overlay.className = 'pdetail-modal-overlay';
     overlay.onclick = () => { overlay.remove(); detailModal.remove(); };
@@ -1511,7 +1552,7 @@ function showPlayerDetail(player, teamName, teamFlag) {
             <button class="pdetail-close" onclick="this.closest('.pdetail-modal').remove();document.querySelector('.pdetail-modal-overlay').remove()">✕</button>
             <div class="pdetail-team-badge"><span>${teamFlag}</span><span>${teamName}</span></div>
             <div class="pdetail-photo-wrapper">
-                <img class="pdetail-photo" src="${fallbackImg}" alt="${player.name}" onerror="this.onerror=null;this.src='${fallbackImg}'" loading="lazy" referrerpolicy="no-referrer">
+                <img class="pdetail-photo" src="${fallbackSvg}" alt="${player.name}" loading="lazy">
             </div>
             <div class="pdetail-num-big">${player.num}</div>
         </div>
@@ -1540,6 +1581,6 @@ function showPlayerDetail(player, teamName, teamFlag) {
     // 如果球员有 enName，用 Wikipedia API 获取真实头像
     if (player.enName) {
         const photoImg = detailModal.querySelector('.pdetail-photo');
-        fetchPlayerPhoto(player.enName, photoImg, fallbackImg);
+        fetchPlayerPhoto(player.enName, photoImg, fallbackSvg);
     }
 }
