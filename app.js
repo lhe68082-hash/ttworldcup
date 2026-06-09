@@ -25,6 +25,7 @@ generateLotteryCodes();
 
 // ---------- 初始化 ----------
 document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
     initBottomNav();
     initDateDisplay();
     initCountdown();
@@ -66,6 +67,30 @@ window.switchTab = function(tabId) {
     const btn = document.querySelector(`.bnav-item[data-tab="${tabId}"]`);
     if (btn) btn.click();
 };
+
+// ==================== 主题切换 ====================
+function initTheme() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    applyTheme(saved);
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+        btn.addEventListener('click', toggleTheme);
+    }
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon = document.getElementById('themeToggle');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    const meta = document.getElementById('metaThemeColor');
+    if (meta) meta.content = theme === 'light' ? '#f0f2f5' : '#121926';
+    localStorage.setItem('theme', theme);
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(current === 'light' ? 'dark' : 'light');
+}
 
 // ==================== 日期 ====================
 function initDateDisplay() {

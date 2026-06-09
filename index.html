@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#121926">
+    <meta name="theme-color" content="#121926" id="metaThemeColor">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>花生世界杯助手</title>
-    <link rel="stylesheet" href="style.css?v=20260609b">
+    <link rel="stylesheet" href="style.css?v=20260609c">
 </head>
 <body>
 
 <!-- 顶部状态栏 -->
 <header class="topbar">
     <div class="topbar-logo">🥜 花生世界杯助手</div>
-    <div class="topbar-date" id="dateDisplay"></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+        <button class="theme-toggle-btn" id="themeToggle" title="切换日间/夜间模式">☀️</button>
+        <div class="topbar-date" id="dateDisplay"></div>
+    </div>
 </header>
 
 <!-- 主内容区 -->
@@ -302,8 +305,8 @@
     </button>
 </nav>
 
-<script src="data.js?v=20260609b"></script>
-<script src="lottery-api.js?v=20260609b"></script>
-<script src="app.js?v=20260609b"></script>
+<script src="data.js?v=20260609c"></script>
+<script src="lottery-api.js?v=20260609c"></script>
+<script src="app.js?v=20260609c"></script>
 </body>
 </html>
