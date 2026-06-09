@@ -1,0 +1,12 @@
+{
+  "name": "worldcup2026-lottery",
+  "version": "1.0.0",
+  "description": "2026世界杯竞彩模拟计算器 - 支持同步官方赔率数据",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["worldcup", "lottery", "竞彩", "世界杯"],
+  "license": "MIT"
+}

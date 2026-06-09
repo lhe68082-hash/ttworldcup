@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#121926">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>2026 世界杯 · 美加墨</title>
+    <link rel="stylesheet" href="style.css?v=20260609b">
+</head>
+<body>
+
+<!-- 顶部状态栏 -->
+<header class="topbar">
+    <div class="topbar-logo">🏆 世界杯 2026</div>
+    <div class="topbar-date" id="dateDisplay"></div>
+</header>
+
+<!-- 主内容区 -->
+<main class="content">
+
+    <!-- ======== Tab 1: 首页 ======== -->
+    <section id="home" class="page active">
+        <div class="hero">
+            <div class="hero-badge">FIFA WORLD CUP 2026™</div>
+            <h1 class="hero-title"><span class="hosts">美国 · 加拿大 · 墨西哥</span><br><span class="hero-sub">48队 · 104场 · 1个冠军</span></h1>
+            <p class="hero-desc">第23届世界杯 · 2026年6月11日—7月19日</p>
+
+            <div class="stat-grid">
+                <div class="stat-card" onclick="switchTab('schedule')">
+                    <div class="stat-emoji">📅</div>
+                    <div class="stat-num">104</div>
+                    <div class="stat-label">总比赛数</div>
+                    <div class="stat-arrow">查看赛程 ›</div>
+                </div>
+                <div class="stat-card" onclick="switchTab('teams')">
+                    <div class="stat-emoji">🏴</div>
+                    <div class="stat-num">48</div>
+                    <div class="stat-label">参赛球队</div>
+                    <div class="stat-arrow">查看分组 ›</div>
+                </div>
+                <div class="stat-card" onclick="switchTab('encyclopedia')">
+                    <div class="stat-emoji">📚</div>
+                    <div class="stat-num">3</div>
+                    <div class="stat-label">主办国家</div>
+                    <div class="stat-arrow">查看百科 ›</div>
+                </div>
+                <div class="stat-card" onclick="switchTab('encyclopedia')">
+                    <div class="stat-emoji">🏟</div>
+                    <div class="stat-num">16</div>
+                    <div class="stat-label">主办城市</div>
+                    <div class="stat-arrow">查看百科 ›</div>
+                </div>
+            </div>
+
+            <div class="countdown-box">
+                <div class="cd-title">距开幕还有</div>
+                <div class="cd-row">
+                    <div class="cd-item"><span class="cd-num" id="cd-days">--</span><span>天</span></div>
+                    <span class="cd-colon">:</span>
+                    <div class="cd-item"><span class="cd-num" id="cd-hours">--</span><span>时</span></div>
+                    <span class="cd-colon">:</span>
+                    <div class="cd-item"><span class="cd-num" id="cd-mins">--</span><span>分</span></div>
+                    <span class="cd-colon">:</span>
+                    <div class="cd-item"><span class="cd-num" id="cd-secs">--</span><span>秒</span></div>
+                </div>
+            </div>
+
+            <div class="news-bar">
+                <span class="news-tag">📢</span>
+                <div class="news-scroll">
+                    <span>🔥 世界杯首次三国联办！</span>
+                    <span>🏟 决赛在纽约大都会人寿体育场</span>
+                    <span>🌎 48队分12组每组4队</span>
+                    <span>🎯 32强晋级淘汰赛</span>
+                    <span>⚡ 梅西C罗最后一舞？</span>
+                    <span>🏆 卫冕冠军阿根廷</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======== Tab 2: 百科 ======== -->
+    <section id="encyclopedia" class="page">
+        <div class="page-title">📚 赛事百科</div>
+
+        <div class="card">
+            <div class="card-title">🏆 赛事概览</div>
+            <div class="card-text">
+                <p>2026年国际足联世界杯由<strong>美国、加拿大、墨西哥</strong>联合主办，首次扩军至<strong>48支球队</strong>，共<strong>104场比赛</strong>。这是世界杯历史上首次由三个国家共同承办。</p>
+                <ul class="dot-list">
+                    <li><b>举办时间：</b>2026年6月11日—7月19日</li>
+                    <li><b>参赛球队：</b>48支（历史首次扩军）</li>
+                    <li><b>总场次：</b>104场</li>
+                    <li><b>卫冕冠军：</b>🇦🇷 阿根廷</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📋 赛制说明</div>
+            <div class="card-text">
+                <div class="format-steps">
+                    <div class="fstep"><span class="fstag group">小组赛</span>48→32</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag ko">1/16决赛</span>32→16</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag ko">1/8决赛</span>16→8</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag ko">1/4决赛</span>8→4</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag sf">半决赛</span>4→2</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag final">🏆决赛</span>冠军！</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">👑 历届冠军</div>
+            <div class="card-text"><div class="champs-grid" id="championsGrid"></div></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📖 知识问答</div>
+            <div class="card-text quiz-area" id="quizModule">
+                <p class="quiz-q" id="quizQuestion">点击下一题开始挑战！</p>
+                <div class="quiz-opts" id="quizOptions"></div>
+                <button class="btn" onclick="nextQuiz()">下一题 ▶</button>
+                <div class="quiz-score">⭐ 得分：<b id="quizScore">0</b></div>
+            </div>
+        </div>
+
+        <!-- 主办国家 -->
+        <div class="card">
+            <div class="card-title">🌎 三大主办国家</div>
+            <div class="card-text" id="hostCountries"></div>
+        </div>
+
+        <!-- 主办城市 -->
+        <div class="card">
+            <div class="card-title">🏙 16座主办城市</div>
+            <div class="card-text">
+                <div style="margin-bottom:12px"><strong>🇺🇸 美国 · 11座城市</strong></div>
+                <div class="city-list" id="usaCities"></div>
+                <div style="margin:12px 0"><strong>🇲🇽 墨西哥 · 3座城市</strong></div>
+                <div class="city-list" id="mexCities"></div>
+                <div style="margin:12px 0"><strong>🇨🇦 加拿大 · 2座城市</strong></div>
+                <div class="city-list" id="canCities"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======== Tab 3: 赛程 ======== -->
+    <section id="schedule" class="page">
+        <div class="page-title">📅 赛程·实时</div>
+        <div class="refresh-indicator" id="scheduleRefresh">
+            <span class="live-indicator"></span> 自动更新中
+        </div>
+        <div class="filter-row">
+            <button class="flt active" data-stage="all">全部</button>
+            <button class="flt" data-stage="group">小组赛</button>
+            <button class="flt" data-stage="r32">1/16</button>
+            <button class="flt" data-stage="r16">1/8</button>
+            <button class="flt" data-stage="qf">1/4</button>
+            <button class="flt" data-stage="sf">半决赛</button>
+            <button class="flt" data-stage="final">🏆决赛</button>
+        </div>
+        <div class="card">
+            <div class="card-text">
+                <div class="prog-info"><span>比赛进度</span><span class="prog-pct" id="progressPercent">0%</span></div>
+                <div class="prog-bar"><div class="prog-fill" id="progressFill"></div></div>
+                <div class="prog-stats">
+                    <span>✅ 已赛 <b id="playedCount">0</b> 场</span>
+                    <span>⏳ 未赛 <b id="remainingCount">104</b> 场</span>
+                </div>
+            </div>
+        </div>
+        <div class="match-list" id="scheduleGrid"></div>
+
+        <!-- 淘汰赛对阵表（融入赛程） -->
+        <div class="schedule-bracket-divider">
+            <span>⚔️</span> 淘汰赛对阵表
+        </div>
+        <div class="card">
+            <div class="card-text">
+                <div class="bracket-container">
+                    <div class="bk-round">
+                        <div class="bk-round-title">🏆 决赛 · 7月19日</div>
+                        <div class="bk-match final-match">
+                            <div class="bk-team"><span>❓</span><span>待定</span></div>
+                            <div class="bk-vs">VS</div>
+                            <div class="bk-team"><span>❓</span><span>待定</span></div>
+                        </div>
+                        <div class="bk-venue">📍 纽约/新泽西 · 大都会人寿体育场</div>
+                    </div>
+                    <div class="bk-round">
+                        <div class="bk-round-title">🔥 半决赛 · 2场</div>
+                        <div class="bk-row-2">
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><div class="bk-vs">VS</div><div class="bk-team"><span>❓</span></div></div>
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><div class="bk-vs">VS</div><div class="bk-team"><span>❓</span></div></div>
+                        </div>
+                    </div>
+                    <div class="bk-round">
+                        <div class="bk-round-title">💥 1/4决赛 · 4场</div>
+                        <div class="bk-row-4">
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><span class="bk-vs-sm">VS</span><div class="bk-team"><span>❓</span></div></div>
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><span class="bk-vs-sm">VS</span><div class="bk-team"><span>❓</span></div></div>
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><span class="bk-vs-sm">VS</span><div class="bk-team"><span>❓</span></div></div>
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><span class="bk-vs-sm">VS</span><div class="bk-team"><span>❓</span></div></div>
+                        </div>
+                    </div>
+                    <div class="bk-round"><div class="bk-round-title">⚡ 1/8决赛 · 8场</div><div class="bk-summary">16队争夺8个1/4决赛席位</div></div>
+                    <div class="bk-round"><div class="bk-round-title">🎯 1/16决赛 · 16场</div><div class="bk-summary">32队争夺16强席位</div></div>
+                    <div class="bk-round"><div class="bk-round-title">🌍 小组赛 · 72场</div><div class="bk-summary">48队 · 12组 · 每组4队循环对战</div></div>
+                </div>
+                <div class="bk-total">共计 <b>104</b> 场比赛</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======== Tab 4: 球队 ======== -->
+    <section id="teams" class="page">
+        <div class="page-title">🏴 48支参赛球队</div>
+        <div class="card">
+            <div class="card-text">
+                <div class="group-tabs" id="groupTabs"></div>
+                <div class="group-content" id="groupContent"></div>
+            </div>
+        </div>
+        <input type="text" class="search-inp" placeholder="🔍 搜索球队..." id="teamSearch" oninput="filterTeams()">
+        <div class="team-cards" id="teamsGrid"></div>
+    </section>
+
+    <!-- ======== Tab 5: 竞彩 ======== -->
+    <section id="lottery" class="page">
+        <div class="page-title">🎰 竞彩游戏</div>
+        <p class="page-desc">中国体育彩票 · 竞彩足球玩法与模拟计算器</p>
+
+        <div class="filter-row">
+            <button class="flt active" data-lottery="spf">胜平负</button>
+            <button class="flt" data-lottery="rqspf">让球胜平负</button>
+            <button class="flt" data-lottery="bf">比分</button>
+            <button class="flt" data-lottery="zjq">总进球数</button>
+            <button class="flt" data-lottery="bqc">半全场</button>
+            <button class="flt" data-lottery="hhgg">混合过关</button>
+        </div>
+
+        <div class="card" id="lotteryContent"></div>
+
+        <a href="https://m.sporttery.cn/mjc/jsq/zqspf/" target="_blank" class="jump-btn">
+            🔗 前往官方竞彩计算器 <span class="jump-arrow">→</span>
+        </a>
+
+        <div class="sync-bar" id="syncBar">
+            <div class="sync-status">
+                <span class="sync-dot" id="syncDot"></span>
+                <span id="syncText">📋 模拟数据</span>
+            </div>
+            <div class="sync-actions">
+                <button class="sync-btn" id="syncBtn" onclick="triggerSync()">🔄 同步官方</button>
+                <label class="sync-auto-label" title="每5分钟自动同步">
+                    <input type="checkbox" id="syncAutoCheck" onchange="toggleAutoSync(this.checked)">
+                    <span>自动</span>
+                </label>
+            </div>
+            <div class="sync-hint" id="syncHint" style="display:none">
+                💡 运行 <code>node server.js</code> 获取实时官方数据
+            </div>
+        </div>
+
+        <div class="card calc-card">
+            <div class="card-title">🧮 竞彩模拟计算器</div>
+            <div class="card-text calc-container" id="calcContainer"></div>
+        </div>
+    </section>
+
+</main>
+
+<!-- 底部5键导航 -->
+<nav class="bnav" id="bnav">
+    <button class="bnav-item active" data-tab="home">
+        <span class="bnav-icon">🏠</span>
+        <span class="bnav-label">首页</span>
+    </button>
+    <button class="bnav-item" data-tab="encyclopedia">
+        <span class="bnav-icon">📚</span>
+        <span class="bnav-label">百科</span>
+    </button>
+    <button class="bnav-item" data-tab="schedule">
+        <span class="bnav-icon">📅</span>
+        <span class="bnav-label">赛程</span>
+    </button>
+    <button class="bnav-item" data-tab="teams">
+        <span class="bnav-icon">🏴</span>
+        <span class="bnav-label">球队</span>
+    </button>
+    <button class="bnav-item bnav-lottery" data-tab="lottery">
+        <span class="bnav-icon">🎰</span>
+        <span class="bnav-label">竞彩</span>
+    </button>
+</nav>
+
+<script src="data.js?v=20260609b"></script>
+<script src="lottery-api.js?v=20260609b"></script>
+<script src="app.js?v=20260609b"></script>
+</body>
+</html>
