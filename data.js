@@ -125,70 +125,71 @@ const CITY_DETAILS = {
 };
 
 // ---------- 球队数据（含模拟分组） ----------
-// 随机分配到12个小组
-function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
-
-const TEAMS_RAW = [
-    // 亚洲 AFC
-    { name: '日本', flag: '🇯🇵', confederation: 'AFC', rank: 15 },
-    { name: '韩国', flag: '🇰🇷', confederation: 'AFC', rank: 22 },
-    { name: '伊朗', flag: '🇮🇷', confederation: 'AFC', rank: 18 },
-    { name: '沙特阿拉伯', flag: '🇸🇦', confederation: 'AFC', rank: 53 },
-    { name: '澳大利亚', flag: '🇦🇺', confederation: 'AFC', rank: 24 },
-    { name: '卡塔尔', flag: '🇶🇦', confederation: 'AFC', rank: 48 },
-    { name: '伊拉克', flag: '🇮🇶', confederation: 'AFC', rank: 56 },
-    { name: '乌兹别克斯坦', flag: '🇺🇿', confederation: 'AFC', rank: 58 },
-    // 非洲 CAF
-    { name: '摩洛哥', flag: '🇲🇦', confederation: 'CAF', rank: 12 },
-    { name: '塞内加尔', flag: '🇸🇳', confederation: 'CAF', rank: 17 },
-    { name: '埃及', flag: '🇪🇬', confederation: 'CAF', rank: 33 },
-    { name: '尼日利亚', flag: '🇳🇬', confederation: 'CAF', rank: 36 },
-    { name: '科特迪瓦', flag: '🇨🇮', confederation: 'CAF', rank: 41 },
-    { name: '喀麦隆', flag: '🇨🇲', confederation: 'CAF', rank: 44 },
-    { name: '加纳', flag: '🇬🇭', confederation: 'CAF', rank: 65 },
-    { name: '阿尔及利亚', flag: '🇩🇿', confederation: 'CAF', rank: 37 },
-    { name: '突尼斯', flag: '🇹🇳', confederation: 'CAF', rank: 41 },
-    // 欧洲 UEFA
-    { name: '法国', flag: '🇫🇷', confederation: 'UEFA', rank: 2 },
-    { name: '英格兰', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', confederation: 'UEFA', rank: 4 },
-    { name: '西班牙', flag: '🇪🇸', confederation: 'UEFA', rank: 3 },
-    { name: '德国', flag: '🇩🇪', confederation: 'UEFA', rank: 10 },
-    { name: '葡萄牙', flag: '🇵🇹', confederation: 'UEFA', rank: 6 },
-    { name: '意大利', flag: '🇮🇹', confederation: 'UEFA', rank: 9 },
-    { name: '荷兰', flag: '🇳🇱', confederation: 'UEFA', rank: 7 },
-    { name: '比利时', flag: '🇧🇪', confederation: 'UEFA', rank: 8 },
-    { name: '克罗地亚', flag: '🇭🇷', confederation: 'UEFA', rank: 13 },
-    { name: '丹麦', flag: '🇩🇰', confederation: 'UEFA', rank: 21 },
-    { name: '瑞士', flag: '🇨🇭', confederation: 'UEFA', rank: 19 },
-    { name: '奥地利', flag: '🇦🇹', confederation: 'UEFA', rank: 23 },
-    { name: '乌克兰', flag: '🇺🇦', confederation: 'UEFA', rank: 25 },
-    { name: '瑞典', flag: '🇸🇪', confederation: 'UEFA', rank: 27 },
-    { name: '波兰', flag: '🇵🇱', confederation: 'UEFA', rank: 34 },
-    { name: '塞尔维亚', flag: '🇷🇸', confederation: 'UEFA', rank: 32 },
-    // 南美 CONMEBOL
-    { name: '阿根廷', flag: '🇦🇷', confederation: 'CONMEBOL', rank: 1 },
-    { name: '巴西', flag: '🇧🇷', confederation: 'CONMEBOL', rank: 5 },
-    { name: '乌拉圭', flag: '🇺🇾', confederation: 'CONMEBOL', rank: 11 },
-    { name: '哥伦比亚', flag: '🇨🇴', confederation: 'CONMEBOL', rank: 14 },
-    { name: '厄瓜多尔', flag: '🇪🇨', confederation: 'CONMEBOL', rank: 30 },
-    { name: '智利', flag: '🇨🇱', confederation: 'CONMEBOL', rank: 39 },
-    // 中北美 CONCACAF
-    { name: '美国', flag: '🇺🇸', confederation: 'CONCACAF', rank: 16, host: true },
-    { name: '墨西哥', flag: '🇲🇽', confederation: 'CONCACAF', rank: 20, host: true },
-    { name: '加拿大', flag: '🇨🇦', confederation: 'CONCACAF', rank: 31, host: true },
-    { name: '哥斯达黎加', flag: '🇨🇷', confederation: 'CONCACAF', rank: 49 },
-    { name: '巴拿马', flag: '🇵🇦', confederation: 'CONCACAF', rank: 35 },
-    { name: '牙买加', flag: '🇯🇲', confederation: 'CONCACAF', rank: 55 },
-    // 大洋洲 OFC
-    { name: '新西兰', flag: '🇳🇿', confederation: 'OFC', rank: 89 },
-    // 补充至48支
-    { name: '阿联酋', flag: '🇦🇪', confederation: 'AFC', rank: 69 },
-    { name: '马里', flag: '🇲🇱', confederation: 'CAF', rank: 50 },
-];
-
+// 固定正确分组（不随机打乱）
 const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
-const shuffled = shuffle([...TEAMS_RAW]);
-const TEAMS_DATA = shuffled.map((t, i) => ({ ...t, group: GROUPS[Math.floor(i / 4)] }));
+
+const TEAMS_DATA = [
+    // ===== A组：墨西哥（东道主）、南非、韩国、捷克 =====
+    { name: '墨西哥', flag: '🇲🇽', confederation: 'CONCACAF', rank: 20, group: 'A', host: true },
+    { name: '南非', flag: '🇿🇦', confederation: 'CAF', rank: 57, group: 'A' },
+    { name: '韩国', flag: '🇰🇷', confederation: 'AFC', rank: 22, group: 'A' },
+    { name: '捷克', flag: '🇨🇿', confederation: 'UEFA', rank: 38, group: 'A' },
+    // ===== B组：加拿大（东道主）、波黑、卡塔尔、瑞士 =====
+    { name: '加拿大', flag: '🇨🇦', confederation: 'CONCACAF', rank: 31, group: 'B', host: true },
+    { name: '波黑', flag: '🇧🇦', confederation: 'UEFA', rank: 47, group: 'B' },
+    { name: '卡塔尔', flag: '🇶🇦', confederation: 'AFC', rank: 48, group: 'B' },
+    { name: '瑞士', flag: '🇨🇭', confederation: 'UEFA', rank: 19, group: 'B' },
+    // ===== C组：巴西、摩洛哥、海地、苏格兰 =====
+    { name: '巴西', flag: '🇧🇷', confederation: 'CONMEBOL', rank: 5, group: 'C' },
+    { name: '摩洛哥', flag: '🇲🇦', confederation: 'CAF', rank: 12, group: 'C' },
+    { name: '海地', flag: '🇭🇹', confederation: 'CONCACAF', rank: 86, group: 'C' },
+    { name: '苏格兰', flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', confederation: 'UEFA', rank: 28, group: 'C' },
+    // ===== D组：美国（东道主）、巴拉圭、澳大利亚、土耳其 =====
+    { name: '美国', flag: '🇺🇸', confederation: 'CONCACAF', rank: 16, group: 'D', host: true },
+    { name: '巴拉圭', flag: '🇵🇾', confederation: 'CONMEBOL', rank: 51, group: 'D' },
+    { name: '澳大利亚', flag: '🇦🇺', confederation: 'AFC', rank: 24, group: 'D' },
+    { name: '土耳其', flag: '🇹🇷', confederation: 'UEFA', rank: 40, group: 'D' },
+    // ===== E组：德国、库拉索、科特迪瓦、厄瓜多尔 =====
+    { name: '德国', flag: '🇩🇪', confederation: 'UEFA', rank: 10, group: 'E' },
+    { name: '库拉索', flag: '🇨🇼', confederation: 'CONCACAF', rank: 82, group: 'E' },
+    { name: '科特迪瓦', flag: '🇨🇮', confederation: 'CAF', rank: 41, group: 'E' },
+    { name: '厄瓜多尔', flag: '🇪🇨', confederation: 'CONMEBOL', rank: 30, group: 'E' },
+    // ===== F组：荷兰、日本、瑞典、突尼斯 =====
+    { name: '荷兰', flag: '🇳🇱', confederation: 'UEFA', rank: 7, group: 'F' },
+    { name: '日本', flag: '🇯🇵', confederation: 'AFC', rank: 15, group: 'F' },
+    { name: '瑞典', flag: '🇸🇪', confederation: 'UEFA', rank: 27, group: 'F' },
+    { name: '突尼斯', flag: '🇹🇳', confederation: 'CAF', rank: 41, group: 'F' },
+    // ===== G组：比利时、埃及、伊朗、新西兰 =====
+    { name: '比利时', flag: '🇧🇪', confederation: 'UEFA', rank: 8, group: 'G' },
+    { name: '埃及', flag: '🇪🇬', confederation: 'CAF', rank: 33, group: 'G' },
+    { name: '伊朗', flag: '🇮🇷', confederation: 'AFC', rank: 18, group: 'G' },
+    { name: '新西兰', flag: '🇳🇿', confederation: 'OFC', rank: 89, group: 'G' },
+    // ===== H组：西班牙、佛得角、沙特阿拉伯、乌拉圭 =====
+    { name: '西班牙', flag: '🇪🇸', confederation: 'UEFA', rank: 3, group: 'H' },
+    { name: '佛得角', flag: '🇨🇻', confederation: 'CAF', rank: 68, group: 'H' },
+    { name: '沙特阿拉伯', flag: '🇸🇦', confederation: 'AFC', rank: 53, group: 'H' },
+    { name: '乌拉圭', flag: '🇺🇾', confederation: 'CONMEBOL', rank: 11, group: 'H' },
+    // ===== I组：法国、塞内加尔、伊拉克、挪威 =====
+    { name: '法国', flag: '🇫🇷', confederation: 'UEFA', rank: 2, group: 'I' },
+    { name: '塞内加尔', flag: '🇸🇳', confederation: 'CAF', rank: 17, group: 'I' },
+    { name: '伊拉克', flag: '🇮🇶', confederation: 'AFC', rank: 56, group: 'I' },
+    { name: '挪威', flag: '🇳🇴', confederation: 'UEFA', rank: 43, group: 'I' },
+    // ===== J组：阿根廷（卫冕冠军）、阿尔及利亚、奥地利、约旦 =====
+    { name: '阿根廷', flag: '🇦🇷', confederation: 'CONMEBOL', rank: 1, group: 'J', champion: true },
+    { name: '阿尔及利亚', flag: '🇩🇿', confederation: 'CAF', rank: 37, group: 'J' },
+    { name: '奥地利', flag: '🇦🇹', confederation: 'UEFA', rank: 23, group: 'J' },
+    { name: '约旦', flag: '🇯🇴', confederation: 'AFC', rank: 64, group: 'J' },
+    // ===== K组：葡萄牙、民主刚果、乌兹别克斯坦、哥伦比亚 =====
+    { name: '葡萄牙', flag: '🇵🇹', confederation: 'UEFA', rank: 6, group: 'K' },
+    { name: '民主刚果', flag: '🇨🇩', confederation: 'CAF', rank: 61, group: 'K' },
+    { name: '乌兹别克斯坦', flag: '🇺🇿', confederation: 'AFC', rank: 58, group: 'K' },
+    { name: '哥伦比亚', flag: '🇨🇴', confederation: 'CONMEBOL', rank: 14, group: 'K' },
+    // ===== L组：英格兰、克罗地亚、加纳、巴拿马 =====
+    { name: '英格兰', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', confederation: 'UEFA', rank: 4, group: 'L' },
+    { name: '克罗地亚', flag: '🇭🇷', confederation: 'UEFA', rank: 13, group: 'L' },
+    { name: '加纳', flag: '🇬🇭', confederation: 'CAF', rank: 65, group: 'L' },
+    { name: '巴拿马', flag: '🇵🇦', confederation: 'CONCACAF', rank: 35, group: 'L' },
+];
 
 // 分组数据
 const GROUPED_TEAMS = {};
@@ -592,14 +593,14 @@ const PLAYERS_DATA = {
         { name:'鲁本·迪亚斯', enName:'R%C3%BAben_Dias', num:3, pos:'后卫', age:29, club:'曼城' },
         { name:'迪奥戈·科斯塔', enName:'Diogo_Costa', num:22, pos:'门将', age:26, club:'波尔图' },
     ],
-    '意大利': [
-        { name:'基耶萨', enName:'Federico_Chiesa', num:7, pos:'前锋', age:28, club:'利物浦' },
-        { name:'巴雷拉', enName:'Nicol%C3%B2_Barella', num:18, pos:'中场', age:29, club:'国际米兰' },
-        { name:'托纳利', enName:'Sandro_Tonali', num:8, pos:'中场', age:26, club:'纽卡斯尔' },
-        { name:'迪马尔科', enName:'Federico_Dimarco', num:3, pos:'后卫', age:28, club:'国际米兰' },
-        { name:'巴斯托尼', enName:'Alessandro_Bastoni', num:23, pos:'后卫', age:27, club:'国际米兰' },
-        { name:'卡拉菲奥里', enName:'Riccardo_Calafiori', num:5, pos:'后卫', age:24, club:'阿森纳' },
-        { name:'多纳鲁马', enName:'Gianluigi_Donnarumma', num:1, pos:'门将', age:27, club:'巴黎圣日耳曼' },
+    '南非': [
+        { name:'珀西·陶', enName:'Percy_Tau', num:10, pos:'前锋', age:31, club:'开罗国民' },
+        { name:'福斯特', enName:'Lyle_Foster', num:9, pos:'前锋', age:25, club:'伯恩利' },
+        { name:'莫科纳', enName:'Teboho_Mokoena_(soccer,_born_1997)', num:8, pos:'中场', age:28, club:'马梅洛迪日落' },
+        { name:'齐瓦内', enName:'Sphephelo_Sithole', num:6, pos:'中场', age:26, club:'通德拉' },
+        { name:'姆瓦拉', enName:'Mothobi_Mvala', num:14, pos:'后卫', age:31, club:'马梅洛迪日落' },
+        { name:'穆道', enName:'Khuliso_Mudau', num:2, pos:'后卫', age:30, club:'马梅洛迪日落' },
+        { name:'威廉姆斯', enName:'Ronwen_Williams', num:1, pos:'门将', age:34, club:'马梅洛迪日落' },
     ],
     '荷兰': [
         { name:'加克波', enName:'Cody_Gakpo', num:8, pos:'前锋', age:27, club:'利物浦' },
@@ -718,14 +719,14 @@ const PLAYERS_DATA = {
         { name:'康奈尔', enName:'Alistair_Johnston', num:14, pos:'后卫', age:30, club:'欧本' },
         { name:'圣克莱尔', enName:'Dayne_St._Clair', num:1, pos:'门将', age:29, club:'明尼苏达联' },
     ],
-    '丹麦': [
-        { name:'霍伊伦', enName:'Rasmus_H%C3%B8jlund', num:9, pos:'前锋', age:23, club:'曼联' },
-        { name:'多尔贝格', enName:'Kasper_Dolberg', num:12, pos:'前锋', age:28, club:'安德莱赫特' },
-        { name:'埃里克森', enName:'Christian_Eriksen', num:10, pos:'中场', age:34, club:'曼联' },
-        { name:'霍伊别尔', enName:'Pierre-Emile_H%C3%B8jbjerg', num:23, pos:'中场', age:30, club:'马赛' },
-        { name:'克里斯滕森', enName:'Andreas_Christensen', num:6, pos:'后卫', age:30, club:'巴塞罗那' },
-        { name:'安德森', enName:'Joachim_Andersen', num:2, pos:'后卫', age:30, club:'富勒姆' },
-        { name:'小舒梅切尔', enName:'Kasper_Schmeichel', num:1, pos:'门将', age:39, club:'凯尔特人' },
+    '捷克': [
+        { name:'希克', enName:'Patrik_Schick', num:10, pos:'前锋', age:30, club:'勒沃库森' },
+        { name:'赫洛泽克', enName:'Adam_Hlo%C5%BEek', num:9, pos:'前锋', age:23, club:'霍芬海姆' },
+        { name:'绍切克', enName:'Tom%C3%A1%C5%A1_Sou%C4%8Dek', num:22, pos:'中场', age:31, club:'西汉姆联' },
+        { name:'巴拉克', enName:'Anton%C3%ADn_Bar%C3%A1k', num:7, pos:'中场', age:31, club:'佛罗伦萨' },
+        { name:'克雷伊奇', enName:'Ladislav_Krej%C4%8D%C3%AD_(footballer,_born_1999)', num:6, pos:'后卫', age:27, club:'布拉格斯巴达' },
+        { name:'齐马', enName:'David_Zima', num:4, pos:'后卫', age:25, club:'都灵' },
+        { name:'科瓦尔', enName:'Mat%C4%9Bj_Kov%C3%A1%C5%99', num:1, pos:'门将', age:26, club:'勒沃库森' },
     ],
     '瑞士': [
         { name:'恩博洛', enName:'Breel_Embolo', num:9, pos:'前锋', age:29, club:'摩纳哥' },
@@ -745,14 +746,14 @@ const PLAYERS_DATA = {
         { name:'阿拉巴', enName:'David_Alaba', num:8, pos:'后卫', age:34, club:'皇家马德里' },
         { name:'彭茨', enName:'Patrick_Pentz', num:1, pos:'门将', age:29, club:'布隆德比' },
     ],
-    '乌克兰': [
-        { name:'多夫比克', enName:'Artem_Dovbyk', num:11, pos:'前锋', age:28, club:'罗马' },
-        { name:'亚列姆丘克', enName:'Roman_Yaremchuk', num:9, pos:'前锋', age:30, club:'奥林匹亚科斯' },
-        { name:'穆德里克', enName:'Mykhaylo_Mudryk', num:10, pos:'前锋', age:25, club:'切尔西' },
-        { name:'津琴科', enName:'Oleksandr_Zinchenko', num:17, pos:'中场', age:29, club:'阿森纳' },
-        { name:'马利诺夫斯基', enName:'Ruslan_Malinovskyi', num:8, pos:'中场', age:33, club:'热那亚' },
-        { name:'扎巴尔尼', enName:'Illya_Zabarnyi', num:22, pos:'后卫', age:23, club:'伯恩茅斯' },
-        { name:'卢宁', enName:'Andriy_Lunin', num:1, pos:'门将', age:27, club:'皇家马德里' },
+    '波黑': [
+        { name:'哲科', enName:'Edin_D%C5%BEeko', num:11, pos:'前锋', age:40, club:'费内巴切' },
+        { name:'德米罗维奇', enName:'Ermedin_Demirovi%C4%87', num:9, pos:'前锋', age:28, club:'斯图加特' },
+        { name:'皮亚尼奇', enName:'Miralem_Pjani%C4%87', num:10, pos:'中场', age:36, club:'莫斯科中央陆军' },
+        { name:'克鲁尼奇', enName:'Rade_Kruni%C4%87', num:14, pos:'中场', age:31, club:'费内巴切' },
+        { name:'科拉希纳茨', enName:'Sead_Kola%C5%A1inac', num:5, pos:'后卫', age:32, club:'亚特兰大' },
+        { name:'艾哈迈多霍吉奇', enName:'Anel_Ahmedhod%C5%BEi%C4%87', num:3, pos:'后卫', age:27, club:'谢菲联' },
+        { name:'谢希奇', enName:'Ibrahim_%C5%A0ehi%C4%87', num:12, pos:'门将', age:37, club:'哈伊杜克' },
     ],
     '瑞典': [
         { name:'伊萨克', enName:'Alexander_Isak', num:9, pos:'前锋', age:26, club:'纽卡斯尔' },
@@ -763,23 +764,23 @@ const PLAYERS_DATA = {
         { name:'希恩', enName:'Carl_Starfelt', num:14, pos:'后卫', age:27, club:'亚特兰大' },
         { name:'奥尔森', enName:'Robin_Olsen', num:1, pos:'门将', age:36, club:'阿斯顿维拉' },
     ],
-    '波兰': [
-        { name:'莱万多夫斯基', enName:'Robert_Lewandowski', num:9, pos:'前锋', age:37, club:'巴塞罗那' },
-        { name:'希维德尔斯基', enName:'Karol_%C5%9Awiderski', num:16, pos:'前锋', age:29, club:'夏洛特FC' },
-        { name:'泽林斯基', enName:'Piotr_Zieli%C5%84ski', num:20, pos:'中场', age:32, club:'国际米兰' },
-        { name:'基维奥尔', enName:'Jakub_Kiwior', num:14, pos:'后卫', age:26, club:'阿森纳' },
-        { name:'萨拉蒙', enName:'Bartosz_Salamon', num:2, pos:'后卫', age:35, club:'波兹南莱赫' },
-        { name:'弗兰科夫斯基', enName:'Przemys%C5%82aw_Frankowski', num:19, pos:'中场', age:31, club:'朗斯' },
-        { name:'什琴斯尼', enName:'Wojciech_Szcz%C4%99sny', num:1, pos:'门将', age:36, club:'巴塞罗那' },
+    '海地': [
+        { name:'皮埃罗', enName:'Frantzdy_Pierrot', num:9, pos:'前锋', age:31, club:'海法马卡比' },
+        { name:'纳宗', enName:'Duckens_Nazon', num:10, pos:'前锋', age:32, club:'圣彼得堡泽尼特' },
+        { name:'桑特-路易斯', enName:'Steeven_Saba', num:7, pos:'中场', age:28, club:'贝尔谢巴工人' },
+        { name:'埃克森', enName:'Bryan_Alceus', num:6, pos:'中场', age:30, club:'波尔多' },
+        { name:'克里斯蒂安', enName:'Ricardo_Ad%C3%A9', num:4, pos:'后卫', age:31, club:'皇家盐湖城' },
+        { name:'阿克塞尔', enName:'Carlens_Arcus', num:2, pos:'后卫', age:29, club:'维迪' },
+        { name:'普拉西德', enName:'Johny_Placide', num:1, pos:'门将', age:38, club:'巴斯蒂亚' },
     ],
-    '塞尔维亚': [
-        { name:'弗拉霍维奇', enName:'Du%C5%A1an_Vlahovi%C4%87', num:9, pos:'前锋', age:26, club:'尤文图斯' },
-        { name:'米特罗维奇', enName:'Aleksandar_Mitrovi%C4%87', num:7, pos:'前锋', age:31, club:'利雅得新月' },
-        { name:'塔迪奇', enName:'Du%C5%A1an_Tadi%C4%87', num:10, pos:'中场', age:37, club:'费内巴切' },
-        { name:'米林科维奇', enName:'Sergej_Milinkovi%C4%87-Savi%C4%87', num:20, pos:'中场', age:31, club:'利雅得新月' },
-        { name:'古德利', enName:'Nemanja_Gudelj', num:8, pos:'中场', age:34, club:'塞维利亚' },
-        { name:'帕夫洛维奇', enName:'Strahinja_Pavlovi%C4%87', num:4, pos:'后卫', age:25, club:'AC米兰' },
-        { name:'V.米林科维奇', enName:'Vanja_Milinkovi%C4%87-Savi%C4%87', num:23, pos:'门将', age:29, club:'都灵' },
+    '苏格兰': [
+        { name:'麦金', enName:'John_McGinn', num:7, pos:'中场', age:31, club:'阿斯顿维拉' },
+        { name:'亚当斯', enName:'Ch%C3%A9_Adams', num:10, pos:'前锋', age:29, club:'都灵' },
+        { name:'麦克托米奈', enName:'Scott_McTominay', num:4, pos:'中场', age:29, club:'那不勒斯' },
+        { name:'吉尔摩', enName:'Billy_Gilmour', num:14, pos:'中场', age:25, club:'那不勒斯' },
+        { name:'蒂尔尼', enName:'Kieran_Tierney', num:6, pos:'后卫', age:29, club:'阿森纳' },
+        { name:'罗伯逊', enName:'Andrew_Robertson', num:3, pos:'后卫', age:32, club:'利物浦' },
+        { name:'冈恩', enName:'Angus_Gunn', num:1, pos:'门将', age:30, club:'诺维奇' },
     ],
     '埃及': [
         { name:'萨拉赫', enName:'Mohamed_Salah', num:10, pos:'前锋', age:34, club:'利物浦' },
@@ -790,14 +791,14 @@ const PLAYERS_DATA = {
         { name:'赫加齐', enName:'Ahmed_Hegazi', num:6, pos:'后卫', age:35, club:'吉达联合' },
         { name:'埃尔舍纳维', enName:'Mohamed_El_Shenawy', num:1, pos:'门将', age:37, club:'开罗国民' },
     ],
-    '尼日利亚': [
-        { name:'奥斯梅恩', enName:'Victor_Osimhen', num:9, pos:'前锋', age:27, club:'加拉塔萨雷' },
-        { name:'卢克曼', enName:'Ademola_Lookman', num:11, pos:'前锋', age:28, club:'亚特兰大' },
-        { name:'丘库埃泽', enName:'Samuel_Chukwueze', num:21, pos:'前锋', age:27, club:'AC米兰' },
-        { name:'伊沃比', enName:'Alex_Iwobi', num:17, pos:'中场', age:30, club:'富勒姆' },
-        { name:'恩迪迪', enName:'Wilfred_Ndidi', num:4, pos:'中场', age:29, club:'莱斯特城' },
-        { name:'巴锡', enName:'Calvin_Bassey', num:21, pos:'后卫', age:26, club:'富勒姆' },
-        { name:'乌佐霍', enName:'Francis_Uzoho', num:23, pos:'门将', age:27, club:'奥莫尼亚' },
+    '巴拉圭': [
+        { name:'阿尔米隆', enName:'Miguel_Almir%C3%B3n', num:10, pos:'中场', age:32, club:'纽卡斯尔' },
+        { name:'恩西索', enName:'Julio_Enciso_(footballer,_born_2004)', num:19, pos:'前锋', age:22, club:'布莱顿' },
+        { name:'索萨', enName:'Ram%C3%B3n_Sosa', num:7, pos:'前锋', age:26, club:'诺丁汉森林' },
+        { name:'比利亚桑蒂', enName:'Math%C3%ADas_Villasanti', num:8, pos:'中场', age:28, club:'格雷米奥' },
+        { name:'阿尔德雷特', enName:'Omar_Alderete', num:3, pos:'后卫', age:29, club:'赫塔费' },
+        { name:'戈麦斯', enName:'Gustavo_G%C3%B3mez', num:15, pos:'后卫', age:33, club:'帕尔梅拉斯' },
+        { name:'费尔南德斯', enName:'Roberto_Fern%C3%A1ndez_(Paraguayan_footballer)', num:1, pos:'门将', age:38, club:'博塔弗戈' },
     ],
     '科特迪瓦': [
         { name:'阿莱', enName:'S%C3%A9bastien_Haller', num:22, pos:'前锋', age:31, club:'多特蒙德' },
@@ -808,14 +809,14 @@ const PLAYERS_DATA = {
         { name:'博利', enName:'Willy_Boly', num:21, pos:'后卫', age:33, club:'诺丁汉森林' },
         { name:'福法纳', enName:'Mamadou_Fofana_(footballer,_born_1998)', num:1, pos:'门将', age:34, club:'昂热' },
     ],
-    '喀麦隆': [
-        { name:'阿布巴卡尔', enName:'Vincent_Aboubakar', num:10, pos:'前锋', age:34, club:'哈塔伊体育' },
-        { name:'舒波莫廷', enName:'Eric_Maxim_Choupo-Moting', num:13, pos:'前锋', age:35, club:'纽约红牛' },
-        { name:'安古伊萨', enName:'Andr%C3%A9-Frank_Zambo_Anguissa', num:8, pos:'中场', age:30, club:'那不勒斯' },
-        { name:'翁圭内', enName:'Nicolas_Nkoulou', num:17, pos:'中场', age:28, club:'法兰克福' },
-        { name:'卡斯特莱托', enName:'Jean-Charles_Castelletto', num:21, pos:'后卫', age:31, club:'南特' },
-        { name:'托洛', enName:'Nouhou_Tolo', num:5, pos:'后卫', age:28, club:'西雅图海湾人' },
-        { name:'奥纳纳', enName:'Amadou_Onana', num:1, pos:'门将', age:30, club:'曼联' },
+    '土耳其': [
+        { name:'恰尔汗奥卢', enName:'Hakan_%C3%87alhano%C4%9Flu', num:10, pos:'中场', age:32, club:'国际米兰' },
+        { name:'伊尔马兹', enName:'Bar%C4%B1%C5%9F_Alper_Y%C4%B1lmaz', num:9, pos:'前锋', age:26, club:'加拉塔萨雷' },
+        { name:'居莱尔', enName:'Arda_G%C3%BCler', num:11, pos:'中场', age:21, club:'皇家马德里' },
+        { name:'克科库', enName:'Orkun_K%C3%B6k%C3%A7%C3%BC', num:17, pos:'中场', age:25, club:'本菲卡' },
+        { name:'德米拉尔', enName:'Merih_Demiral', num:3, pos:'后卫', age:28, club:'吉达国民' },
+        { name:'卡迪奥卢', enName:'Ferdi_Kad%C4%B1o%C4%9Flu', num:20, pos:'后卫', age:26, club:'布莱顿' },
+        { name:'居诺克', enName:'Mert_G%C3%BCnok', num:1, pos:'门将', age:37, club:'贝西克塔斯' },
     ],
     '加纳': [
         { name:'乔丹·阿尤', enName:'Jordan_Ayew', num:9, pos:'前锋', age:34, club:'莱斯特城' },
@@ -880,23 +881,23 @@ const PLAYERS_DATA = {
         { name:'普拉塔', enName:'Gonzalo_Plata', num:19, pos:'前锋', age:25, club:'弗拉门戈' },
         { name:'加林德斯', enName:'Hern%C3%A1n_Gal%C3%ADndez', num:1, pos:'门将', age:35, club:'瓦奇巴托' },
     ],
-    '智利': [
-        { name:'布里尔顿', enName:'Ben_Brereton_D%C3%ADaz', num:22, pos:'前锋', age:27, club:'谢菲联' },
-        { name:'达维拉', enName:'V%C3%ADctor_D%C3%A1vila', num:9, pos:'前锋', age:28, club:'美洲狮' },
-        { name:'比达尔', enName:'Arturo_Vidal', num:8, pos:'中场', age:39, club:'科洛科洛' },
-        { name:'普尔加', enName:'Erick_Pulgar', num:13, pos:'中场', age:32, club:'弗拉门戈' },
-        { name:'马里潘', enName:'Guillermo_Marip%C3%A1n', num:3, pos:'后卫', age:32, club:'都灵' },
-        { name:'苏亚索', enName:'Gabriel_Suazo', num:17, pos:'后卫', age:28, club:'图卢兹' },
-        { name:'科尔特斯', enName:'Brayan_Cort%C3%A9s', num:12, pos:'门将', age:34, club:'科洛科洛' },
+    '库拉索': [
+        { name:'廷伯', enName:'Quinten_Timber', num:10, pos:'中场', age:25, club:'费耶诺德' },
+        { name:'安东尼', enName:'Jearl_Margaritha', num:9, pos:'前锋', age:26, club:'罗达JC' },
+        { name:'巴库纳', enName:'Leandro_Bacuna', num:8, pos:'中场', age:34, club:'格罗宁根' },
+        { name:'戈雷', enName:'Kenji_Gorr%C3%A9', num:7, pos:'前锋', age:29, club:'兹沃勒' },
+        { name:'马蒂纳', enName:'Cuco_Martina', num:4, pos:'后卫', age:35, club:'布雷达' },
+        { name:'范埃伊马', enName:'Roshon_van_Eijma', num:3, pos:'后卫', age:28, club:'瓦尔韦克' },
+        { name:'罗姆', enName:'Eloy_Room', num:1, pos:'门将', age:37, club:'维特斯' },
     ],
-    '哥斯达黎加': [
-        { name:'乌加尔德', enName:'Manfred_Ugalde', num:9, pos:'前锋', age:24, club:'莫斯科斯巴达' },
-        { name:'坎贝尔', enName:'Joel_Campbell', num:12, pos:'前锋', age:33, club:'萨普里萨' },
-        { name:'鲁伊斯', enName:'Bryan_Ruiz', num:10, pos:'中场', age:40, club:'萨普里萨' },
-        { name:'阿吉莱拉', enName:'Brandon_Aguilera', num:17, pos:'中场', age:22, club:'埃斯特利' },
-        { name:'卡尔沃', enName:'Francisco_Calvo', num:15, pos:'后卫', age:33, club:'华雷斯' },
-        { name:'巴尔加斯', enName:'Juan_Pablo_Vargas', num:8, pos:'后卫', age:33, club:'百万富翁' },
-        { name:'纳瓦斯', enName:'Keylor_Navas', num:1, pos:'门将', age:39, club:'萨普里萨' },
+    '佛得角': [
+        { name:'门德斯', enName:'Ryan_Mendes', num:10, pos:'前锋', age:36, club:'科贾埃利体育' },
+        { name:'塔瓦雷斯', enName:'Jovane_Cabral', num:9, pos:'前锋', age:28, club:'葡萄牙体育' },
+        { name:'罗沙', enName:'Patrick_Andrade', num:8, pos:'中场', age:33, club:'卡拉巴赫' },
+        { name:'蒙特罗', enName:'Jamiro_Monteiro', num:14, pos:'中场', age:30, club:'圣何塞地震' },
+        { name:'洛佩斯', enName:'Roberto_Lopes_(footballer,_born_1992)', num:4, pos:'后卫', age:34, club:'沙姆洛克流浪' },
+        { name:'皮科', enName:'Steven_Fort%C3%A8s', num:5, pos:'后卫', age:34, club:'兰斯' },
+        { name:'博尔赫斯', enName:'Vozinha', num:1, pos:'门将', age:39, club:'特伦钦' },
     ],
     '巴拿马': [
         { name:'迪亚斯', enName:'Ismael_D%C3%ADaz_(footballer,_born_1997)', num:10, pos:'前锋', age:27, club:'康塞普西翁大学' },
@@ -907,14 +908,14 @@ const PLAYERS_DATA = {
         { name:'米勒', enName:'Roderick_Miller', num:3, pos:'后卫', age:28, club:'波特兰伐木者' },
         { name:'莫斯克拉', enName:'Orlando_Mosquera', num:22, pos:'门将', age:30, club:'阿尔法伊哈' },
     ],
-    '牙买加': [
-        { name:'安东尼奥', enName:'Michail_Antonio', num:9, pos:'前锋', age:36, club:'西汉姆联' },
-        { name:'贝利', enName:'Leon_Bailey', num:11, pos:'前锋', age:28, club:'阿斯顿维拉' },
-        { name:'格雷', enName:'Demarai_Gray', num:7, pos:'前锋', age:29, club:'热刺' },
-        { name:'德科多瓦-里德', enName:'Bobby_De_Cordova-Reid', num:15, pos:'中场', age:33, club:'莱斯特城' },
-        { name:'平诺克', enName:'Ethan_Pinnock', num:5, pos:'后卫', age:32, club:'布伦特福德' },
-        { name:'贝尔', enName:'Joe_Bell_(footballer)', num:4, pos:'后卫', age:22, club:'奥兰多城' },
-        { name:'布莱克', enName:'Andre_Blake', num:1, pos:'门将', age:35, club:'费城联合' },
+    '挪威': [
+        { name:'哈兰德', enName:'Erling_Haaland', num:9, pos:'前锋', age:25, club:'曼城' },
+        { name:'厄德高', enName:'Martin_%C3%98degaard', num:10, pos:'中场', age:27, club:'阿森纳' },
+        { name:'瑟洛特', enName:'Alexander_S%C3%B8rloth', num:19, pos:'前锋', age:30, club:'马德里竞技' },
+        { name:'贝格', enName:'Sander_Berge', num:8, pos:'中场', age:28, club:'富勒姆' },
+        { name:'厄斯蒂高', enName:'Leo_%C3%98stig%C3%A5rd', num:4, pos:'后卫', age:26, club:'雷恩' },
+        { name:'阿耶尔', enName:'Kristoffer_Ajer', num:3, pos:'后卫', age:28, club:'布伦特福德' },
+        { name:'尼兰', enName:'%C3%98rjan_Nyland', num:1, pos:'门将', age:35, club:'塞维利亚' },
     ],
     '伊拉克': [
         { name:'侯赛因', enName:'Aymen_Hussein', num:18, pos:'前锋', age:30, club:'胡齐斯坦钢铁' },
@@ -943,23 +944,23 @@ const PLAYERS_DATA = {
         { name:'卡卡瑟', enName:'Liberato_Cacace', num:15, pos:'后卫', age:26, club:'恩波利' },
         { name:'赛尔', enName:'Oli_Sail', num:1, pos:'门将', age:26, club:'普利茅斯' },
     ],
-    '阿联酋': [
-        { name:'马布霍特', enName:'Ali_Mabkhout', num:7, pos:'前锋', age:34, club:'阿尔贾兹拉' },
-        { name:'利马', enName:'F%C3%A1bio_Lima_(footballer,_born_1993)', num:10, pos:'前锋', age:30, club:'阿尔艾因' },
-        { name:'萨尔明', enName:'Abdullah_Ramadan_(footballer)', num:8, pos:'中场', age:28, club:'阿尔瓦赫达' },
-        { name:'哈桑', enName:'Majed_Hassan', num:6, pos:'中场', age:27, club:'阿尔贾兹拉' },
-        { name:'阿巴斯', enName:'Bandar_Al-Ahbabi', num:3, pos:'后卫', age:31, club:'阿尔艾因' },
-        { name:'艾哈迈德', enName:'Khalid_Hashemi', num:21, pos:'后卫', age:25, club:'沙迦' },
-        { name:'伊萨', enName:'Khalid_Eisa', num:1, pos:'门将', age:32, club:'阿尔瓦赫达' },
+    '民主刚果': [
+        { name:'巴坎布', enName:'C%C3%A9dric_Bakambu', num:9, pos:'前锋', age:35, club:'贝蒂斯' },
+        { name:'维萨', enName:'Yoane_Wissa', num:17, pos:'前锋', age:28, club:'布伦特福德' },
+        { name:'姆本巴', enName:'Chancel_Mbemba', num:22, pos:'中场', age:31, club:'马赛' },
+        { name:'穆图萨米', enName:'Samuel_Moutoussamy', num:6, pos:'中场', age:29, club:'南特' },
+        { name:'基库拉', enName:'Arthur_Masuaku', num:4, pos:'后卫', age:31, club:'贝西克塔斯' },
+        { name:'因瓜', enName:'G%C3%A9d%C3%A9on_Kalulu', num:3, pos:'后卫', age:28, club:'洛里昂' },
+        { name:'卡马拉', enName:'Brice_Samba', num:1, pos:'门将', age:37, club:'雷恩' },
     ],
-    '马里': [
-        { name:'特劳雷', enName:'El_Bilal_Tour%C3%A9', num:9, pos:'前锋', age:26, club:'富勒姆' },
-        { name:'科内', enName:'Moussa_Diaby', num:10, pos:'前锋', age:23, club:'门兴格拉德巴赫' },
-        { name:'海达拉', enName:'Amadou_Haidara', num:8, pos:'中场', age:27, club:'RB莱比锡' },
-        { name:'萨马塞库', enName:'Diadie_Samass%C3%A9kou', num:6, pos:'中场', age:29, club:'霍芬海姆' },
-        { name:'福法纳', enName:'Mamadou_Fofana_(footballer,_born_1998)', num:4, pos:'后卫', age:26, club:'兰斯' },
-        { name:'库利巴利', enName:'Kiki_Kouyat%C3%A9', num:5, pos:'后卫', age:28, club:'斯特拉斯堡' },
-        { name:'迪亚拉', enName:'Djigui_Diarra', num:1, pos:'门将', age:31, club:'梅斯' },
+    '约旦': [
+        { name:'塔马里', enName:'Musa_Al-Taamari', num:10, pos:'前锋', age:29, club:'蒙彼利埃' },
+        { name:'纳伊马特', enName:'Yazan_Al-Naimat', num:11, pos:'前锋', age:27, club:'多哈阿拉伯人' },
+        { name:'拉瓦什德', enName:'Mahmoud_Al-Mardi', num:7, pos:'中场', age:32, club:'安曼团结' },
+        { name:'萨姆雷赫', enName:'Ibrahim_Sadeh', num:8, pos:'中场', age:26, club:'科罗纳' },
+        { name:'阿拉伯', enName:'Yazan_Al-Arab', num:5, pos:'后卫', age:30, club:'阿尔萨德' },
+        { name:'巴尼·亚辛', enName:'Abdallah_Nasib', num:3, pos:'后卫', age:32, club:'阿尔侯赛因' },
+        { name:'阿布·莱拉', enName:'Yazid_Abu_Laila', num:1, pos:'门将', age:33, club:'安曼团结' },
     ],
 };
 
