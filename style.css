@@ -245,14 +245,18 @@ body {
 .theme-toggle-btn {
     background: var(--white-alpha-06);
     border: 1px solid var(--border);
-    border-radius: 50%;
-    width: 32px; height: 32px;
+    border-radius: 20px;
+    padding: 0 10px;
+    height: 32px;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 16px;
+    gap: 4px;
+    cursor: pointer;
     transition: all 0.25s;
     flex-shrink: 0;
 }
-.theme-toggle-btn:active { transform: scale(0.88); background: var(--white-alpha-15); }
+.theme-toggle-btn:active { transform: scale(0.95); background: var(--white-alpha-15); }
+.theme-icon { font-size: 16px; line-height: 1; }
+.theme-label { font-size: 12px; font-weight: 600; color: var(--text); }
 .topbar-logo {
     font-size: 16px;
     font-weight: 800;

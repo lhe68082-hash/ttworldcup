@@ -147,8 +147,13 @@ function initTheme() {
 
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    const icon = document.getElementById('themeToggle');
-    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+        const iconEl = btn.querySelector('.theme-icon');
+        const labelEl = btn.querySelector('.theme-label');
+        if (iconEl) iconEl.textContent = theme === 'light' ? '🌙' : '☀️';
+        if (labelEl) labelEl.textContent = theme === 'light' ? '日间' : '夜间';
+    }
     const meta = document.getElementById('metaThemeColor');
     if (meta) meta.content = theme === 'light' ? '#f0f2f5' : '#121926';
     localStorage.setItem('theme', theme);
