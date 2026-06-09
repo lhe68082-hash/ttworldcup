@@ -428,12 +428,12 @@ body {
     opacity: 0.8;
 }
 
-/* 大力神杯图片 */
-.trophy-img {
-    width: 28px;
-    height: auto;
+/* 大力神杯图标 */
+.trophy-icon {
+    font-size: 26px;
     vertical-align: middle;
     margin-right: 6px;
+    display: inline-block;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
     animation: trophyFloat 3s ease-in-out infinite;
 }
