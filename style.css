@@ -1570,6 +1570,53 @@ body {
 .q-opt.wrong { border-color: var(--red); background: var(--red-glass); color: var(--red); }
 .quiz-score { font-size: 13px; color: var(--orange); margin-top: 8px; }
 
+/* 答对提示文字 */
+.quiz-tip {
+    display: none;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 10px;
+    min-height: 28px;
+    text-shadow: 0 0 20px rgba(240, 199, 94, 0.5);
+}
+.quiz-tip-pop {
+    animation: tipPop 0.5s ease-out forwards;
+}
+@keyframes tipPop {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 粒子特效容器 */
+.quiz-particles {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+    z-index: 9999;
+}
+.quiz-particle {
+    position: absolute;
+    font-size: 20px;
+    animation: particleFly 1.5s ease-out forwards;
+    filter: drop-shadow(0 0 4px var(--color));
+}
+@keyframes particleFly {
+    0% {
+        transform: translate(0, 0) scale(0);
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--x), var(--y)) scale(1.5);
+        opacity: 0;
+    }
+}
+
 /* Dot list */
 .dot-list { list-style: none; padding: 0; }
 .dot-list li { padding: 5px 0; border-bottom: 1px solid var(--white-alpha-03); font-size: 13px; color: var(--text-light); }

@@ -353,11 +353,66 @@ window.answerQuiz = function(idx, el) {
     quizDone = true;
     const q = QUIZ_DATA[quizIdx % QUIZ_DATA.length];
     const all = document.querySelectorAll('.q-opt');
-    if (idx === q.answer) { el.classList.add('correct'); quizScore++; }
-    else { el.classList.add('wrong'); all[q.answer].classList.add('correct'); }
+    if (idx === q.answer) {
+        el.classList.add('correct');
+        quizScore++;
+        // 答对特效：撒花 + 鼓励语
+        showQuizCelebration();
+    } else {
+        el.classList.add('wrong');
+        all[q.answer].classList.add('correct');
+    }
     setText('quizScore', quizScore);
     all.forEach(o => o.style.pointerEvents = 'none');
 };
+
+// 答对撒花特效
+function showQuizCelebration() {
+    const messages = [
+        '太棒了！🎉', '厉害！🔥', '答对了！✨', '知识渊博！💯', '继续加油！🏆',
+        '你是懂球的！⚽', '稳稳的！👍', '高手！👑', '完美！🌟', '继续冲！💪'
+    ];
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+
+    // 显示鼓励文字
+    const tipEl = document.getElementById('quizTip');
+    if (tipEl) {
+        tipEl.textContent = msg;
+        tipEl.classList.add('quiz-tip-pop');
+        tipEl.style.display = 'block';
+    }
+
+    // 创建彩色粒子
+    createQuizParticles();
+
+    // 2秒后隐藏
+    setTimeout(() => {
+        if (tipEl) {
+            tipEl.classList.remove('quiz-tip-pop');
+            tipEl.style.display = 'none';
+        }
+    }, 2000);
+}
+
+// 创建彩色粒子特效
+function createQuizParticles() {
+    const container = document.getElementById('quizParticles');
+    if (!container) return;
+    const colors = ['#f0c75e', '#ff6b6b', '#4ecdc4', '#a78bfa', '#34d399', '#f472b6', '#60a5fa'];
+    const emojis = ['✨', '🎉', '⭐', '💫', '🌟', '🔥', '⚡'];
+
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'quiz-particle';
+        particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        particle.style.setProperty('--x', (Math.random() - 0.5) * 300 + 'px');
+        particle.style.setProperty('--y', (Math.random() - 0.5) * 300 + 'px');
+        particle.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+        particle.style.animationDelay = (Math.random() * 0.3) + 's';
+        container.appendChild(particle);
+        setTimeout(() => particle.remove(), 2000);
+    }
+}
 window.nextQuiz = function() { quizIdx++; showQuiz(); };
 
 // ==================== 历届冠军 ====================
