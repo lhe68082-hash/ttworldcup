@@ -27,7 +27,7 @@ generateLotteryCodes();
 const KEY_STORAGE = 'hw2026_activated_key';
 const DEVICE_KEY = 'hw2026_device_id';
 const KEY_DEVICES_KEY = 'hw2026_key_devices';
-const MAX_DEVICES = 5; // 每个卡密最多绑定5个设备
+const MAX_DEVICES = 3; // 每个卡密最多绑定3个设备
 
 // 生成/获取设备唯一ID
 function getDeviceId() {
@@ -426,10 +426,20 @@ function initLiveUpdates() {
 
 // ==================== 问答 ====================
 let quizIdx = 0, quizScore = 0, quizDone = false;
-function initQuiz() { showQuiz(); }
+let quizUsedIndices = []; // 记录已出现的题目索引，防止重复
+
+function initQuiz() { quizUsedIndices = []; showQuiz(); }
 function showQuiz() {
-    const q = QUIZ_DATA[quizIdx % QUIZ_DATA.length];
-    setText('quizQuestion', `Q${quizIdx+1}: ${q.question}`);
+    // 如果所有题目都出过一轮，清空记录重新随机
+    if (quizUsedIndices.length >= QUIZ_DATA.length) {
+        quizUsedIndices = [];
+    }
+    // 从未出的题目中随机选一道
+    const available = QUIZ_DATA.map((_, i) => i).filter(i => !quizUsedIndices.includes(i));
+    const randomIdx = available[Math.floor(Math.random() * available.length)];
+    quizUsedIndices.push(randomIdx);
+    quizIdx = randomIdx;
+    const q = QUIZ_DATA[quizIdx];
     const opsEl = document.getElementById('quizOptions');
     if (opsEl) opsEl.innerHTML = q.options.map((o,i) =>
         `<button class="q-opt" onclick="answerQuiz(${i},this)">${o}</button>`

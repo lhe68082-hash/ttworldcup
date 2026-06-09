@@ -1328,7 +1328,7 @@ body {
 .player-modal-close:active { background: var(--white-alpha-20); }
 .pmh-flag { font-size: 48px; line-height: 1; margin-bottom: 6px; }
 .pmh-name { font-size: 22px; font-weight: 900; letter-spacing: 1px; }
-.pmh-info { font-size: 11px; color: #000; margin-top: 4px; font-weight: 600; }
+.pmh-info { font-size: 11px; color: var(--text); margin-top: 4px; font-weight: 600; }
 .pmh-tabs {
     display: flex;
     justify-content: center;
