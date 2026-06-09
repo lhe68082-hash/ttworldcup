@@ -440,6 +440,8 @@ function showQuiz() {
     quizUsedIndices.push(randomIdx);
     quizIdx = randomIdx;
     const q = QUIZ_DATA[quizIdx];
+    // 更新题目文字
+    setText('quizQuestion', q.question);
     const opsEl = document.getElementById('quizOptions');
     if (opsEl) opsEl.innerHTML = q.options.map((o,i) =>
         `<button class="q-opt" onclick="answerQuiz(${i},this)">${o}</button>`
