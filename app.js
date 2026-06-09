@@ -200,6 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
 function initBottomNav() {
     const items = document.querySelectorAll('.bnav-item');
     const pages = document.querySelectorAll('.page');
+    const allSubnavs = document.querySelectorAll('.subnav');
+
+    function showSubnavFor(tabId) {
+        // 隐藏所有二级导航
+        allSubnavs.forEach(s => s.classList.remove('active'));
+        // 显示当前页面对应的二级导航
+        const subnav = document.getElementById('subnav-' + tabId);
+        if (subnav) subnav.classList.add('active');
+    }
 
     items.forEach(item => {
         item.addEventListener('click', () => {
@@ -210,11 +219,33 @@ function initBottomNav() {
             const page = document.getElementById(target);
             if (page) {
                 page.classList.add('active');
+                showSubnavFor(target);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 // 懒加载触发
                 if (target === 'schedule') refreshScheduleIfNeeded();
             }
         });
+    });
+
+    // 初始化：首页不显示二级导航
+    showSubnavFor('home');
+
+    // 二级导航点击事件（委托）
+    document.addEventListener('click', function(e) {
+        const subItem = e.target.closest('.subnav-item');
+        if (!subItem) return;
+        const anchorId = subItem.getAttribute('data-anchor');
+        if (!anchorId) return;
+        const anchor = document.getElementById(anchorId);
+        if (anchor) {
+            anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // 更新激活状态
+            const parentSubnav = subItem.closest('.subnav');
+            if (parentSubnav) {
+                parentSubnav.querySelectorAll('.subnav-item').forEach(si => si.classList.remove('active'));
+                subItem.classList.add('active');
+            }
+        }
     });
 }
 

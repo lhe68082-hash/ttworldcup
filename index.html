@@ -124,8 +124,17 @@
     <!-- ======== Tab 2: 百科 ======== -->
     <section id="encyclopedia" class="page">
         <div class="page-title">📚 赛事百科</div>
+        <div class="subnav" id="subnav-encyclopedia">
+            <button class="subnav-item" data-anchor="enc-overview">🏆 赛事概览</button>
+            <button class="subnav-item" data-anchor="enc-format">📋 赛制说明</button>
+            <button class="subnav-item" data-anchor="enc-champs">👑 历届冠军</button>
+            <button class="subnav-item" data-anchor="enc-quiz">📖 知识问答</button>
+            <button class="subnav-item" data-anchor="enc-hosts">🌎 主办国家</button>
+            <button class="subnav-item" data-anchor="enc-broadcast">📺 直播平台</button>
+            <button class="subnav-item" data-anchor="enc-cities">🏙 主办城市</button>
+        </div>
 
-        <div class="card">
+        <div class="card" id="enc-overview">
             <div class="card-title">🏆 赛事概览</div>
             <div class="card-text">
                 <p>2026年国际足联世界杯由<strong>美国、加拿大、墨西哥</strong>联合主办，首次扩军至<strong>48支球队</strong>，共<strong>104场比赛</strong>。这是世界杯历史上首次由三个国家共同承办。</p>
@@ -138,7 +147,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="enc-format">
             <div class="card-title">📋 赛制说明</div>
             <div class="card-text">
                 <div class="format-steps">
@@ -157,12 +166,12 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="enc-champs">
             <div class="card-title">👑 历届冠军</div>
             <div class="card-text"><div class="champs-grid" id="championsGrid"></div></div>
         </div>
 
-        <div class="card">
+        <div class="card" id="enc-quiz">
             <div class="card-title">📖 知识问答</div>
             <div class="card-text quiz-area" id="quizModule">
                 <p class="quiz-q" id="quizQuestion">加载中…</p>
@@ -175,13 +184,13 @@
         </div>
 
         <!-- 主办国家 -->
-        <div class="card">
+        <div class="card" id="enc-hosts">
             <div class="card-title">🌎 三大主办国家</div>
             <div class="card-text" id="hostCountries"></div>
         </div>
 
         <!-- 直播地址 -->
-        <div class="card">
+        <div class="card" id="enc-broadcast">
             <div class="card-title">📺 直播观看平台</div>
             <div class="card-text">
                 <div class="broadcast-list">
@@ -209,7 +218,7 @@
         </div>
 
         <!-- 主办城市 -->
-        <div class="card">
+        <div class="card" id="enc-cities">
             <div class="card-title">🏙 16座主办城市</div>
             <div class="card-text">
                 <div style="margin-bottom:12px"><strong>🇺🇸 美国 · 11座城市</strong></div>
@@ -225,6 +234,11 @@
     <!-- ======== Tab 3: 赛程 ======== -->
     <section id="schedule" class="page">
         <div class="page-title">📅 赛程·实时</div>
+        <div class="subnav" id="subnav-schedule">
+            <button class="subnav-item" data-anchor="sch-progress">📊 比赛进度</button>
+            <button class="subnav-item" data-anchor="sch-list">📋 赛程列表</button>
+            <button class="subnav-item" data-anchor="sch-bracket">⚔️ 淘汰赛对阵</button>
+        </div>
         <div class="refresh-indicator" id="scheduleRefresh">
             <span class="live-indicator"></span> 自动更新中
         </div>
@@ -237,7 +251,7 @@
             <button class="flt" data-stage="sf">半决赛</button>
             <button class="flt" data-stage="final">🏆决赛</button>
         </div>
-        <div class="card">
+        <div class="card" id="sch-progress">
             <div class="card-text">
                 <div class="prog-info"><span>比赛进度</span><span class="prog-pct" id="progressPercent">0%</span></div>
                 <div class="prog-bar"><div class="prog-fill" id="progressFill"></div></div>
@@ -247,10 +261,12 @@
                 </div>
             </div>
         </div>
+        <div id="sch-list">
         <div class="match-list" id="scheduleGrid"></div>
+        </div>
 
         <!-- 淘汰赛对阵表（融入赛程） -->
-        <div class="schedule-bracket-divider">
+        <div class="schedule-bracket-divider" id="sch-bracket">
             <span>⚔️</span> 淘汰赛对阵表
         </div>
         <div class="card">
@@ -293,21 +309,28 @@
     <!-- ======== Tab 4: 球队/积分榜 ======== -->
     <section id="teams" class="page">
         <div class="page-title">🏴 球队/积分榜</div>
-        <div class="card">
+        <div class="subnav" id="subnav-teams">
+            <button class="subnav-item" data-anchor="tms-groups">🏴 分组一览</button>
+            <button class="subnav-item" data-anchor="tms-standings">📊 积分榜</button>
+            <button class="subnav-item" data-anchor="tms-search">🔍 搜索球队</button>
+        </div>
+        <div class="card" id="tms-groups">
             <div class="card-text">
                 <div class="group-tabs" id="groupTabs"></div>
                 <div class="group-content" id="groupContent"></div>
             </div>
         </div>
         <!-- 积分榜 -->
-        <div class="standings-section" id="standingsSection">
+        <div class="standings-section" id="tms-standings">
             <div class="standings-header">
                 <span class="standings-title">📊 积分榜</span>
                 <span class="standings-hint" id="standingsHint">小组赛开赛后实时更新</span>
             </div>
             <div class="standings-table" id="standingsTable"></div>
         </div>
+        <div id="tms-search">
         <input type="text" class="search-inp" placeholder="🔍 搜索球队..." id="teamSearch" oninput="filterTeams()">
+        </div>
         <div class="team-cards" id="teamsGrid"></div>
     </section>
 
@@ -315,6 +338,14 @@
     <section id="lottery" class="page">
         <div class="page-title">🎰 竞彩游戏</div>
         <p class="page-desc">中国体育彩票 · 竞彩足球玩法与模拟计算器</p>
+        <div class="subnav" id="subnav-lottery">
+            <button class="subnav-item" data-anchor="lot-play">🎰 玩法选择</button>
+            <button class="subnav-item" data-anchor="lot-sync">🔄 数据同步</button>
+            <button class="subnav-item" data-anchor="lot-analysis">📊 基本面分析</button>
+            <button class="subnav-item" data-anchor="lot-official">🔗 官方计算器</button>
+            <button class="subnav-item" data-anchor="lot-sim">🧮 模拟计算器</button>
+            <button class="subnav-item" data-anchor="lot-ledger">📒 购彩记账本</button>
+        </div>
 
         <!-- 免责声明 -->
         <div class="lottery-disclaimer">
@@ -325,6 +356,7 @@
             </div>
         </div>
 
+        <div id="lot-play">
         <div class="filter-row">
             <button class="flt active" data-lottery="spf">胜平负</button>
             <button class="flt" data-lottery="rqspf">让球胜平负</button>
@@ -335,7 +367,9 @@
         </div>
 
         <div class="card" id="lotteryContent"></div>
+        </div>
 
+        <div id="lot-sync">
         <div class="sync-bar" id="syncBar">
             <div class="sync-status">
                 <span class="sync-dot" id="syncDot"></span>
@@ -351,7 +385,7 @@
         </div>
 
         <!-- 赛事基本面分析 -->
-        <div class="card analysis-card">
+        <div class="card analysis-card" id="lot-analysis">
             <div class="card-title">📊 赛事基本面分析常用方法 · 6W+E</div>
             <div class="analysis-grid">
                 <div class="analysis-item">
@@ -392,17 +426,19 @@
             </div>
         </div>
 
+        <div id="lot-official">
         <a href="https://m.sporttery.cn/mjc/jsq/zqspf/" target="_blank" class="jump-btn">
             🔗 前往官方竞彩计算器 <span class="jump-arrow">→</span>
         </a>
+        </div>
 
-        <div class="card calc-card">
+        <div class="card calc-card" id="lot-sim">
             <div class="card-title">🧮 竞彩模拟计算器</div>
             <div class="card-text calc-container" id="calcContainer"></div>
         </div>
 
         <!-- 个人购彩记账本 -->
-        <div class="card bet-ledger-card">
+        <div class="card bet-ledger-card" id="lot-ledger">
             <div class="card-title">📒 我的购彩记账本</div>
             <div class="ledger-warning">⚠️ 注意：本页面为静态网页，记录仅在当前会话有效，关闭或刷新页面后将丢失。请及时复制或导出保存到微信/WPS/记事本。</div>
             <div class="ledger-form">

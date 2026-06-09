@@ -37,6 +37,7 @@
     --topbar-h: 48px;
     --topbar-bg: rgba(18,25,38,0.94);
     --bnav-bg: rgba(22,30,44,0.96);
+    --subnav-h: 44px;
     --modal-header-bg: linear-gradient(135deg, #1a1d2e, #131a2b);
     --white-alpha-03: rgba(255,255,255,0.03);
     --white-alpha-04: rgba(255,255,255,0.04);
@@ -290,8 +291,54 @@ body {
 .page-title {
     font-size: 22px;
     font-weight: 800;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
     letter-spacing: -0.3px;
+}
+
+/* ---------- Sub Navigation ---------- */
+.subnav {
+    display: none;
+    position: sticky;
+    top: var(--topbar-h);
+    z-index: 50;
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin: -2px -16px 14px -16px;
+    padding: 8px 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    background: rgba(18,25,38,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+}
+.subnav::-webkit-scrollbar { display: none; }
+.subnav.active { display: flex; }
+.subnav-item {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--bg-card);
+    color: var(--text-light);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: var(--font);
+}
+.subnav-item:hover {
+    background: var(--bg-card-hover);
+    color: var(--text);
+}
+.subnav-item.active {
+    background: rgba(0,212,170,0.12);
+    color: var(--accent);
+    border-color: rgba(0,212,170,0.3);
 }
 .page-desc { font-size: 13px; color: var(--text-light); margin: -8px 0 12px; }
 
