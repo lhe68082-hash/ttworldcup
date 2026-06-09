@@ -1,5 +1,5 @@
 // ============================================
-// 卡密数据 - 共100份
+// 卡密数据 - 共101份
 // ============================================
 const VALID_KEYS = [
     "HW2026-A7K3-M9X2-P4Q1",
@@ -101,7 +101,8 @@ const VALID_KEYS = [
     "STADIUM-X5L8-D2Q7-S9V4",
     "STADIUM-Y6M9-E3R8-T0W5",
     "STADIUM-Z7N0-F4S9-U1X6",
-    "STADIUM-A8O1-G5T0-V2Y7"
+    "STADIUM-A8O1-G5T0-V2Y7",
+    "BONUS-K9H2-M5V7-P1W3"
 ];
 
 // 检查卡密是否有效

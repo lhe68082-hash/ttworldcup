@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#121926" id="metaThemeColor">
+    <meta name="referrer" content="no-referrer">
+    <meta name="color-scheme" content="dark light">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>花生世界杯助手 - 卡密验证</title>
@@ -45,7 +47,7 @@
     <!-- ======== Tab 1: 首页 ======== -->
     <section id="home" class="page active">
         <div class="hero">
-            <div class="hero-badge">FIFA WORLD CUP 2026™</div>
+            <div class="hero-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FIFA_World_Cup_Trophy.png/80px-FIFA_World_Cup_Trophy.png" alt="大力神杯" class="trophy-img" referrerpolicy="no-referrer"> FIFA WORLD CUP 2026™</div>
             <h1 class="hero-title"><span class="hosts">美国 · 加拿大 · 墨西哥</span><br><span class="hero-sub">48队 · 104场 · 1个冠军</span></h1>
             <p class="hero-desc">第23届世界杯 · 2026年6月11日—7月19日</p>
 
@@ -76,9 +78,9 @@
                 </div>
             </div>
 
-            <div class="countdown-box">
-                <div class="cd-title">距开幕还有</div>
-                <div class="cd-row">
+            <div class="countdown-box" id="countdownBox">
+                <div class="cd-title" id="cdTitle">距开幕还有</div>
+                <div class="cd-row" id="cdRow">
                     <div class="cd-item"><span class="cd-num" id="cd-days">--</span><span>天</span></div>
                     <span class="cd-colon">:</span>
                     <div class="cd-item"><span class="cd-num" id="cd-hours">--</span><span>时</span></div>
@@ -334,6 +336,48 @@
             </div>
         </div>
 
+        <!-- 赛事基本面分析 -->
+        <div class="card analysis-card">
+            <div class="card-title">📊 赛事基本面分析常用方法 · 6W+E</div>
+            <div class="analysis-grid">
+                <div class="analysis-item">
+                    <div class="analysis-icon">🕐</div>
+                    <div class="analysis-title"><span class="w-letter">W</span>hen</div>
+                    <div class="analysis-desc">比赛时间、当地时差、球员生物钟、周中/周末赛程影响、连续作战疲劳度</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-icon">📋</div>
+                    <div class="analysis-title"><span class="w-letter">W</span>hat</div>
+                    <div class="analysis-desc">赛事赛制、小组赛/淘汰赛性质、单场定胜负 vs 两回合、积分形势与出线规则</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-icon">🏟️</div>
+                    <div class="analysis-title"><span class="w-letter">W</span>here</div>
+                    <div class="analysis-desc">主客场优势、高原/气候适应、球场草皮类型、旅行距离与后勤保障</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-icon">🤕</div>
+                    <div class="analysis-title"><span class="w-letter">W</span>ho</div>
+                    <div class="analysis-desc">主力伤停与红黄牌停赛、核心球员近期状态、替补阵容深度、主帅战术偏好</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-icon">🔥</div>
+                    <div class="analysis-title"><span class="w-letter">W</span>hy</div>
+                    <div class="analysis-desc">战意程度、历史恩怨与心理因素、出线/晋级形势、国家荣誉与球队使命感</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-icon">⚡</div>
+                    <div class="analysis-title"><span class="w-letter">W</span>ay</div>
+                    <div class="analysis-desc">进攻风格与控球率、反击效率、定位球战术、阵型打法、边路/中路突破偏好</div>
+                </div>
+                <div class="analysis-item analysis-else">
+                    <div class="analysis-icon">🔮</div>
+                    <div class="analysis-title"><span class="e-letter">E</span>lse</div>
+                    <div class="analysis-desc">天气因素、裁判执法风格、VAR介入倾向、现场球迷氛围、场外突发新闻与舆论影响</div>
+                </div>
+            </div>
+        </div>
+
         <div class="card calc-card">
             <div class="card-title">🧮 竞彩模拟计算器</div>
             <div class="card-text calc-container" id="calcContainer"></div>
@@ -342,6 +386,7 @@
         <!-- 个人购彩记账本 -->
         <div class="card bet-ledger-card">
             <div class="card-title">📒 我的购彩记账本</div>
+            <div class="ledger-warning">⚠️ 注意：本页面为静态网页，记录仅在当前会话有效，关闭或刷新页面后将丢失。请及时复制或导出保存到微信/WPS/记事本。</div>
             <div class="ledger-form">
                 <div class="ledger-row">
                     <div class="ledger-field">
@@ -373,6 +418,10 @@
                     <tbody id="ledgerBody"></tbody>
                 </table>
                 <div class="ledger-empty" id="ledgerEmpty" style="display:none">暂无记录，上方添加第一条</div>
+            </div>
+            <div class="ledger-export-btns">
+                <button class="btn btn-ledger-copy" onclick="copyLedger()">📋 复制记录</button>
+                <button class="btn btn-ledger-export" onclick="exportLedgerCSV()">📥 导出CSV</button>
             </div>
             <div class="ledger-summary" id="ledgerSummary">
                 <div class="ledger-sum-row">

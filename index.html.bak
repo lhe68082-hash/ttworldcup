@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 美加墨世界杯 · 百科</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 顶部标题栏 -->
+<header class="topbar">
+    <div class="topbar-logo">⚽ 世界杯2026</div>
+    <div class="topbar-date" id="dateDisplay"></div>
+</header>
+
+<!-- 主导航标签 -->
+<nav class="tabbar" id="tabbar">
+    <button class="tab active" data-tab="home">🏠<span>首页</span></button>
+    <button class="tab" data-tab="encyclopedia">📚<span>百科</span></button>
+    <button class="tab" data-tab="schedule">📅<span>赛程</span></button>
+    <button class="tab" data-tab="teams">🏴<span>球队</span></button>
+    <button class="tab" data-tab="bracket">🏟<span>对阵</span></button>
+    <button class="tab" data-tab="cities">🏙<span>城市</span></button>
+    <button class="tab" data-tab="countries">🌎<span>国家</span></button>
+    <button class="tab tab-lottery" data-tab="lottery">🎰<span>竞彩</span></button>
+</nav>
+
+<!-- 内容区 -->
+<main class="content">
+
+    <!-- ======== 首页 ======== -->
+    <section id="home" class="page active">
+        <div class="hero">
+            <div class="hero-badge">⚡ FIFA WORLD CUP 2026™</div>
+            <h1 class="hero-title">美国·加拿大·墨西哥<br><span class="hero-sub">三国联合举办</span></h1>
+            <p class="hero-desc">48支球队 · 104场比赛 · 16座城市 · 一个冠军</p>
+
+            <div class="stat-grid">
+                <div class="stat-card" onclick="switchTab('teams')">
+                    <div class="stat-emoji">🏴</div>
+                    <div class="stat-num">48</div>
+                    <div class="stat-label">参赛球队</div>
+                    <div class="stat-arrow">查看分组 ›</div>
+                </div>
+                <div class="stat-card" onclick="switchTab('bracket')">
+                    <div class="stat-emoji">⚔️</div>
+                    <div class="stat-num">104</div>
+                    <div class="stat-label">总比赛数</div>
+                    <div class="stat-arrow">查看对阵表 ›</div>
+                </div>
+                <div class="stat-card" onclick="switchTab('cities')">
+                    <div class="stat-emoji">🏟</div>
+                    <div class="stat-num">16</div>
+                    <div class="stat-label">主办城市</div>
+                    <div class="stat-arrow">查看城市 ›</div>
+                </div>
+                <div class="stat-card" onclick="switchTab('countries')">
+                    <div class="stat-emoji">🌎</div>
+                    <div class="stat-num">3</div>
+                    <div class="stat-label">主办国家</div>
+                    <div class="stat-arrow">查看国家 ›</div>
+                </div>
+            </div>
+
+            <div class="countdown-box">
+                <div class="cd-title">⏰ 距开幕还有</div>
+                <div class="cd-row">
+                    <div class="cd-item"><span class="cd-num" id="cd-days">--</span><span>天</span></div>
+                    <span class="cd-colon">:</span>
+                    <div class="cd-item"><span class="cd-num" id="cd-hours">--</span><span>时</span></div>
+                    <span class="cd-colon">:</span>
+                    <div class="cd-item"><span class="cd-num" id="cd-mins">--</span><span>分</span></div>
+                    <span class="cd-colon">:</span>
+                    <div class="cd-item"><span class="cd-num" id="cd-secs">--</span><span>秒</span></div>
+                </div>
+            </div>
+
+            <div class="news-bar">
+                <span class="news-tag">📢</span>
+                <div class="news-scroll">
+                    <span>🔥 世界杯首次三国联办！</span>
+                    <span>🏟 决赛在纽约大都会人寿体育场</span>
+                    <span>🌎 48队分12组每组4队</span>
+                    <span>🎯 32强晋级淘汰赛</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======== 百科 ======== -->
+    <section id="encyclopedia" class="page">
+        <div class="page-title">📚 世界杯百科</div>
+
+        <div class="card">
+            <div class="card-title">🏆 赛事概览</div>
+            <div class="card-text">
+                <p>2026年国际足联世界杯是第23届世界杯足球赛，由<strong>美国、加拿大、墨西哥</strong>联合主办。这是世界杯历史上首次由三个国家共同承办，也是首次扩军至<strong>48支球队</strong>参赛。</p>
+                <ul class="dot-list">
+                    <li><b>举办时间：</b>2026年6月11日 - 7月19日</li>
+                    <li><b>参赛球队：</b>48支（历史首次扩军）</li>
+                    <li><b>总场次：</b>104场</li>
+                    <li><b>卫冕冠军：</b>🇦🇷 阿根廷</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📋 赛制说明</div>
+            <div class="card-text">
+                <div class="format-steps">
+                    <div class="fstep"><span class="fstag group">小组赛</span>48队→12组<br>32强晋级</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag ko">1/16决赛</span>32→16</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag ko">1/8决赛</span>16→8</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag ko">1/4决赛</span>8→4</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag sf">半决赛</span>4→2</div>
+                    <div class="farrow">→</div>
+                    <div class="fstep"><span class="fstag final">🏆决赛</span>冠军！</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📖 知识问答</div>
+            <div class="card-text quiz-area" id="quizModule">
+                <p class="quiz-q" id="quizQuestion">点击下一题开始挑战！</p>
+                <div class="quiz-opts" id="quizOptions"></div>
+                <button class="btn" onclick="nextQuiz()">下一题 ▶</button>
+                <div class="quiz-score">⭐ 得分：<b id="quizScore">0</b></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">👑 历届冠军</div>
+            <div class="card-text">
+                <div class="champs-grid" id="championsGrid"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======== 赛程 ======== -->
+    <section id="schedule" class="page">
+        <div class="page-title">📅 赛程进度</div>
+
+        <div class="filter-row">
+            <button class="flt active" data-stage="all">全部</button>
+            <button class="flt" data-stage="group">小组赛</button>
+            <button class="flt" data-stage="r32">1/16</button>
+            <button class="flt" data-stage="r16">1/8</button>
+            <button class="flt" data-stage="qf">1/4</button>
+            <button class="flt" data-stage="sf">半决赛</button>
+            <button class="flt" data-stage="final">🏆决赛</button>
+        </div>
+
+        <div class="card">
+            <div class="card-text">
+                <div class="prog-info">
+                    <span>总进度</span><span class="prog-pct" id="progressPercent">0%</span>
+                </div>
+                <div class="prog-bar"><div class="prog-fill" id="progressFill"></div></div>
+                <div class="prog-stats">
+                    <span>✅ 已赛 <b id="playedCount">0</b> 场</span>
+                    <span>⏳ 未赛 <b id="remainingCount">104</b> 场</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="match-list" id="scheduleGrid"></div>
+    </section>
+
+    <!-- ======== 球队分组 ======== -->
+    <section id="teams" class="page">
+        <div class="page-title">🏴 48支参赛球队</div>
+
+        <div class="card">
+            <div class="card-text">
+                <div class="group-tabs" id="groupTabs"></div>
+                <div class="group-content" id="groupContent"></div>
+            </div>
+        </div>
+
+        <input type="text" class="inp search-inp" placeholder="🔍 搜索球队..." id="teamSearch" oninput="filterTeams()">
+        <div class="team-cards" id="teamsGrid"></div>
+    </section>
+
+    <!-- ======== 对阵表（金字塔） ======== -->
+    <section id="bracket" class="page">
+        <div class="page-title">🏟 104场 · 金字塔对阵表</div>
+
+        <div class="card">
+            <div class="card-text">
+                <div class="bracket-container">
+                    <!-- 决赛 -->
+                    <div class="bk-round">
+                        <div class="bk-round-title">🏆 决赛 · 7月19日</div>
+                        <div class="bk-match final-match">
+                            <div class="bk-team"><span>❓</span> 待定</div>
+                            <div class="bk-vs">VS</div>
+                            <div class="bk-team"><span>❓</span> 待定</div>
+                        </div>
+                        <div class="bk-venue">📍 纽约/新泽西 · 大都会人寿体育场</div>
+                    </div>
+
+                    <!-- 半决赛 -->
+                    <div class="bk-round">
+                        <div class="bk-round-title">🔥 半决赛 · 2场</div>
+                        <div class="bk-row-2">
+                            <div class="bk-match">
+                                <div class="bk-team"><span>❓</span> 待定</div>
+                                <div class="bk-vs">VS</div>
+                                <div class="bk-team"><span>❓</span> 待定</div>
+                            </div>
+                            <div class="bk-match">
+                                <div class="bk-team"><span>❓</span> 待定</div>
+                                <div class="bk-vs">VS</div>
+                                <div class="bk-team"><span>❓</span> 待定</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 1/4决赛 -->
+                    <div class="bk-round">
+                        <div class="bk-round-title">💥 1/4决赛 · 4场</div>
+                        <div class="bk-row-4">
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><span class="bk-vs-sm">VS</span><div class="bk-team"><span>❓</span></div></div>
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><span class="bk-vs-sm">VS</span><div class="bk-team"><span>❓</span></div></div>
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><span class="bk-vs-sm">VS</span><div class="bk-team"><span>❓</span></div></div>
+                            <div class="bk-match"><div class="bk-team"><span>❓</span></div><span class="bk-vs-sm">VS</span><div class="bk-team"><span>❓</span></div></div>
+                        </div>
+                    </div>
+
+                    <!-- 1/8决赛 -->
+                    <div class="bk-round">
+                        <div class="bk-round-title">⚡ 1/8决赛 · 8场</div>
+                        <div class="bk-summary">16支球队争夺8个1/4决赛席位</div>
+                    </div>
+
+                    <!-- 1/16决赛 -->
+                    <div class="bk-round">
+                        <div class="bk-round-title">🎯 1/16决赛 · 16场</div>
+                        <div class="bk-summary">32支球队争夺16强席位</div>
+                    </div>
+
+                    <!-- 小组赛 -->
+                    <div class="bk-round">
+                        <div class="bk-round-title">🌍 小组赛 · 72场</div>
+                        <div class="bk-summary">48支球队，12个小组，每组4队循环对战<br>每组前2名 + 8个最佳第3名 → 32强</div>
+                    </div>
+                </div>
+                <div class="bk-total">🎉 共计 <b>104</b> 场比赛</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======== 主办城市 ======== -->
+    <section id="cities" class="page">
+        <div class="page-title">🏙 16座主办城市</div>
+
+        <div class="card">
+            <div class="card-title">🇺🇸 美国 · 11座城市</div>
+            <div class="card-text city-list" id="usaCities"></div>
+        </div>
+        <div class="card">
+            <div class="card-title">🇲🇽 墨西哥 · 3座城市</div>
+            <div class="card-text city-list" id="mexCities"></div>
+        </div>
+        <div class="card">
+            <div class="card-title">🇨🇦 加拿大 · 2座城市</div>
+            <div class="card-text city-list" id="canCities"></div>
+        </div>
+    </section>
+
+    <!-- ======== 主办国家 ======== -->
+    <section id="countries" class="page">
+        <div class="page-title">🌎 三大主办国家</div>
+
+        <div class="card">
+            <div class="card-img">🇺🇸</div>
+            <div class="card-title">美利坚合众国</div>
+            <div class="card-text">
+                <div class="country-icons">
+                    <span>🗽 自由女神像</span><span>🌉 金门大桥</span><span>🏛 白宫</span>
+                </div>
+                <p>美国是2026世界杯的主办国之一，承办了最多的比赛。这是美国继1994年后第二次举办世界杯。作为东道主，美国队自动获得参赛资格。</p>
+                <ul class="dot-list">
+                    <li><b>首都：</b>华盛顿特区</li>
+                    <li><b>承办城市：</b>11座（纽约/新泽西、洛杉矶、达拉斯、旧金山湾区、迈阿密、亚特兰大、西雅图、休斯顿、费城、堪萨斯城、波士顿）</li>
+                    <li><b>决赛场地：</b>纽约/新泽西 · 大都会人寿体育场（82500座）</li>
+                    <li><b>世界杯历史：</b>1994年曾主办，女足世界杯多次在此举办</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-img">🇲🇽</div>
+            <div class="card-title">墨西哥合众国</div>
+            <div class="card-text">
+                <div class="country-icons">
+                    <span>🏛 太阳金字塔</span><span>🏰 奇琴伊察</span><span>🌮 美食之都</span>
+                </div>
+                <p>墨西哥将成为首个三次主办世界杯的国家（1970、1986、2026）。墨西哥足球氛围浓厚，阿兹特克体育场是世界足坛的传奇场地。</p>
+                <ul class="dot-list">
+                    <li><b>首都：</b>墨西哥城</li>
+                    <li><b>承办城市：</b>3座（墨西哥城、瓜达拉哈拉、蒙特雷）</li>
+                    <li><b>传奇球场：</b>阿兹特克体育场（87523座），将第三次举办世界杯比赛</li>
+                    <li><b>世界杯历史：</b>1970、1986年两次主办，贝利和马拉多纳在此捧杯</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-img">🇨🇦</div>
+            <div class="card-title">加拿大</div>
+            <div class="card-text">
+                <div class="country-icons">
+                    <span>🍁 枫叶之国</span><span>🏔 落基山脉</span><span>🗼 CN塔</span>
+                </div>
+                <p>加拿大首次主办男足世界杯，此前曾成功举办2015年女足世界杯。足球在加拿大正快速发展，2026世界杯将成为推动加拿大足球的重要契机。</p>
+                <ul class="dot-list">
+                    <li><b>首都：</b>渥太华</li>
+                    <li><b>承办城市：</b>2座（多伦多、温哥华）</li>
+                    <li><b>主要球场：</b>BMO球场（45000座）、BC广场（54500座）</li>
+                    <li><b>世界杯历史：</b>首次主办男足世界杯，2015年成功举办女足世界杯</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======== 竞彩（末尾，强提醒） ======== -->
+    <section id="lottery" class="page">
+        <div class="page-title">🎰 竞彩游戏</div>
+        <p class="page-desc">中国体育彩票 · 竞彩足球玩法介绍</p>
+
+        <div class="filter-row">
+            <button class="flt active" data-lottery="spf">胜平负</button>
+            <button class="flt" data-lottery="rqspf">让球胜平负</button>
+            <button class="flt" data-lottery="bf">比分</button>
+            <button class="flt" data-lottery="zjq">总进球数</button>
+            <button class="flt" data-lottery="bqc">半全场</button>
+            <button class="flt" data-lottery="hhgg">混合过关</button>
+        </div>
+
+        <div class="card" id="lotteryContent"></div>
+
+        <!-- 跳转官方竞彩按钮 -->
+        <a href="https://m.sporttery.cn/mjc/jsq/zqspf/" target="_blank" class="jump-btn">
+            🔗 前往官方竞彩计算器 <span class="jump-arrow">→</span>
+        </a>
+
+        <!-- 数据同步状态栏 -->
+        <div class="sync-bar" id="syncBar">
+            <div class="sync-status">
+                <span class="sync-dot" id="syncDot"></span>
+                <span id="syncText">📋 模拟数据</span>
+            </div>
+            <div class="sync-actions">
+                <button class="sync-btn" id="syncBtn" onclick="triggerSync()">🔄 同步官方数据</button>
+                <label class="sync-auto-label" title="每5分钟自动同步">
+                    <input type="checkbox" id="syncAutoCheck" onchange="toggleAutoSync(this.checked)">
+                    <span>自动</span>
+                </label>
+            </div>
+            <div class="sync-hint" id="syncHint" style="display:none">
+                💡 运行 <code>node server.js</code> 启动代理后可获取实时官方数据
+            </div>
+        </div>
+
+        <!-- 模拟计算器 -->
+        <div class="card calc-card">
+            <div class="card-title">🧮 竞彩模拟计算器</div>
+            <div class="card-text calc-container" id="calcContainer"></div>
+        </div>
+    </section>
+
+</main>
+
+<script src="data.js"></script>
+<script src="lottery-api.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

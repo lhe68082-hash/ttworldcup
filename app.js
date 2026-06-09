@@ -171,21 +171,64 @@ function initDateDisplay() {
 
 // ==================== 倒计时 ====================
 function initCountdown() {
-    const target = new Date(2026, 5, 11, 20, 0, 0);
+    const opening = new Date(2026, 5, 11, 0, 0, 0); // 6月11日开幕
+    const final = new Date(2026, 6, 19, 0, 0, 0);   // 7月19日决赛
+
     function update() {
-        const diff = target - new Date();
-        if (diff <= 0) {
-            ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => { const e=document.getElementById(id); if(e) e.textContent='00'; });
-            return;
+        const now = new Date();
+        const titleEl = document.getElementById('cdTitle');
+        const rowEl = document.getElementById('cdRow');
+
+        if (now < opening) {
+            // 开幕前：倒计时
+            if (titleEl) titleEl.textContent = '距开幕还有';
+            const diff = opening - now;
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            if (rowEl) {
+                rowEl.innerHTML = `
+                    <div class="cd-item"><span class="cd-num">${String(d).padStart(2, '0')}</span><span>天</span></div>
+                    <span class="cd-colon">:</span>
+                    <div class="cd-item"><span class="cd-num">${String(h).padStart(2, '0')}</span><span>时</span></div>
+                    <span class="cd-colon">:</span>
+                    <div class="cd-item"><span class="cd-num">${String(m).padStart(2, '0')}</span><span>分</span></div>
+                    <span class="cd-colon">:</span>
+                    <div class="cd-item"><span class="cd-num">${String(s).padStart(2, '0')}</span><span>秒</span></div>
+                `;
+            }
+        } else if (now >= opening && now < final) {
+            // 比赛期间：第x比赛日 + 距决赛天数
+            const matchDay = Math.floor((now - opening) / 86400000) + 1;
+            const daysToFinal = Math.ceil((final - now) / 86400000);
+            if (titleEl) titleEl.textContent = `第 ${matchDay} 个比赛日 · 距决赛还有 ${daysToFinal} 天`;
+            if (rowEl) {
+                rowEl.innerHTML = `
+                    <div style="display:flex;gap:16px;justify-content:center;align-items:center;padding:8px 0;">
+                        <div style="text-align:center;">
+                            <div style="font-size:32px;font-weight:900;color:var(--accent);line-height:1;">${matchDay}</div>
+                            <div style="font-size:11px;color:var(--text-light);margin-top:4px;">比赛日</div>
+                        </div>
+                        <div style="width:1px;height:40px;background:var(--border);"></div>
+                        <div style="text-align:center;">
+                            <div style="font-size:32px;font-weight:900;color:var(--gold);line-height:1;">${daysToFinal}</div>
+                            <div style="font-size:11px;color:var(--text-light);margin-top:4px;">距决赛</div>
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            // 决赛后
+            if (titleEl) titleEl.textContent = '🏆 2026世界杯已圆满落幕';
+            if (rowEl) {
+                rowEl.innerHTML = `
+                    <div style="font-size:14px;color:var(--text-light);padding:10px 0;">
+                        感谢关注，下一届再见！
+                    </div>
+                `;
+            }
         }
-        const d = Math.floor(diff/86400000);
-        const h = Math.floor((diff%86400000)/3600000);
-        const m = Math.floor((diff%3600000)/60000);
-        const s = Math.floor((diff%60000)/1000);
-        setText('cd-days', String(d).padStart(2,'0'));
-        setText('cd-hours', String(h).padStart(2,'0'));
-        setText('cd-mins', String(m).padStart(2,'0'));
-        setText('cd-secs', String(s).padStart(2,'0'));
     }
     update();
     setInterval(update, 1000);
@@ -516,6 +559,63 @@ window.delLedgerEntry = function(id) {
     ledgerData = ledgerData.filter(e => e.id !== id);
     saveLedger();
     renderLedger();
+};
+
+window.copyLedger = function() {
+    if (ledgerData.length === 0) { alert('暂无记录可复制'); return; }
+    const totalBuy = ledgerData.reduce((s,e) => s + e.buy, 0);
+    const totalWin = ledgerData.reduce((s,e) => s + e.win, 0);
+    const totalNet = totalWin - totalBuy;
+    let text = '📒 我的购彩记账本\n';
+    text += '━━━━━━━━━━━━━━━━\n';
+    ledgerData.forEach(e => {
+        const net = e.win - e.buy;
+        const netSign = net >= 0 ? '+' : '';
+        text += `📅 ${e.date}\n   购彩: ¥${e.buy.toFixed(2)}   中奖: ¥${e.win.toFixed(2)}   盈亏: ${netSign}¥${net.toFixed(2)}\n\n`;
+    });
+    text += '━━━━━━━━━━━━━━━━\n';
+    text += `💰 总购彩: ¥${totalBuy.toFixed(2)}\n`;
+    text += `🏆 总中奖: ¥${totalWin.toFixed(2)}\n`;
+    text += `📊 净盈亏: ${totalNet >= 0 ? '+' : ''}¥${totalNet.toFixed(2)}\n`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => alert('记录已复制到剪贴板，可粘贴到微信/WPS/记事本')).catch(() => fallbackCopy(text));
+    } else {
+        fallbackCopy(text);
+    }
+};
+
+function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); alert('记录已复制到剪贴板，可粘贴到微信/WPS/记事本'); }
+    catch(e) { alert('复制失败，请手动复制'); }
+    document.body.removeChild(ta);
+}
+
+window.exportLedgerCSV = function() {
+    if (ledgerData.length === 0) { alert('暂无记录可导出'); return; }
+    const totalBuy = ledgerData.reduce((s,e) => s + e.buy, 0);
+    const totalWin = ledgerData.reduce((s,e) => s + e.win, 0);
+    const totalNet = totalWin - totalBuy;
+    let csv = '\uFEFF日期,购彩金额,中奖金额,盈亏\n';
+    ledgerData.forEach(e => {
+        csv += `${e.date},${e.buy.toFixed(2)},${e.win.toFixed(2)},${(e.win - e.buy).toFixed(2)}\n`;
+    });
+    csv += `总计,${totalBuy.toFixed(2)},${totalWin.toFixed(2)},${totalNet.toFixed(2)}\n`;
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '购彩记账本_' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
 };
 
 function renderLedger() {
@@ -1138,7 +1238,7 @@ function showPlayerDetail(player, teamName, teamFlag) {
             <button class="pdetail-close" onclick="this.closest('.pdetail-modal').remove();document.querySelector('.pdetail-modal-overlay').remove()">✕</button>
             <div class="pdetail-team-badge"><span>${teamFlag}</span><span>${teamName}</span></div>
             <div class="pdetail-photo-wrapper">
-                <img class="pdetail-photo" src="${fallbackImg}" alt="${player.name}" onerror="this.onerror=null;this.src='${fallbackImg}'" loading="lazy">
+                <img class="pdetail-photo" src="${fallbackImg}" alt="${player.name}" onerror="this.onerror=null;this.src='${fallbackImg}'" loading="lazy" referrerpolicy="no-referrer">
             </div>
             <div class="pdetail-num-big">${player.num}</div>
         </div>

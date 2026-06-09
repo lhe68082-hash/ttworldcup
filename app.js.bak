@@ -1,0 +1,1041 @@
+// ============================================
+// 2026 世界杯 · 卡通百科 主逻辑
+// ============================================
+
+// ---------- 竞彩开售编号 ----------
+const WEEKDAY_CN = ['周日','周一','周二','周三','周四','周五','周六'];
+function generateLotteryCodes() {
+    const byDate = {};
+    SCHEDULE_DATA.forEach(m => {
+        const ds = m.date.toLocaleDateString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit' });
+        if (!byDate[ds]) byDate[ds] = [];
+        byDate[ds].push(m);
+    });
+    Object.keys(byDate).sort().forEach(ds => {
+        const matches = byDate[ds];
+        const d = matches[0].date;
+        const wd = WEEKDAY_CN[d.getDay()];
+        matches.sort((a,b) => a.date - b.date);
+        matches.forEach((m, i) => {
+            m.lotteryCode = `${wd}${String(i+1).padStart(3,'0')}`;
+        });
+    });
+}
+generateLotteryCodes();
+
+document.addEventListener('DOMContentLoaded', () => {
+    initTabs();
+    initDateDisplay();
+    initCountdown();
+    initSchedule();
+    initQuiz();
+    initChampions();
+    initLottery();
+    initSimBet();
+    initTeamsGroup();
+    initCityDetails();
+});
+
+// ==================== 标签切换 ====================
+function initTabs() {
+    const tabs = document.querySelectorAll('.tab');
+    const pages = document.querySelectorAll('.page');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.getAttribute('data-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            pages.forEach(p => p.classList.remove('active'));
+            const page = document.getElementById(target);
+            if (page) {
+                page.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    });
+
+    // 首页统计卡片点击跳转
+    document.querySelectorAll('.stat-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const target = card.getAttribute('data-goto');
+            if (target) switchTab(target);
+        });
+    });
+}
+
+window.switchTab = function(tabId) {
+    const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+    if (tab) tab.click();
+};
+
+// ==================== 日期 ====================
+function initDateDisplay() {
+    const el = document.getElementById('dateDisplay');
+    function update() {
+        el.textContent = new Date().toLocaleDateString('zh-CN', { month:'2-digit', day:'2-digit', weekday:'short' });
+    }
+    update();
+    setInterval(update, 60000);
+}
+
+// ==================== 倒计时 ====================
+function initCountdown() {
+    const target = new Date(2026, 5, 11, 20, 0, 0);
+    function update() {
+        const diff = target - new Date();
+        if (diff <= 0) {
+            ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => document.getElementById(id).textContent='00');
+            return;
+        }
+        const d = Math.floor(diff/86400000);
+        const h = Math.floor((diff%86400000)/3600000);
+        const m = Math.floor((diff%3600000)/60000);
+        const s = Math.floor((diff%60000)/1000);
+        document.getElementById('cd-days').textContent = String(d).padStart(2,'0');
+        document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
+        document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
+        document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
+    }
+    update();
+    setInterval(update, 1000);
+}
+
+// ==================== 赛程 ====================
+function initSchedule() {
+    const grid = document.getElementById('scheduleGrid');
+    const filterBtns = document.querySelectorAll('#schedule .flt');
+    let filter = 'all';
+
+    function render() {
+        const filtered = filter === 'all' ? SCHEDULE_DATA : SCHEDULE_DATA.filter(m => m.stage === filter);
+        updateProgress();
+
+        grid.innerHTML = filtered.map(m => {
+            const ds = m.date.toLocaleDateString('zh-CN', { month:'2-digit', day:'2-digit' });
+            const ts = m.date.toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit', hour12:false });
+            let statusHtml, cardClass = '';
+            if (m.status === 'played') { statusHtml = '<span class="match-status played-tag">已结束</span>'; cardClass='played'; }
+            else if (m.status === 'live') { statusHtml = '<span class="match-status live-tag">● 进行中</span>'; cardClass='live'; }
+            else { statusHtml = '<span class="match-status upcoming">未开始</span>'; }
+
+            const scoreHtml = m.score
+                ? `<div class="match-score">${m.score.home}:${m.score.away}</div>`
+                : '<div class="match-vs">VS</div>';
+
+            return `<div class="match-card ${cardClass}">
+                <div class="match-stage">${m.stageName}</div>
+                <div class="match-meta"><span>📅 ${ds} ${ts}</span><span>🏟 ${m.venue}</span></div>
+                <div class="match-teams">
+                    <div class="match-team"><span class="team-flag">${m.homeFlag}</span><span class="team-name">${m.home}</span></div>
+                    ${scoreHtml}
+                    <div class="match-team"><span class="team-flag">${m.awayFlag}</span><span class="team-name">${m.away}</span></div>
+                </div>
+                <div style="text-align:center;margin-top:4px">${statusHtml}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function updateProgress() {
+        const total = SCHEDULE_DATA.length;
+        const played = SCHEDULE_DATA.filter(m => m.status === 'played').length;
+        const pct = Math.round((played/total)*100);
+        document.getElementById('progressPercent').textContent = pct + '%';
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('playedCount').textContent = played;
+        document.getElementById('remainingCount').textContent = total - played;
+    }
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filter = btn.getAttribute('data-stage');
+            render();
+        });
+    });
+
+    render();
+}
+
+// ==================== 问答 ====================
+let quizIdx = 0, quizScore = 0, quizDone = false;
+
+function initQuiz() { showQuiz(); }
+
+function showQuiz() {
+    const q = QUIZ_DATA[quizIdx % QUIZ_DATA.length];
+    document.getElementById('quizQuestion').textContent = `Q${quizIdx+1}: ${q.question}`;
+    document.getElementById('quizOptions').innerHTML = q.options.map((o,i) =>
+        `<button class="q-opt" onclick="answerQuiz(${i},this)">${o}</button>`
+    ).join('');
+    quizDone = false;
+}
+
+window.answerQuiz = function(idx, el) {
+    if (quizDone) return;
+    quizDone = true;
+    const q = QUIZ_DATA[quizIdx % QUIZ_DATA.length];
+    const all = document.querySelectorAll('.q-opt');
+    if (idx === q.answer) { el.classList.add('correct'); quizScore++; }
+    else { el.classList.add('wrong'); all[q.answer].classList.add('correct'); }
+    document.getElementById('quizScore').textContent = quizScore;
+    all.forEach(o => o.style.pointerEvents = 'none');
+};
+
+window.nextQuiz = function() { quizIdx++; showQuiz(); };
+
+// ==================== 历届冠军 ====================
+function initChampions() {
+    document.getElementById('championsGrid').innerHTML = CHAMPIONS.map(c =>
+        `<div class="champ-item"><span class="champ-year">${c.year}</span><span class="champ-flag">${c.flag}</span>${c.winner}</div>`
+    ).join('');
+}
+
+// ==================== 竞彩玩法介绍 ====================
+function initLottery() {
+    const tabs = document.querySelectorAll('#lottery .flt');
+    const content = document.getElementById('lotteryContent');
+
+    function show(type) {
+        const info = LOTTERY_INFO[type];
+        content.innerHTML = `<div class="lottery-detail">
+            <h3>${info.title}</h3>
+            <p class="lottery-desc">${info.desc}</p>
+            <ul class="rule-list">${info.rules.map(r => `<li>${r}</li>`).join('')}</ul>
+        </div>`;
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            show(tab.getAttribute('data-lottery'));
+        });
+    });
+
+    show('spf');
+}
+
+// ==================== 竞彩模拟计算器 ====================
+let calcSlip = [];           // [{matchId, lotteryCode, matchName, betLabel, odds, playType}]
+let calcHistory = [];
+let calcMultiplier = 1;      // 投注倍数
+let calcParlayType = 'single'; // 串关方式
+let calcPlayType = 'spf';    // 当前玩法：spf|rqspf|bf|zjq|bqc
+
+const PLAY_TYPES = [
+    { value: 'spf', label: '胜平负', icon: '⚽', desc: '猜胜/平/负' },
+    { value: 'rqspf', label: '让球胜平负', icon: '🎯', desc: '让球后猜胜/平/负' },
+    { value: 'bf', label: '比分', icon: '🔢', desc: '猜最终比分' },
+    { value: 'zjq', label: '总进球数', icon: '⚡', desc: '猜总进球' },
+    { value: 'bqc', label: '半全场', icon: '⏱', desc: '猜半场+全场' },
+];
+
+// 串关方式选项
+function getParlayOptions(count) {
+    const opts = [{ value: 'single', label: '单关（各场独立）', note: '每场单独计奖·中一场赚一场' }];
+    for (let n = 2; n <= Math.min(count, 5); n++) {
+        opts.push({ value: `${n}-1`, label: `${n}串1`, note: `${n}场全中才中奖·高风险高回报` });
+    }
+    return opts;
+}
+
+function getBetCount(parlayType, count) {
+    if (parlayType === 'single') return count;
+    return 1; // n串1 = 1注
+}
+
+function initSimBet() {
+    renderCalc(document.getElementById('calcContainer'));
+    initSyncUI();
+    // 尝试自动同步（如果代理服务器在运行）
+    LotteryAPI.syncMatches(false).then(() => {
+        updateSyncUI();
+        rerenderCalc();
+    }).catch(() => {
+        updateSyncUI();
+    });
+}
+
+// ============== 数据同步UI ==============
+function initSyncUI() {
+    LotteryAPI.onStatusChange(() => updateSyncUI());
+    updateSyncUI();
+}
+
+function updateSyncUI() {
+    const status = LotteryAPI.getStatus();
+    const dot = document.getElementById('syncDot');
+    const text = document.getElementById('syncText');
+    const btn = document.getElementById('syncBtn');
+    const autoCheck = document.getElementById('syncAutoCheck');
+    const hint = document.getElementById('syncHint');
+
+    if (dot) {
+        dot.className = 'sync-dot';
+        if (status.status === 'syncing') dot.classList.add('syncing');
+        else if (status.source === 'official') dot.classList.add('official');
+        else dot.classList.add('simulated');
+    }
+    if (text) {
+        text.textContent = LotteryAPI.getStatusText();
+        text.className = status.source === 'official' ? 'sync-text-official' : 'sync-text-sim';
+    }
+    if (btn) {
+        btn.disabled = status.status === 'syncing';
+        btn.textContent = status.status === 'syncing' ? '⏳ 同步中...' : '🔄 同步官方数据';
+    }
+    if (autoCheck) {
+        autoCheck.checked = LotteryAPI.isAutoSyncEnabled();
+    }
+    if (hint) {
+        // 仅在首次且代理未连接时显示提示
+        if (status.source !== 'official' && status.status !== 'syncing') {
+            hint.style.display = 'block';
+        } else {
+            hint.style.display = 'none';
+        }
+    }
+}
+
+window.triggerSync = async function() {
+    updateSyncUI();
+    await LotteryAPI.syncMatches(true);
+    updateSyncUI();
+    rerenderCalc();
+};
+
+window.toggleAutoSync = function(enabled) {
+    if (enabled) {
+        LotteryAPI.startAutoSync();
+    } else {
+        LotteryAPI.stopAutoSync();
+    }
+    updateSyncUI();
+};
+
+function renderCalc(container) {
+    const parlayOpts = getParlayOptions(Math.max(calcSlip.length, 1));
+    container.innerHTML = `
+        <div class="calc-slip" id="calcSlip">
+            <div class="calc-slip-empty">📋 请添加比赛到投注单</div>
+        </div>
+
+        <!-- 玩法选择 -->
+        <div class="calc-config-row">
+            <label class="calc-config-label">🎲 玩法</label>
+            <select id="calcPlayTypeSelect" class="calc-config-select" onchange="onPlayTypeChange(this.value)">
+                ${PLAY_TYPES.map(p => `<option value="${p.value}" ${p.value===calcPlayType?'selected':''}>${p.icon} ${p.label}</option>`).join('')}
+            </select>
+            <span class="calc-config-hint" id="calcPlayTypeHint">猜胜/平/负</span>
+        </div>
+
+        <div class="calc-config-row">
+            <label class="calc-config-label">🎯 串关方式</label>
+            <select id="calcParlaySelect" class="calc-config-select" onchange="onParlayChange(this.value)">
+                ${parlayOpts.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}
+            </select>
+            <span class="calc-config-note" id="calcParlayNote">每场单独计奖</span>
+        </div>
+
+        <div class="calc-config-row">
+            <label class="calc-config-label">✖️ 倍数</label>
+            <select id="calcMultiplierSelect" class="calc-config-select" onchange="onMultiplierChange(this.value)">
+                ${[1,2,5,10,20,50,99].map(n => `<option value="${n}" ${n===calcMultiplier?'selected':''}>${n}倍</option>`).join('')}
+            </select>
+            <span class="calc-config-hint">2元/注 × 倍数</span>
+        </div>
+
+        <div class="calc-pick-row">
+            <select id="calcMatchPicker">
+                <option value="">-- 选择比赛 --</option>
+                ${buildMatchPickerOptions()}
+            </select>
+            <button class="btn" onclick="addMatchToSlip()" style="flex-shrink:0;padding:10px 14px;">+ 添加</button>
+        </div>
+
+        <div id="calcOddsArea" style="text-align:center;color:var(--text-dim);font-size:13px;padding:8px;">
+            👆 选比赛后点"添加"，再选择投注选项
+        </div>
+
+        <div class="calc-summary" id="calcSummary" style="display:none">
+            <div class="csm-row"><span>数据来源</span><span id="csrSource">${LotteryAPI.getStatusText()}</span></div>
+            <div class="csm-row"><span>场次</span><span id="csrMatches">0场</span></div>
+            <div class="csm-row"><span>玩法</span><span class="csr-playtype" id="csrPlayType">胜平负</span></div>
+            <div class="csm-row"><span>过关方式</span><span id="csrParlay">单关</span></div>
+            <div class="csm-row"><span>注数</span><span id="csrBetCount">0注</span></div>
+            <div class="csm-row"><span>倍数</span><span class="csr-mult" id="csrMultiplier">1倍</span></div>
+            <div class="csm-row csm-highlight"><span>投注金额</span><span class="csm-amount" id="csrAmount">¥0</span></div>
+            <div class="csm-row csm-bonus"><span>💰 预计最高奖金</span><span class="csm-payout" id="csrPayout">¥0.00</span></div>
+        </div>
+
+        <div class="calc-actions">
+            <button class="btn btn-clear" onclick="clearSlip()">🗑 清空</button>
+            <button class="btn btn-buy" onclick="submitSlip()">🎯 模拟出票</button>
+        </div>
+
+        <div class="sim-history" id="calcHistoryArea" style="display:none">
+            <div class="sim-h-title">📝 出票记录</div>
+            <div id="calcHistoryList"></div>
+        </div>
+    `;
+
+    document.getElementById('calcMatchPicker').addEventListener('change', function() {
+        showOddsForPicker(this.value);
+    });
+
+    // 恢复串关选择器值
+    const parlaySel = document.getElementById('calcParlaySelect');
+    if (parlaySel && calcParlayType) {
+        const exists = Array.from(parlaySel.options).some(o => o.value === calcParlayType);
+        if (exists) parlaySel.value = calcParlayType;
+    }
+
+    // 更新玩法提示
+    const pt = PLAY_TYPES.find(p => p.value === calcPlayType);
+    const hintEl = document.getElementById('calcPlayTypeHint');
+    if (hintEl && pt) hintEl.textContent = pt.desc;
+
+    renderSlip();
+    updatePayoutCalc();
+    renderHistory();
+}
+
+function buildMatchPickerOptions() {
+    const source = LotteryAPI.getSourceClass();
+    const sourceLabel = source === 'src-official' ? '官方' : '模拟';
+
+    // 优先使用同步数据，降级使用赛程数据
+    const calcMatches = LotteryAPI.getCalcMatches();
+    if (calcMatches && calcMatches.length > 0) {
+        return calcMatches.filter(m => m.status !== 'played').map(m => {
+            const code = m.code || (SCHEDULE_DATA.find(x => x.id === m.id)?.lotteryCode || '');
+            return `<option value="${m.id}">[${code}] ${m.homeFlag||''}${m.homeTeam||m.home} vs ${m.awayFlag||''}${m.awayTeam||m.away}</option>`;
+        }).join('');
+    }
+
+    // 降级：使用本地赛程数据
+    return SCHEDULE_DATA.filter(m => m.status !== 'played').slice(0, 60).map(m =>
+        `<option value="${m.id}">[${m.lotteryCode}] ${m.homeFlag}${m.home} vs ${m.awayFlag}${m.away}</option>`
+    ).join('');
+}
+
+function getMatchOddsForCalc(matchId) {
+    // 尝试从同步数据获取赔率
+    const realOdds = LotteryAPI.getMatchOdds(matchId);
+    if (realOdds) return realOdds;
+
+    // 降级：随机生成
+    return generateOdds();
+}
+
+function showOddsForPicker(matchId) {
+    const area = document.getElementById('calcOddsArea');
+    if (!matchId) {
+        area.innerHTML = `<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:8px;">👆 选比赛后点"添加"，再选择投注选项</div>`;
+        return;
+    }
+    const m = SCHEDULE_DATA.find(x => x.id === matchId);
+    if (!m) return;
+
+    const o = getMatchOddsForCalc(matchId);
+    const matchLabel = `${m.homeFlag} ${m.home} vs ${m.away} ${m.awayFlag}`;
+    const sourceLabel = LotteryAPI.getStatus().source === 'official' ? '<span class="data-source-tag">官方</span>' : '';
+
+    const playTypeLabel = PLAY_TYPES.find(p => p.value === calcPlayType)?.label || '胜平负';
+
+    let oddsHtml = '';
+
+    if (calcPlayType === 'spf') {
+        const w = typeof o.spf.win === 'number' ? o.spf.win.toFixed(2) : o.spf.win;
+        const d = typeof o.spf.draw === 'number' ? o.spf.draw.toFixed(2) : o.spf.draw;
+        const l = typeof o.spf.lose === 'number' ? o.spf.lose.toFixed(2) : o.spf.lose;
+        oddsHtml = `
+        <div class="odds-section-title">${playTypeLabel} 赔率 ${sourceLabel}</div>
+        <div class="calc-odds-row">
+            <button class="calc-odds-btn" onclick="addPickToSlip('${m.id}','${m.lotteryCode}','${matchLabel}','胜','${w}','spf')">
+                <div class="co-name">主胜</div><div class="co-odds">${w}</div>
+            </button>
+            <button class="calc-odds-btn" onclick="addPickToSlip('${m.id}','${m.lotteryCode}','${matchLabel}','平','${d}','spf')">
+                <div class="co-name-draw">平局</div><div class="co-odds-draw">${d}</div>
+            </button>
+            <button class="calc-odds-btn" onclick="addPickToSlip('${m.id}','${m.lotteryCode}','${matchLabel}','负','${l}','spf')">
+                <div class="co-name">主负</div><div class="co-odds-lose">${l}</div>
+            </button>
+        </div>`;
+    } else if (calcPlayType === 'rqspf') {
+        const handicap = o.rqspf.handicap || '-1';
+        const h = parseInt(handicap);
+        const hText = h > 0 ? `+${h}` : `${h}`;
+        const rw = typeof o.rqspf.win === 'number' ? o.rqspf.win.toFixed(2) : o.rqspf.win;
+        const rd = typeof o.rqspf.draw === 'number' ? o.rqspf.draw.toFixed(2) : o.rqspf.draw;
+        const rl = typeof o.rqspf.lose === 'number' ? o.rqspf.lose.toFixed(2) : o.rqspf.lose;
+        oddsHtml = `
+        <div class="odds-section-title">${playTypeLabel} · 让球 <span class="handicap-badge">${hText}</span> ${sourceLabel}</div>
+        <div class="calc-odds-row">
+            <button class="calc-odds-btn" onclick="addPickToSlip('${m.id}','${m.lotteryCode}','${matchLabel}','让胜(${hText})','${rw}','rqspf')">
+                <div class="co-name">让胜</div><div class="co-odds">${rw}</div>
+            </button>
+            <button class="calc-odds-btn" onclick="addPickToSlip('${m.id}','${m.lotteryCode}','${matchLabel}','让平(${hText})','${rd}','rqspf')">
+                <div class="co-name-draw">让平</div><div class="co-odds-draw">${rd}</div>
+            </button>
+            <button class="calc-odds-btn" onclick="addPickToSlip('${m.id}','${m.lotteryCode}','${matchLabel}','让负(${hText})','${rl}','rqspf')">
+                <div class="co-name">让负</div><div class="co-odds-lose">${rl}</div>
+            </button>
+        </div>`;
+    } else if (calcPlayType === 'bf') {
+        const scoreEntries = Object.entries(o.scoreOdds || {});
+        oddsHtml = `
+        <div class="odds-section-title">${playTypeLabel} · 请选择比分 ${sourceLabel}</div>
+        <div class="odds-grid odds-grid-bf">
+            ${scoreEntries.map(([s, od]) => {
+                let cls = 'odds-chip';
+                if (s === '胜其他') cls += ' odds-chip-home';
+                else if (s === '平其他') cls += ' odds-chip-draw';
+                else if (s === '负其他') cls += ' odds-chip-away';
+                else { const parts = s.split(':'); const d = +parts[0]-+parts[1]; cls += d>0?' odds-chip-home':d<0?' odds-chip-away':' odds-chip-draw'; }
+                const ov = typeof od === 'number' ? od.toFixed(2) : od;
+                return `<button class="${cls}" onclick="addPickToSlip('${m.id}','${m.lotteryCode}','${matchLabel}','比分${s}','${ov}','bf')">
+                    <span class="oc-score">${s}</span><span class="oc-odds">${ov}</span>
+                </button>`;
+            }).join('')}
+        </div>`;
+    } else if (calcPlayType === 'zjq') {
+        const zjqEntries = Object.entries(o.zjqOdds || {});
+        oddsHtml = `
+        <div class="odds-section-title">${playTypeLabel} · 请选择进球数 ${sourceLabel}</div>
+        <div class="odds-grid odds-grid-zjq">
+            ${zjqEntries.map(([k, od]) => {
+                const ov = typeof od === 'number' ? od.toFixed(2) : od;
+                return `<button class="odds-chip odds-chip-neutral" onclick="addPickToSlip('${m.id}','${m.lotteryCode}','${matchLabel}','${k}球','${ov}','zjq')">
+                    <span class="oc-score">${k}</span><span class="oc-odds">${ov}</span>
+                </button>`;
+            }).join('')}
+        </div>`;
+    } else if (calcPlayType === 'bqc') {
+        const bqcEntries = Object.entries(o.bqcOdds || {});
+        oddsHtml = `
+        <div class="odds-section-title">${playTypeLabel} · 半场/全场 ${sourceLabel}</div>
+        <div class="odds-grid odds-grid-bqc">
+            ${bqcEntries.map(([k, od]) => {
+                const ov = typeof od === 'number' ? od.toFixed(2) : od;
+                return `<button class="odds-chip odds-chip-neutral" onclick="addPickToSlip('${m.id}','${m.lotteryCode}','${matchLabel}','${k}','${ov}','bqc')">
+                    <span class="oc-score">${k}</span><span class="oc-odds">${ov}</span>
+                </button>`;
+            }).join('')}
+        </div>`;
+    }
+
+    area.innerHTML = `
+        <div style="font-size:12px;color:var(--text-light);margin-bottom:4px">
+            <span class="lottery-code-badge">${m.lotteryCode}</span>
+            ${matchLabel}
+        </div>
+        ${oddsHtml}
+    `;
+}
+
+window.addMatchToSlip = function() {
+    const picker = document.getElementById('calcMatchPicker');
+    const matchId = picker.value;
+    if (!matchId) { alert('请先选择一场比赛'); return; }
+    // 比分、总进球、半全场同一场可多次添加不同选项
+    const allowMulti = ['bf','zjq','bqc'].includes(calcPlayType);
+    const existingCount = calcSlip.filter(s => s.matchId === matchId).length;
+    if (!allowMulti) {
+        if (calcSlip.length >= 5) { alert('最多选择5场比赛'); return; }
+        if (existingCount > 0) { alert('该比赛已在投注单中'); return; }
+    } else {
+        if (calcSlip.length >= 5) { alert('最多选择5场比赛'); return; }
+        if (calcSlip.some(s => s.matchId === matchId && s.playType !== calcPlayType)) {
+            alert('同一场比赛只能用一种玩法'); return;
+        }
+        if (existingCount >= 3) { alert('每场最多选3个比分/进球数选项'); return; }
+    }
+    showOddsForPicker(matchId);
+    document.getElementById('calcOddsArea').scrollIntoView({ behavior: 'smooth' });
+};
+
+window.addPickToSlip = function(matchId, lotteryCode, matchName, betLabel, odds, playType) {
+    if (calcSlip.length >= 5) { alert('最多选择5场比赛'); return; }
+    if (calcSlip.some(s => s.matchId === matchId && s.betLabel === betLabel && s.playType === playType)) {
+        alert('该选项已在投注单中'); return;
+    }
+    calcSlip.push({ matchId, lotteryCode, matchName, betLabel, odds: parseFloat(odds), playType: playType || calcPlayType });
+    if (calcSlip.length >= 2 && calcParlayType === 'single') {
+        calcParlayType = '2-1';
+    }
+    renderSlip();
+    updatePayoutCalc();
+    document.getElementById('calcMatchPicker').value = '';
+    document.getElementById('calcOddsArea').innerHTML = `<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:8px;">✅ 已添加，继续选或点"模拟出票"</div>`;
+};
+
+function renderSlip() {
+    const el = document.getElementById('calcSlip');
+    if (!el) return;
+    if (calcSlip.length === 0) {
+        el.innerHTML = '<div class="calc-slip-empty">📋 请添加比赛到投注单</div>';
+    } else {
+        el.innerHTML = calcSlip.map((s, i) => {
+            const pt = PLAY_TYPES.find(p => p.value === s.playType) || { label: s.playType };
+            return `
+            <div class="calc-slip-item">
+                <div class="csi-left">
+                    <span class="csi-code">[${s.lotteryCode}]</span>
+                    <span class="csi-playtype">${pt.label}</span>
+                </div>
+                <div class="csi-mid">
+                    <span class="csi-match">${s.matchName}</span>
+                </div>
+                <span class="csi-pick">${s.betLabel} <span class="csi-odds">@${s.odds}</span></span>
+                <span class="cs-del" onclick="removeSlipItem(${i})">✕</span>
+            </div>`;
+        }).join('');
+    }
+}
+
+window.onPlayTypeChange = function(val) {
+    calcPlayType = val;
+    const pt = PLAY_TYPES.find(p => p.value === val);
+    document.getElementById('calcPlayTypeHint').textContent = pt ? pt.desc : '';
+    // 切换玩法时清空当前赔率区
+    document.getElementById('calcOddsArea').innerHTML = `<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:8px;">👆 选比赛后点"添加"，选择${pt?pt.label:''}选项</div>`;
+};
+
+window.removeSlipItem = function(i) {
+    calcSlip.splice(i, 1);
+    if (calcSlip.length < 2) calcParlayType = 'single';
+    renderSlip();
+    updatePayoutCalc();
+};
+
+window.clearSlip = function() {
+    calcSlip = [];
+    calcParlayType = 'single';
+    calcMultiplier = 1;
+    renderSlip();
+    updatePayoutCalc();
+    document.getElementById('calcOddsArea').innerHTML = `<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:8px;">👆 选比赛后点"添加"，再选择投注选项</div>`;
+};
+
+window.onParlayChange = function(val) {
+    calcParlayType = val;
+    const opt = getParlayOptions(Math.max(calcSlip.length, 1)).find(o => o.value === val);
+    document.getElementById('calcParlayNote').textContent = opt ? opt.note : '';
+    updatePayoutCalc();
+};
+
+window.onMultiplierChange = function(val) {
+    calcMultiplier = parseInt(val);
+    updatePayoutCalc();
+};
+
+function updatePayoutCalc() {
+    const n = calcSlip.length;
+    const summaryEl = document.getElementById('calcSummary');
+    if (!summaryEl) return;
+
+    if (n === 0) {
+        summaryEl.style.display = 'none';
+        return;
+    }
+    summaryEl.style.display = 'block';
+
+    document.getElementById('csrSource').textContent = LotteryAPI.getStatusText();
+    document.getElementById('csrMatches').textContent = `${n}场`;
+
+    // 玩法汇总（取第一个非重复的）
+    const uniqueTypes = [...new Set(calcSlip.map(s => s.playType))];
+    const typeLabels = uniqueTypes.map(t => PLAY_TYPES.find(p => p.value === t)?.label || t);
+    document.getElementById('csrPlayType').textContent = typeLabels.join('+');
+
+    const parlayLabel = getParlayOptions(n).find(o => o.value === calcParlayType)?.label || '单关';
+    document.getElementById('csrParlay').textContent = parlayLabel;
+
+    const betCount = getBetCount(calcParlayType, n);
+    document.getElementById('csrBetCount').textContent = `${betCount}注`;
+    document.getElementById('csrMultiplier').textContent = `${calcMultiplier}倍`;
+
+    const totalAmount = betCount * 2 * calcMultiplier;
+    document.getElementById('csrAmount').textContent = `¥${totalAmount}`;
+
+    let payout = 0;
+    if (calcParlayType === 'single') {
+        payout = calcSlip.reduce((sum, s) => sum + s.odds * 2 * calcMultiplier, 0);
+    } else {
+        const parlayN = parseInt(calcParlayType.split('-')[0]);
+        if (parlayN <= n) {
+            const combined = calcSlip.slice(0, parlayN).reduce((a, s) => a * s.odds, 1);
+            payout = combined * 2 * calcMultiplier;
+        }
+    }
+    document.getElementById('csrPayout').textContent = `¥${payout.toFixed(2)}`;
+
+    // 更新串关选择器选项
+    const parlaySel = document.getElementById('calcParlaySelect');
+    const parlayNote = document.getElementById('calcParlayNote');
+    if (parlaySel && n >= 2) {
+        const opts = getParlayOptions(n);
+        const curVal = parlaySel.value;
+        parlaySel.innerHTML = opts.map(o =>
+            `<option value="${o.value}" ${o.value===curVal?'selected':''}>${o.label}</option>`
+        ).join('');
+        if (!opts.some(o => o.value === curVal)) {
+            parlaySel.value = opts[opts.length-1].value;
+            calcParlayType = parlaySel.value;
+        }
+        const active = opts.find(o => o.value === calcParlayType);
+        if (parlayNote && active) parlayNote.textContent = active.note;
+    }
+}
+
+window.submitSlip = function() {
+    if (calcSlip.length === 0) { alert('请先添加比赛到投注单'); return; }
+
+    const n = calcSlip.length;
+    const betCount = getBetCount(calcParlayType, n);
+    const totalAmount = betCount * 2 * calcMultiplier;
+
+    let combinedOdds = 0, payout = 0;
+    if (calcParlayType === 'single') {
+        combinedOdds = calcSlip.reduce((sum, s) => sum + s.odds, 0);
+        payout = calcSlip.reduce((sum, s) => sum + s.odds * 2 * calcMultiplier, 0);
+    } else {
+        const parlayN = parseInt(calcParlayType.split('-')[0]);
+        combinedOdds = calcSlip.slice(0, parlayN).reduce((a, s) => a * s.odds, 1);
+        payout = combinedOdds * 2 * calcMultiplier;
+    }
+
+    // 随机开奖
+    const allHit = calcSlip.every(() => Math.random() < 0.33);
+    let isWin = false, finalPayout = '0';
+
+    if (calcParlayType === 'single') {
+        const winSlips = calcSlip.filter(() => Math.random() < 0.33);
+        finalPayout = winSlips.reduce((sum, s) => sum + s.odds * 2 * calcMultiplier, 0).toFixed(2);
+        isWin = winSlips.length > 0;
+    } else {
+        isWin = allHit;
+        finalPayout = allHit ? payout.toFixed(2) : '0';
+    }
+
+    const parlayLabel = getParlayOptions(n).find(o => o.value === calcParlayType)?.label || '单关';
+    const rec = {
+        id: Date.now(),
+        picks: calcSlip.map(s => ({ ...s })),
+        combine: parlayLabel,
+        betCount,
+        multiplier: calcMultiplier,
+        combinedOdds: combinedOdds.toFixed(2),
+        amount: totalAmount,
+        isWin,
+        payout: finalPayout,
+        time: new Date().toLocaleString('zh-CN')
+    };
+    calcHistory.unshift(rec);
+    if (calcHistory.length > 10) calcHistory.pop();
+
+    clearSlip();
+    renderHistory();
+    rerenderCalc();
+    showResultModal(rec);
+};
+
+function renderHistory() {
+    const area = document.getElementById('calcHistoryArea');
+    const list = document.getElementById('calcHistoryList');
+    if (!area || !list) return;
+    if (calcHistory.length === 0) {
+        area.style.display = 'none';
+    } else {
+        area.style.display = 'block';
+        list.innerHTML = calcHistory.map(r => `
+            <div class="sim-h-item">
+                <div>
+                    <div>${r.picks.map(p => {
+                        const pt = PLAY_TYPES.find(x => x.value === p.playType);
+                        return `[${p.lotteryCode}]<span class="h-playtype">${pt?pt.label:p.playType}</span> ${p.betLabel}@${p.odds}`;
+                    }).join('<br>')}</div>
+                    <div style="font-size:11px;color:var(--text-light);margin-top:4px">${r.combine} · ${r.betCount}注×${r.multiplier}倍 · ¥${r.amount}</div>
+                    <div style="font-size:10px;color:var(--text-dim)">${r.time}</div>
+                </div>
+                <div><span style="font-weight:700" class="${r.isWin?'win':'lose'}">${r.isWin?'+¥'+r.payout:'-¥'+r.amount}</span></div>
+            </div>
+        `).join('');
+    }
+}
+
+function showResultModal(rec) {
+    document.querySelectorAll('.sim-modal-overlay, .sim-modal').forEach(e => e.remove());
+    const overlay = document.createElement('div');
+    overlay.className = 'sim-modal-overlay';
+    const modal = document.createElement('div');
+    modal.className = 'sim-modal';
+    modal.innerHTML = `
+        <button class="sim-modal-close" onclick="this.parentElement.remove();document.querySelector('.sim-modal-overlay').remove()">✕</button>
+        <div style="text-align:center;padding:8px 0 16px">
+            <div style="font-size:48px;margin-bottom:8px">${rec.isWin ? '🎉' : '😢'}</div>
+            <div style="font-size:18px;font-weight:700">${rec.isWin ? '恭喜中奖！' : '未中奖'}</div>
+            <div style="color:var(--text-light);font-size:12px;margin-top:8px;line-height:1.8">
+                ${rec.picks.map(p => {
+                    const pt = PLAY_TYPES.find(x => x.value === p.playType);
+                    return `[${p.lotteryCode}] <span style="background:#e8f0ff;padding:1px 6px;border-radius:4px;font-size:10px">${pt?pt.label:p.playType}</span> ${p.matchName.split(' vs ')[0]}→${p.betLabel}(@${p.odds})`;
+                }).join('<br>')}
+            </div>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-light)">${rec.combine} · ${rec.betCount}注×${rec.multiplier}倍</div>
+            <div style="font-size:28px;font-weight:900;color:${rec.isWin?'var(--red)':'var(--text-dim)'};margin:10px 0">${rec.isWin?'¥'+rec.payout:'¥0'}</div>
+            <div style="font-size:12px;color:var(--text-dim)">投注金额 ¥${rec.amount}</div>
+        </div>`;
+    overlay.onclick = () => { overlay.remove(); modal.remove(); };
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
+}
+
+function rerenderCalc() {
+    const container = document.getElementById('calcContainer');
+    if (container) renderCalc(container);
+}
+
+// ==================== 球队分组 ====================
+function initTeamsGroup() {
+    // 分组标签
+    const groupTabs = document.getElementById('groupTabs');
+    groupTabs.innerHTML = GROUPS.map(g => `<button class="gtab" data-group="${g}" onclick="showGroup('${g}')">${g}组</button>`).join('');
+
+    // 默认显示A组
+    showGroup('A');
+
+    // 搜索列表
+    renderAllTeams();
+}
+
+window.showGroup = function(g) {
+    document.querySelectorAll('.gtab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.gtab[data-group="${g}"]`).classList.add('active');
+
+    const teams = GROUPED_TEAMS[g] || [];
+    document.getElementById('groupContent').innerHTML = `
+        <div class="group-teams">
+            ${teams.map(t => `
+                <div class="group-team team-clickable" data-team="${t.name}" data-flag="${t.flag}">
+                    <span class="gt-flag">${t.flag}</span>
+                    <span class="gt-name">${t.name}</span>
+                    ${t.host ? '<span class="gt-host">东道主</span>' : ''}
+                    <span class="gt-rank">#${t.rank}</span>
+                    <span class="gt-arrow">▶</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    // 绑定点击事件
+    document.querySelectorAll('.team-clickable').forEach(el => {
+        el.addEventListener('click', function() {
+            showTeamPlayers(this.dataset.team, this.dataset.flag);
+        });
+    });
+};
+
+function renderAllTeams(filter = '') {
+    const list = filter
+        ? TEAMS_DATA.filter(t => t.name.includes(filter) || t.confederation.includes(filter.toUpperCase()))
+        : TEAMS_DATA;
+    document.getElementById('teamsGrid').innerHTML = list.map(t => `
+        <div class="team-card-item team-clickable" data-team="${t.name}" data-flag="${t.flag}">
+            <span class="tc-flag">${t.flag}</span>
+            <div class="tc-info">
+                <h4>${t.name} ${t.host?'🏠':''}</h4>
+                <div class="tc-conf">${t.confederation}</div>
+                <div class="tc-rank">世界排名 #${t.rank}</div>
+            </div>
+            <span class="tc-group-tag">${t.group}组</span>
+            <span class="gt-arrow">▶</span>
+        </div>
+    `).join('');
+
+    // 绑定点击事件
+    document.querySelectorAll('#teamsGrid .team-clickable').forEach(el => {
+        el.addEventListener('click', function() {
+            showTeamPlayers(this.dataset.team, this.dataset.flag);
+        });
+    });
+}
+
+window.filterTeams = function() {
+    renderAllTeams(document.getElementById('teamSearch').value);
+};
+
+// ==================== 城市详情 ====================
+function initCityDetails() {
+    function renderCities(data, containerId) {
+        document.getElementById(containerId).innerHTML = data.map(c => `
+            <div class="city-item">
+                <div class="ci-name">${c.name}</div>
+                <div class="ci-stadium">🏟 ${c.stadium} · ${c.capacity.toLocaleString()}座</div>
+                ${c.note ? `<div class="ci-note">${c.note}</div>` : ''}
+                <div style="font-size:12px;color:var(--text-light);margin-top:4px">${c.desc}</div>
+            </div>
+        `).join('');
+    }
+    renderCities(CITY_DETAILS.USA, 'usaCities');
+    renderCities(CITY_DETAILS.MEX, 'mexCities');
+    renderCities(CITY_DETAILS.CAN, 'canCities');
+}
+
+// ==================== 球队球员列表弹窗 ====================
+function showTeamPlayers(teamName, teamFlag) {
+    // 移除旧弹窗
+    document.querySelectorAll('.player-modal-overlay, .player-modal').forEach(e => e.remove());
+
+    const players = PLAYERS_DATA[teamName] || [];
+    const teamInfo = TEAMS_DATA.find(t => t.name === teamName);
+    const conf = teamInfo ? teamInfo.confederation : '';
+    const rank = teamInfo ? teamInfo.rank : '--';
+    const group = teamInfo ? teamInfo.group : '--';
+
+    const posColor = {
+        '前锋': '#e74c3c',
+        '中场': '#4a90d9',
+        '后卫': '#27ae60',
+        '门将': '#f39c12'
+    };
+
+    const overlay = document.createElement('div');
+    overlay.className = 'player-modal-overlay';
+    overlay.onclick = () => { overlay.remove(); modal.remove(); };
+
+    const modal = document.createElement('div');
+    modal.className = 'player-modal';
+    modal.innerHTML = `
+        <div class="player-modal-header">
+            <button class="player-modal-close" onclick="this.closest('.player-modal').remove();document.querySelector('.player-modal-overlay').remove()">✕</button>
+            <div class="pmh-flag">${teamFlag}</div>
+            <div class="pmh-name">${teamName}</div>
+            <div class="pmh-info">${group}组 · 世界排名 #${rank} · ${conf}</div>
+        </div>
+        <div class="player-list">
+            ${players.length > 0 ? players.map(p => `
+                <div class="player-item player-clickable" data-player='${JSON.stringify(p).replace(/'/g, "&#39;")}' data-team="${teamName}" data-flag="${teamFlag}">
+                    <span class="pi-num">${p.num}</span>
+                    <span class="pi-pos" style="background:${posColor[p.pos]||'#888'};color:#fff">${p.pos}</span>
+                    <span class="pi-name">${p.name}</span>
+                    <span class="pi-meta">${p.age}岁 · ${p.club}</span>
+                </div>
+            `).join('') : `
+                <div style="text-align:center;padding:30px;color:var(--text-dim)">
+                    <div style="font-size:40px;margin-bottom:8px">📋</div>
+                    <div>暂无球员数据</div>
+                    <div style="font-size:11px;margin-top:4px">阵容待公布</div>
+                </div>
+            `}
+        </div>
+        <div class="player-modal-footer">
+            共 ${players.length} 名球员 · 2026 预期阵容
+        </div>
+    `;
+
+    // 绑定球员点击事件
+    modal.querySelectorAll('.player-clickable').forEach(el => {
+        el.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const playerData = JSON.parse(this.dataset.player);
+            showPlayerDetail(playerData, this.dataset.team, this.dataset.flag);
+        });
+    });
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
+}
+
+// ==================== 单个球员详情弹窗 ====================
+function showPlayerDetail(player, teamName, teamFlag) {
+    // 移除旧详情弹窗
+    document.querySelectorAll('.pdetail-modal-overlay, .pdetail-modal').forEach(e => e.remove());
+
+    const posColor = {
+        '前锋': '#e74c3c',
+        '中场': '#4a90d9',
+        '后卫': '#27ae60',
+        '门将': '#f39c12'
+    };
+
+    const posBg = {
+        '前锋': 'linear-gradient(135deg, #e74c3c, #c0392b)',
+        '中场': 'linear-gradient(135deg, #4a90d9, #357abd)',
+        '后卫': 'linear-gradient(135deg, #27ae60, #1e8449)',
+        '门将': 'linear-gradient(135deg, #f39c12, #d68910)'
+    };
+
+    const posEmoji = {
+        '前锋': '⚽',
+        '中场': '🎯',
+        '后卫': '🛡',
+        '门将': '🧤'
+    };
+
+    // 用球员名字构建搜索图片的 URL
+    const searchName = encodeURIComponent(player.name + ' ' + teamName + ' football player');
+    const fallbackImg = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&size=200&background=4a90d9&color=fff&bold=true`;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pdetail-modal-overlay';
+    overlay.onclick = () => { overlay.remove(); detailModal.remove(); };
+
+    const detailModal = document.createElement('div');
+    detailModal.className = 'pdetail-modal';
+    detailModal.innerHTML = `
+        <button class="pdetail-close" onclick="this.closest('.pdetail-modal').remove();document.querySelector('.pdetail-modal-overlay').remove()">✕</button>
+        <div class="pdetail-hero" style="background:${posBg[player.pos] || 'linear-gradient(135deg, #636e72, #2d3436)'}">
+            <div class="pdetail-team-badge">
+                <span>${teamFlag}</span><span>${teamName}</span>
+            </div>
+            <div class="pdetail-photo-wrapper">
+                <img class="pdetail-photo" 
+                    src="${fallbackImg}"
+                    alt="${player.name}"
+                    onerror="this.onerror=null;this.src='${fallbackImg}'"
+                    loading="lazy">
+            </div>
+            <div class="pdetail-num-big">${player.num}</div>
+        </div>
+        <div class="pdetail-info-card">
+            <h2 class="pdetail-name">${player.name}</h2>
+            <div class="pdetail-tags">
+                <span class="pdetail-tag pdetail-tag-pos" style="background:${posColor[player.pos]||'#888'};color:#fff">${posEmoji[player.pos]||''} ${player.pos}</span>
+                <span class="pdetail-tag pdetail-tag-num">#${player.num}</span>
+            </div>
+            <div class="pdetail-details">
+                <div class="pdetail-row">
+                    <span class="pdetail-label">年龄</span>
+                    <span class="pdetail-value">${player.age} 岁</span>
+                </div>
+                <div class="pdetail-row">
+                    <span class="pdetail-label">俱乐部</span>
+                    <span class="pdetail-value">${player.club}</span>
+                </div>
+                <div class="pdetail-row">
+                    <span class="pdetail-label">国家队</span>
+                    <span class="pdetail-value">${teamFlag} ${teamName}</span>
+                </div>
+                <div class="pdetail-row">
+                    <span class="pdetail-label">位置</span>
+                    <span class="pdetail-value">${player.pos}</span>
+                </div>
+                <div class="pdetail-row">
+                    <span class="pdetail-label">球衣号码</span>
+                    <span class="pdetail-value pdetail-num-val">${player.num}</span>
+                </div>
+            </div>
+            <div class="pdetail-bio">
+                <p>${player.name}，${player.age}岁，司职${player.pos}，目前效力于${player.club}。作为${teamName}国家队成员，身穿${player.num}号球衣，将在2026年世界杯上为${teamName}${teamFlag}而战。</p>
+            </div>
+        </div>
+        <div class="pdetail-actions">
+            <button class="pdetail-btn-back" onclick="this.closest('.pdetail-modal').remove();document.querySelector('.pdetail-modal-overlay').remove()">← 返回球员列表</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.appendChild(detailModal);
+}
