@@ -1,8 +1,11 @@
 /**
- * 竞彩官方数据代理服务器
+ * 竞彩官方数据代理服务器 + 实时数据服务
  * 运行: node server.js
  * 端口: 3001
- * 作用: 从中国体育彩票官方接口抓取竞彩足球数据，绕过浏览器CORS及WAF限制
+ * 作用: 
+ *   1. 从中国体育彩票官方接口抓取竞彩足球数据
+ *   2. 提供世界杯实时比分、积分榜、球员动态API
+ *   绕过浏览器CORS及WAF限制
  */
 
 const http = require('http');
@@ -12,6 +15,18 @@ const { URL } = require('url');
 const PORT = 3001;
 const CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存
 const cache = {};
+
+// 加载实时数据服务和赛程注册表
+let liveService, MATCH_REGISTRY;
+try {
+    liveService = require('./live-service.js');
+    MATCH_REGISTRY = require('./match-registry.js');
+    console.log('[Server] 实时数据服务已加载, 赛程注册表:', MATCH_REGISTRY.length, '场比赛');
+} catch (e) {
+    console.log('[Server] 实时数据服务加载失败:', e.message);
+    liveService = null;
+    MATCH_REGISTRY = [];
+}
 
 // ============== 数据源配置 ==============
 const SOURCES = {
@@ -221,7 +236,7 @@ const server = http.createServer(async (req, res) => {
         return res.end(JSON.stringify(result));
     }
 
-    // 强制刷新
+    // 强制刷新竞彩数据
     if (reqUrl.pathname === '/api/refresh') {
         delete cache['matches'];
         delete cache['results'];
@@ -230,16 +245,75 @@ const server = http.createServer(async (req, res) => {
         return res.end(JSON.stringify({ ...result, refreshed: true }));
     }
 
+    // ============== 实时数据接口 ==============
+
+    // 获取全部实时数据 (比分+积分榜+球员)
+    if (reqUrl.pathname === '/api/live/all') {
+        if (!liveService) {
+            res.writeHead(503, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({
+                success: false,
+                error: '实时数据服务未加载',
+                hint: '请确保 live-service.js 文件存在'
+            }));
+        }
+
+        try {
+            const scheduleData = MATCH_REGISTRY || [];
+            const result = await liveService.getAllLiveData(scheduleData);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify(result));
+        } catch (e) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({
+                success: false,
+                error: e.message
+            }));
+        }
+    }
+
+    // 仅获取比赛比分
+    if (reqUrl.pathname === '/api/live/scores') {
+        if (!liveService) {
+            res.writeHead(503, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ success: false, error: '服务未加载' }));
+        }
+
+        try {
+            const scheduleData = MATCH_REGISTRY || [];
+            const result = await liveService.getLiveMatchScores(scheduleData);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify(result));
+        } catch (e) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ success: false, error: e.message }));
+        }
+    }
+
+    // 清除实时数据缓存
+    if (reqUrl.pathname === '/api/live/refresh') {
+        if (liveService) liveService.clearCache();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ success: true, refreshed: true }));
+    }
+
     // 404
     res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Not found', endpoints: ['/api/health', '/api/matches', '/api/results', '/api/refresh'] }));
+    res.end(JSON.stringify({
+        error: 'Not found',
+        endpoints: [
+            '/api/health', '/api/matches', '/api/results', '/api/refresh',
+            '/api/live/all', '/api/live/scores', '/api/live/refresh'
+        ]
+    }));
 });
 
 server.listen(PORT, () => {
-    console.log(`🏟  竞彩数据代理服务器已启动`);
+    console.log(`🏟  竞彩数据代理 + 实时数据服务器已启动`);
     console.log(`📍 地址: http://localhost:${PORT}`);
-    console.log(`📡 接口: /api/matches | /api/results | /api/refresh | /api/health`);
-    console.log(`⏱  缓存: ${CACHE_TTL / 1000}秒`);
+    console.log(`📡 竞彩接口: /api/matches | /api/results | /api/refresh | /api/health`);
+    console.log(`🔄 实时数据: /api/live/all | /api/live/scores | /api/live/refresh`);
+    console.log(`⏱  缓存: 竞彩${CACHE_TTL / 1000}s | 比分${liveService ? liveService.CACHE_TTL.matchScores / 1000 : 'N/A'}s`);
     console.log('');
-    console.log(`💡 提示: 保持此窗口运行，前端即可同步官方数据`);
+    console.log(`💡 提示: 保持此窗口运行，前端即可获取实时比赛数据`);
 });

@@ -503,18 +503,52 @@ function generateLiveMessages() {
 
 // ==================== 实时更新 ====================
 function initLiveUpdates() {
-    // 每30秒自动更新赛程和积分榜
-    setInterval(() => {
-        const schedulePage = document.getElementById('schedule');
-        if (schedulePage && schedulePage.classList.contains('active')) {
-            renderSchedule();
-        }
-        // 更新时间戳
-        const refEl = document.getElementById('scheduleRefresh');
-        if (refEl) refEl.innerHTML = `<span class="live-indicator"></span> 更新于 ${new Date().toLocaleTimeString('zh-CN')}`;
-        // 同步更新积分榜
-        renderStandings(currentGroup);
-    }, 30000);
+    // 使用 LiveData 模块获取实时数据
+    if (typeof LiveData !== 'undefined') {
+        // 监听数据更新后自动刷新界面
+        LiveData.onUpdate((data) => {
+            const applied = LiveData.applyMatchUpdates();
+            const playerApplied = LiveData.applyPlayerUpdates();
+
+            // 自动刷新赛程界面
+            const schedulePage = document.getElementById('schedule');
+            if (schedulePage && schedulePage.classList.contains('active')) {
+                renderSchedule();
+            }
+
+            // 更新时间戳
+            const refEl = document.getElementById('scheduleRefresh');
+            if (refEl) {
+                const statusText = LiveData.getStatusText();
+                refEl.innerHTML = `<span class="live-indicator"></span> ${statusText}`;
+            }
+
+            // 刷新积分榜
+            if (currentGroup) {
+                renderStandings(currentGroup);
+            }
+
+            // 有实际数据变更时输出日志
+            if (applied > 0 || playerApplied > 0) {
+                console.log(`[LiveData] 已应用: ${applied}场比分, ${playerApplied}名球员状态`);
+            }
+        });
+
+        // 启动轮询
+        LiveData.startPolling();
+    } else {
+        // 降级：原来的30秒静态刷新
+        console.log('[App] LiveData模块未加载，使用静态刷新模式');
+        setInterval(() => {
+            const schedulePage = document.getElementById('schedule');
+            if (schedulePage && schedulePage.classList.contains('active')) {
+                renderSchedule();
+            }
+            const refEl = document.getElementById('scheduleRefresh');
+            if (refEl) refEl.innerHTML = `<span class="live-indicator"></span> 更新于 ${new Date().toLocaleTimeString('zh-CN')}`;
+            renderStandings(currentGroup);
+        }, 30000);
+    }
 }
 
 // ==================== 球员动态 ====================
@@ -589,10 +623,17 @@ function renderPlayerStatus() {
     const now = new Date();
     const opening = new Date(2026, 5, 11, 0, 0, 0);
     if (timeEl) {
+        let liveStatus = '';
+        if (typeof LiveData !== 'undefined') {
+            const status = LiveData.getStatus();
+            if (status.lastFetch) {
+                liveStatus = ' · ' + LiveData.getStatusText();
+            }
+        }
         if (now < opening) {
-            timeEl.textContent = `🕐 赛前动态 · 更新于 ${now.toLocaleDateString('zh-CN')} · 开赛后实时更新`;
+            timeEl.textContent = `🕐 赛前动态 · 更新于 ${now.toLocaleDateString('zh-CN')}${liveStatus} · 开赛后实时更新`;
         } else {
-            timeEl.textContent = `🔴 实时更新 · ${now.toLocaleDateString('zh-CN')} ${now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`;
+            timeEl.textContent = `🔴 实时更新 · ${now.toLocaleDateString('zh-CN')} ${now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}${liveStatus}`;
         }
     }
 }
@@ -956,6 +997,13 @@ window.triggerSync = async function() {
     await LotteryAPI.syncMatches(true);
     updateSyncUI();
     rerenderCalc();
+    // 同时触发实时数据同步
+    if (typeof LiveData !== 'undefined') {
+        const result = await LiveData.syncNow();
+        if (result && result.matchApplied > 0) {
+            console.log(`[Sync] 实时数据已更新: ${result.matchApplied}场比赛`);
+        }
+    }
 };
 
 window.toggleAutoSync = function(enabled) {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wc2026-v10';
+const CACHE_NAME = 'wc2026-v11';
 const OFFLINE_URL = '/';
 
 const urlsToCache = [
@@ -8,6 +8,9 @@ const urlsToCache = [
   '/app.js',
   '/data.js',
   '/keys.js',
+  '/live-client.js',
+  '/match-registry.js',
+  '/lottery-api.js',
   '/manifest.json'
 ];
 
