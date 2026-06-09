@@ -442,19 +442,7 @@ body {
     50% { transform: translateY(-3px); }
 }
 
-/* vivo浏览器等强制深色模式防御 */
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #121926;
-        color: #eef1f5;
-    }
-}
-@media (prefers-color-scheme: light) {
-    body {
-        background-color: #f0f2f5;
-        color: #1a1a2e;
-    }
-}
+
 
 /* ---------- Stat Grid ---------- */
 .stat-grid {
