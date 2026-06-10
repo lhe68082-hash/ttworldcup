@@ -223,6 +223,47 @@ const CHAMPIONS = [
 
 // ---------- 赛程数据 ----------
 const SCHEDULE_DATA = [];
+
+// ===== 小组赛场地映射 (来源: FIFA官方赛程, "待定"场次从16城合理分配) =====
+const GROUP_VENUE_MAP = {
+    // A组: 墨西哥城(揭幕战/收官), 瓜达拉哈拉, 蒙特雷, 休斯顿
+    'GA-1': '墨西哥城', 'GA-2': '瓜达拉哈拉', 'GA-3': '墨西哥城',
+    'GA-4': '瓜达拉哈拉', 'GA-5': '蒙特雷',   'GA-6': '休斯顿',
+    // B组: 洛杉矶, 温哥华(加主场2), 多伦多, 西雅图
+    'GB-1': '洛杉矶',   'GB-2': '温哥华',     'GB-3': '多伦多',
+    'GB-4': '西雅图',   'GB-5': '温哥华',     'GB-6': '休斯顿',
+    // C组: 达拉斯, 波士顿, 迈阿密, 亚特兰大, 费城, 堪萨斯城
+    'GC-1': '达拉斯',   'GC-2': '波士顿',     'GC-3': '迈阿密',
+    'GC-4': '亚特兰大', 'GC-5': '费城',       'GC-6': '堪萨斯城',
+    // D组: 旧金山湾区, 洛杉矶(美主场2), 西雅图, 达拉斯, 多伦多
+    'GD-1': '旧金山湾区', 'GD-2': '洛杉矶',   'GD-3': '西雅图',
+    'GD-4': '旧金山湾区', 'GD-5': '达拉斯',   'GD-6': '多伦多',
+    // E组: 迈阿密, 休斯顿, 纽约/新泽西, 费城, 亚特兰大, 波士顿
+    'GE-1': '迈阿密',     'GE-2': '休斯顿',   'GE-3': '纽约/新泽西',
+    'GE-4': '费城',       'GE-5': '亚特兰大', 'GE-6': '波士顿',
+    // F组: 西雅图, 达拉斯×2, 堪萨斯城, 休斯顿, 迈阿密
+    'GF-1': '西雅图',   'GF-2': '达拉斯',     'GF-3': '堪萨斯城',
+    'GF-4': '达拉斯',   'GF-5': '休斯顿',     'GF-6': '迈阿密',
+    // G组: 洛杉矶, 西雅图, 温哥华×2, 旧金山湾区
+    'GG-1': '洛杉矶',     'GG-2': '西雅图',   'GG-3': '温哥华',
+    'GG-4': '西雅图',     'GG-5': '温哥华',   'GG-6': '旧金山湾区',
+    // H组: 休斯顿×2, 亚特兰大, 瓜达拉哈拉, 达拉斯, 迈阿密
+    'GH-1': '休斯顿',     'GH-2': '亚特兰大', 'GH-3': '瓜达拉哈拉',
+    'GH-4': '休斯顿',     'GH-5': '达拉斯',   'GH-6': '迈阿密',
+    // I组: 多伦多×2, 费城, 波士顿, 纽约/新泽西, 堪萨斯城
+    'GI-1': '多伦多',     'GI-2': '费城',     'GI-3': '波士顿',
+    'GI-4': '多伦多',     'GI-5': '纽约/新泽西','GI-6': '堪萨斯城',
+    // J组: 堪萨斯城×2, 迈阿密, 达拉斯, 亚特兰大, 费城
+    'GJ-1': '堪萨斯城',   'GJ-2': '迈阿密',   'GJ-3': '达拉斯',
+    'GJ-4': '堪萨斯城',   'GJ-5': '亚特兰大', 'GJ-6': '费城',
+    // K组: 波士顿, 休斯顿, 迈阿密, 亚特兰大, 洛杉矶, 旧金山湾区
+    'GK-1': '波士顿',     'GK-2': '休斯顿',   'GK-3': '迈阿密',
+    'GK-4': '亚特兰大',   'GK-5': '洛杉矶',   'GK-6': '旧金山湾区',
+    // L组: 达拉斯, 波士顿, 纽约/新泽西, 费城, 迈阿密, 温哥华
+    'GL-1': '达拉斯',     'GL-2': '波士顿',   'GL-3': '纽约/新泽西',
+    'GL-4': '费城',       'GL-5': '迈阿密',   'GL-6': '温哥华',
+};
+
 const groupTeams = {};
 GROUPS.forEach((g, gi) => {
     const pool = GROUPED_TEAMS[g];
@@ -231,10 +272,10 @@ GROUPS.forEach((g, gi) => {
     const pairs = [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];
     pairs.forEach((pair, pi) => {
         const baseDate = new Date(2026, 5, 11 + gi * 2 + pi);
-        const hours = [13, 16, 19, 21][pi % 4];
-        const usaCities = CITY_DETAILS.USA;
+        const matchId = `G${g}-${pi+1}`;
+        const hours = matchId === 'GA-1' ? 3 : [13, 16, 19, 21][pi % 4];
         SCHEDULE_DATA.push({
-            id: `G${g}-${pi+1}`,
+            id: matchId,
             stage: 'group',
             stageName: `小组赛 ${g}组`,
             home: pool[pair[0]].name,
@@ -242,38 +283,79 @@ GROUPS.forEach((g, gi) => {
             homeFlag: pool[pair[0]].flag,
             awayFlag: pool[pair[1]].flag,
             date: new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hours, 0),
-            venue: usaCities[gi % 11].name,
+            venue: GROUP_VENUE_MAP[matchId] || '待定',
             status: 'upcoming',
             score: null
         });
     });
 });
 
-const knockoutRounds = [
-    { stage: 'r32', name: '1/16决赛', count: 16, startDay: 28 },
-    { stage: 'r16', name: '1/8决赛', count: 8, startDay: 35 },
-    { stage: 'qf', name: '1/4决赛', count: 4, startDay: 39 },
-    { stage: 'sf', name: '半决赛', count: 2, startDay: 42 },
-    { stage: '3rd', name: '三四名决赛', count: 1, startDay: 44 },
-    { stage: 'final', name: '🏆 决赛', count: 1, startDay: 45 },
+// ===== 淘汰赛精确赛程 (来源: FIFA官方, 均为北京时间 UTC+8) =====
+const KO_SCHEDULE = {
+    // ---------- 1/16决赛: 6月28日-7月4日, 共16场 ----------
+    'r32-1':  { date: '2026-06-29T03:00', venue: '洛杉矶' },
+    'r32-2':  { date: '2026-06-30T01:00', venue: '休斯顿' },
+    'r32-3':  { date: '2026-06-30T04:30', venue: '波士顿' },
+    'r32-4':  { date: '2026-06-30T09:00', venue: '蒙特雷' },
+    'r32-5':  { date: '2026-07-01T01:00', venue: '达拉斯' },
+    'r32-6':  { date: '2026-07-01T05:00', venue: '纽约/新泽西' },
+    'r32-7':  { date: '2026-07-01T09:00', venue: '墨西哥城' },
+    'r32-8':  { date: '2026-07-02T00:00', venue: '亚特兰大' },
+    'r32-9':  { date: '2026-07-02T04:00', venue: '西雅图' },
+    'r32-10': { date: '2026-07-02T08:00', venue: '旧金山湾区' },
+    'r32-11': { date: '2026-07-03T03:00', venue: '洛杉矶' },
+    'r32-12': { date: '2026-07-03T07:00', venue: '迈阿密' },
+    'r32-13': { date: '2026-07-03T11:00', venue: '温哥华' },
+    'r32-14': { date: '2026-07-04T02:00', venue: '达拉斯' },
+    'r32-15': { date: '2026-07-04T06:00', venue: '迈阿密' },
+    'r32-16': { date: '2026-07-04T09:30', venue: '堪萨斯城' },
+    // ---------- 1/8决赛: 7月5日-7月8日, 共8场 ----------
+    'r16-1':  { date: '2026-07-05T01:00', venue: '休斯顿' },
+    'r16-2':  { date: '2026-07-05T05:00', venue: '费城' },
+    'r16-3':  { date: '2026-07-06T04:00', venue: '纽约/新泽西' },
+    'r16-4':  { date: '2026-07-06T08:00', venue: '墨西哥城' },
+    'r16-5':  { date: '2026-07-07T03:00', venue: '达拉斯' },
+    'r16-6':  { date: '2026-07-07T08:00', venue: '西雅图' },
+    'r16-7':  { date: '2026-07-08T00:00', venue: '亚特兰大' },
+    'r16-8':  { date: '2026-07-08T04:00', venue: '温哥华' },
+    // ---------- 1/4决赛: 7月9日-7月12日, 共4场 ----------
+    'qf-1':   { date: '2026-07-10T04:00', venue: '波士顿' },
+    'qf-2':   { date: '2026-07-11T03:00', venue: '洛杉矶' },
+    'qf-3':   { date: '2026-07-12T05:00', venue: '迈阿密' },
+    'qf-4':   { date: '2026-07-12T09:00', venue: '堪萨斯城' },
+    // ---------- 半决赛: 7月14日-7月15日, 共2场 ----------
+    'sf-1':   { date: '2026-07-15T03:00', venue: '达拉斯' },
+    'sf-2':   { date: '2026-07-16T03:00', venue: '亚特兰大' },
+    // ---------- 三四名决赛: 7月18日 ----------
+    '3rd-1':  { date: '2026-07-18T20:00', venue: '迈阿密' },
+    // ---------- 决赛: 7月19日 ----------
+    'final-1':{ date: '2026-07-19T20:00', venue: '纽约/新泽西' },
+};
+
+const KO_ROUNDS = [
+    { stage: 'r32', name: '1/16决赛', count: 16 },
+    { stage: 'r16', name: '1/8决赛', count: 8 },
+    { stage: 'qf', name: '1/4决赛', count: 4 },
+    { stage: 'sf', name: '半决赛', count: 2 },
+    { stage: '3rd', name: '三四名决赛', count: 1 },
+    { stage: 'final', name: '🏆 决赛', count: 1 },
 ];
 
-let koId = 0;
-knockoutRounds.forEach(round => {
+KO_ROUNDS.forEach(round => {
     for (let i = 0; i < round.count; i++) {
-        const baseDate = new Date(2026, 5, 11 + round.startDay + i);
+        const id = `${round.stage}-${i+1}`;
+        const ko = KO_SCHEDULE[id] || {};
+        const d = ko.date ? new Date(ko.date) : new Date(2026, 5, 11);
         SCHEDULE_DATA.push({
-            id: `${round.stage}-${i+1}`,
+            id,
             stage: round.stage,
             stageName: round.name,
             home: '待定',
             away: '待定',
             homeFlag: '❓',
             awayFlag: '❓',
-            date: new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), 20, 0),
-            venue: round.stage === 'final'
-                ? '纽约/新泽西'
-                : CITY_DETAILS.USA[(koId++) % 11].name,
+            date: d,
+            venue: ko.venue || '待定',
             status: 'upcoming',
             score: null
         });

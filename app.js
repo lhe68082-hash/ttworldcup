@@ -388,7 +388,9 @@ function renderSchedule() {
     if (!grid) return;
     lastScheduleRender = Date.now();
 
-    const filtered = scheduleFilter === 'all' ? SCHEDULE_DATA : SCHEDULE_DATA.filter(m => m.stage === scheduleFilter);
+    const filtered = scheduleFilter === 'all' ? SCHEDULE_DATA :
+        scheduleFilter === 'final' ? SCHEDULE_DATA.filter(m => m.stage === 'final' || m.stage === '3rd') :
+        SCHEDULE_DATA.filter(m => m.stage === scheduleFilter);
     updateProgress();
 
     // 更新刷新指示器
@@ -411,7 +413,7 @@ function renderSchedule() {
         // 主客队名，用data属性存储用于点击
         return `<div class="match-card ${cardClass}">
             <div class="match-stage">${m.stageName}</div>
-            <div class="match-meta"><span>📅 ${ds} ${ts}</span><span>🏟 ${m.venue}</span></div>
+            <div class="match-meta"><span>📅 ${ds} ${ts} (北京时间)</span><span>🏟 ${m.venue}</span></div>
             <div class="match-teams">
                 <div class="match-team" data-team="${m.home}" data-flag="${m.homeFlag}" onclick="showTeamDetail(event, '${m.home}', '${m.homeFlag}')">
                     <span class="team-flag">${m.homeFlag}</span>
