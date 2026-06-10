@@ -11,8 +11,8 @@
   "lang": "zh-CN",
   "icons": [
     {
-      "src": "https://cdn.jsdelivr.net/gh/emojikeyboard/CDN@master/img/%E7%AF%AE%E7%90%83/%F0%9F%8F%80.svg",
-      "sizes": "any",
+      "src": "icon.svg",
+      "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }

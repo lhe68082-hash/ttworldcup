@@ -2153,6 +2153,13 @@ body {
     background: rgba(64,192,87,0.05);
 }
 
+/* 日间模式顶部 logo 使用更深色渐变，提升可读性 */
+[data-theme="light"] .topbar-logo {
+    background: linear-gradient(135deg, #008a6e, #1a6db5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 
 /* ==================== 竞彩分析统计卡片 ==================== */
 .ledger-analysis {
@@ -2265,31 +2272,3 @@ body {
 .ledger-strategy-icon { font-size: 16px; }
 .ledger-strategy-text { font-size: 11px; color: var(--text-light); flex: 1; }
 .ledger-strategy-text strong { color: var(--text); }
-
-/* ====== SVG 图标系统 ====== */
-.icon-svg { width: 1.2em; height: 1.2em; vertical-align: -0.15em; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
-.icon-svg-fill { fill: currentColor; stroke: none; }
-.icon-svg-lg { width: 1.5em; height: 1.5em; }
-.icon-svg-xl { width: 2em; height: 2em; }
-.icon-svg-2xl { width: 2.5em; height: 2.5em; }
-/* 导航图标 */
-.bnav-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; }
-.bnav-item.active .bnav-icon svg { color: var(--accent); }
-/* 页面标题图标 */
-.page-title-icon { width: 24px; height: 24px; stroke: currentColor; fill: none; vertical-align: -5px; margin-right: 4px; }
-/* 子导航图标 */
-.subnav-icon { width: 16px; height: 16px; stroke: currentColor; fill: none; vertical-align: -3px; margin-right: 2px; }
-/* 统计卡片图标 */
-.stat-icon-svg { width: 30px; height: 30px; stroke: var(--accent); fill: none; }
-/* 新闻标签图标 */
-.news-tag-icon { width: 14px; height: 14px; stroke: currentColor; fill: none; vertical-align: -2px; }
-/* 奖杯图标（大） */
-.trophy-icon-svg { width: 26px; height: 26px; stroke: #ffd43b; fill: none; }
-/* 主题切换图标 */
-.theme-icon-svg { width: 16px; height: 16px; stroke: currentColor; fill: none; vertical-align: -3px; }
-/* 卡片标题图标 */
-.card-title-icon { width: 20px; height: 20px; stroke: currentColor; fill: none; vertical-align: -4px; margin-right: 4px; }
-/* 赛程内联图标 */
-.schedule-inline-icon { width: 14px; height: 14px; stroke: currentColor; fill: none; vertical-align: -2px; margin-right: 2px; }
-/* 按钮内图标 */
-.btn-icon { width: 16px; height: 16px; stroke: currentColor; fill: none; vertical-align: -3px; margin-right: 3px; }

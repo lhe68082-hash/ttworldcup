@@ -224,7 +224,7 @@ function initBottomNav() {
                 showSubnavFor(target);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 // 懒加载触发
-                if (target === 'schedule') refreshScheduleIfNeeded();
+                if (target === 'schedule') { refreshScheduleIfNeeded(); renderBracket(); }
             }
         });
     });
@@ -272,11 +272,7 @@ function applyTheme(theme) {
     if (btn) {
         const iconEl = btn.querySelector('.theme-icon');
         const labelEl = btn.querySelector('.theme-label');
-        if (iconEl) {
-            iconEl.innerHTML = theme === 'light'
-                ? '<svg class="theme-icon-svg"><use href="#icon-moon"/></svg>'
-                : '<svg class="theme-icon-svg"><use href="#icon-sun"/></svg>';
-        }
+        if (iconEl) iconEl.textContent = theme === 'light' ? '🌙' : '☀️';
         if (labelEl) labelEl.textContent = theme === 'light' ? '日间' : '夜间';
     }
     const meta = document.getElementById('metaThemeColor');
@@ -381,6 +377,102 @@ function initSchedule() {
         });
     });
     renderSchedule();
+    renderBracket();
+}
+
+// ==================== 淘汰赛对阵表渲染 ====================
+function renderBracket() {
+    const container = document.getElementById('bracketContainer');
+    if (!container) return;
+
+    // 从 SCHEDULE_DATA 中提取淘汰赛阶段比赛
+    const koStages = ['final', '3rd', 'sf', 'qf', 'r16', 'r32'];
+    const stageConfig = {
+        'final': { title: '🏆 决赛 · 7月19日', venue: '📍 纽约/新泽西 · 大都会人寿体育场', cls: 'final-match' },
+        '3rd': { title: '🥉 三四名决赛 · 7月18日', venue: '📍 迈阿密', cls: '' },
+        'sf': { title: '🔥 半决赛 · 7月14-15日', venue: '', cls: '' },
+        'qf': { title: '💥 1/4决赛 · 7月9-12日', venue: '', cls: '' },
+        'r16': { title: '⚡ 1/8决赛 · 7月5-8日 · 8场', venue: '', cls: '' },
+        'r32': { title: '🎯 1/16决赛 · 6月28日-7月4日 · 16场', venue: '', cls: '' },
+    };
+
+    let html = '';
+    koStages.forEach(stage => {
+        const matches = SCHEDULE_DATA.filter(m => m.stage === stage);
+        if (matches.length === 0) return;
+        const cfg = stageConfig[stage];
+
+        html += `<div class="bk-round"><div class="bk-round-title">${cfg.title}</div>`;
+
+        // 最高轮次（决赛和三四名）：单场展示
+        if (matches.length === 1) {
+            const m = matches[0];
+            const hasResult = m.score !== null;
+            html += `<div class="bk-match ${cfg.cls}">
+                <div class="bk-team"><span>${m.homeFlag}</span><span>${m.home}</span>${hasResult ? `<span style="font-weight:900;color:var(--accent)">${m.score.home}</span>` : ''}</div>
+                <div class="bk-vs">${hasResult ? '<span style="color:var(--text-dim)">:</span>' : 'VS'}</div>
+                <div class="bk-team"><span>${m.awayFlag}</span><span>${m.away}</span>${hasResult ? `<span style="font-weight:900;color:var(--blue)">${m.score.away}</span>` : ''}</div>
+            </div>`;
+            if (cfg.venue) html += `<div class="bk-venue">${cfg.venue}</div>`;
+        } else if (matches.length === 2) {
+            // 半决赛：2场并列
+            html += '<div class="bk-row-2">';
+            matches.forEach(m => {
+                const hasResult = m.score !== null;
+                html += `<div class="bk-match">
+                    <div class="bk-team"><span style="font-size:20px">${m.homeFlag}</span><span style="font-size:11px">${m.home}</span>${hasResult ? `<span style="font-weight:900;color:var(--accent);font-size:12px">${m.score.home}</span>` : ''}</div>
+                    <div class="bk-vs">VS</div>
+                    <div class="bk-team"><span style="font-size:20px">${m.awayFlag}</span><span style="font-size:11px">${m.away}</span>${hasResult ? `<span style="font-weight:900;color:var(--blue);font-size:12px">${m.score.away}</span>` : ''}</div>
+                </div>`;
+            });
+            html += '</div>';
+            if (cfg.venue) html += `<div class="bk-venue">${cfg.venue}</div>`;
+        } else if (matches.length === 4) {
+            // 1/4决赛：4场两行
+            html += '<div class="bk-row-4">';
+            matches.forEach(m => {
+                html += renderBracketMiniMatch(m);
+            });
+            html += '</div>';
+        } else if (matches.length === 8) {
+            // 1/8决赛：8场分两行
+            html += '<div class="bk-row-4">';
+            matches.slice(0, 4).forEach(m => { html += renderBracketMiniMatch(m); });
+            html += '</div><div class="bk-row-4">';
+            matches.slice(4, 8).forEach(m => { html += renderBracketMiniMatch(m); });
+            html += '</div>';
+        } else if (matches.length === 16) {
+            // 1/16决赛：16场，简化显示（场次太多），只显示待定或有结果的
+            const decided = matches.filter(m => m.home !== '待定' || m.away !== '待定' || m.score);
+            if (decided.length > 0) {
+                html += '<div class="bk-row-4">';
+                decided.slice(0, 4).forEach(m => { html += renderBracketMiniMatch(m); });
+                html += '</div>';
+                if (decided.length > 4) {
+                    html += '<div class="bk-row-4">';
+                    decided.slice(4, 8).forEach(m => { html += renderBracketMiniMatch(m); });
+                    html += '</div>';
+                }
+            } else {
+                html += '<div class="bk-summary">32队争夺16强席位 — 2026赛制新增轮次</div>';
+            }
+        }
+        html += '</div>';
+    });
+
+    // 小组赛说明
+    html += '<div class="bk-round"><div class="bk-round-title">🌍 小组赛 · 6月12日-6月28日 · 72场</div><div class="bk-summary">48队 · 12组 · 每组前2名+8个最佳第三名晋级32强</div></div>';
+
+    container.innerHTML = html;
+}
+
+function renderBracketMiniMatch(m) {
+    const hasResult = m.score !== null;
+    return `<div class="bk-match">
+        <div class="bk-team"><span style="font-size:16px">${m.homeFlag}</span><span style="font-size:10px">${m.home}</span>${hasResult ? `<span style="font-weight:900;color:var(--accent);font-size:11px">${m.score.home}</span>` : ''}</div>
+        <span class="bk-vs-sm">${hasResult ? ':' : 'VS'}</span>
+        <div class="bk-team"><span style="font-size:16px">${m.awayFlag}</span><span style="font-size:10px">${m.away}</span>${hasResult ? `<span style="font-weight:900;color:var(--blue);font-size:11px">${m.score.away}</span>` : ''}</div>
+    </div>`;
 }
 
 function refreshScheduleIfNeeded() {
@@ -550,6 +642,7 @@ function initLiveUpdates() {
             const schedulePage = document.getElementById('schedule');
             if (schedulePage && schedulePage.classList.contains('active')) {
                 renderSchedule();
+                renderBracket();
             }
 
             // 更新时间戳
@@ -579,6 +672,7 @@ function initLiveUpdates() {
             const schedulePage = document.getElementById('schedule');
             if (schedulePage && schedulePage.classList.contains('active')) {
                 renderSchedule();
+                renderBracket();
             }
             const refEl = document.getElementById('scheduleRefresh');
             if (refEl) refEl.innerHTML = `<span class="live-indicator"></span> 更新于 ${new Date().toLocaleTimeString('zh-CN')}`;
@@ -1863,9 +1957,9 @@ function fetchPlayerPhoto(enName, imgEl, fallbackSvg) {
         return;
     }
 
-    // 6秒超时保护
+    // 3秒超时保护
     let timedOut = false;
-    const timeoutId = setTimeout(() => { timedOut = true; }, 6000);
+    const timeoutId = setTimeout(() => { timedOut = true; }, 3000);
 
     const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(enName)}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
     fetch(apiUrl)
