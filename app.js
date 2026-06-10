@@ -203,36 +203,52 @@ function initBottomNav() {
     const items = document.querySelectorAll('.bnav-item');
     const pages = document.querySelectorAll('.page');
     const allSubnavs = document.querySelectorAll('.subnav');
+    let isTransitioning = false;
 
     function showSubnavFor(tabId) {
-        // 隐藏所有二级导航
         allSubnavs.forEach(s => s.classList.remove('active'));
-        // 显示当前页面对应的二级导航
         const subnav = document.getElementById('subnav-' + tabId);
         if (subnav) subnav.classList.add('active');
     }
 
     items.forEach(item => {
         item.addEventListener('click', () => {
+            if (isTransitioning) return;
+            
             const target = item.getAttribute('data-tab');
+            const currentPage = document.querySelector('.page.active');
+            const targetPage = document.getElementById(target);
+            
+            if (!targetPage || currentPage === targetPage) return;
+
+            isTransitioning = true;
+            
             items.forEach(i => i.classList.remove('active'));
             item.classList.add('active');
-            pages.forEach(p => p.classList.remove('active'));
-            const page = document.getElementById(target);
-            if (page) {
-                page.classList.add('active');
+
+            if (currentPage) {
+                currentPage.classList.add('transitioning');
+            }
+
+            setTimeout(() => {
+                if (currentPage) {
+                    currentPage.classList.remove('active', 'transitioning');
+                }
+                targetPage.classList.add('active');
                 showSubnavFor(target);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                // 懒加载触发
+                
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 150);
+                
                 if (target === 'schedule') refreshScheduleIfNeeded();
-            }
+            }, 250);
         });
     });
 
-    // 初始化：首页不显示二级导航
     showSubnavFor('home');
 
-    // 二级导航点击事件（委托）
     document.addEventListener('click', function(e) {
         const subItem = e.target.closest('.subnav-item');
         if (!subItem) return;
@@ -241,7 +257,6 @@ function initBottomNav() {
         const anchor = document.getElementById(anchorId);
         if (anchor) {
             anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            // 更新激活状态
             const parentSubnav = subItem.closest('.subnav');
             if (parentSubnav) {
                 parentSubnav.querySelectorAll('.subnav-item').forEach(si => si.classList.remove('active'));

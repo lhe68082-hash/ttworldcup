@@ -256,7 +256,7 @@ body {
     flex-shrink: 0;
 }
 .theme-toggle-btn:active { transform: scale(0.95); background: var(--white-alpha-15); }
-.theme-icon { font-size: 16px; line-height: 1; }
+.theme-icon { width: 16px; height: 16px; line-height: 1; }
 .theme-label { font-size: 12px; font-weight: 600; color: var(--text); }
 .topbar-logo {
     font-size: 16px;
@@ -281,11 +281,32 @@ body {
     max-width: 520px;
     margin: 0 auto;
 }
-.page { display: none; animation: pageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-.page.active { display: block; }
+.page { 
+    display: none; 
+    animation: pageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+.page.active { 
+    display: block; 
+    animation: pageSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.page.transitioning {
+    animation: pageSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 @keyframes pageIn {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pageSlideIn {
+    0% { opacity: 0; transform: translateX(20px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes pageSlideOut {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(-20px); }
 }
 
 .page-title {
@@ -293,6 +314,13 @@ body {
     font-weight: 800;
     margin-bottom: 10px;
     letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.page-icon {
+    width: 24px;
+    height: 24px;
 }
 
 /* ---------- Sub Navigation ---------- */
@@ -327,7 +355,9 @@ body {
 .subnav::-webkit-scrollbar { display: none; }
 .subnav.active { display: block; }
 .subnav-item {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     padding: 6px 14px;
     margin-right: 6px;
     border: 1px solid var(--border);
@@ -341,6 +371,10 @@ body {
     transition: all 0.2s;
     font-family: var(--font);
     vertical-align: middle;
+}
+.sn-icon {
+    width: 14px;
+    height: 14px;
 }
 .subnav-item:last-child { margin-right: 0; }
 .subnav-item:hover {
@@ -371,6 +405,10 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+.ct-icon {
+    width: 18px;
+    height: 18px;
 }
 .card-text { font-size: 13px; color: var(--text-light); line-height: 1.75; }
 .card-text p { margin-bottom: 8px; }
@@ -410,7 +448,7 @@ body {
     position: relative;
     min-width: 60px;
 }
-.bnav-item .bnav-icon { font-size: 22px; line-height: 1; transition: all 0.25s; }
+.bnav-item .bnav-icon { width: 22px; height: 22px; line-height: 1; transition: all 0.25s; }
 .bnav-item .bnav-label { font-size: 10px; font-weight: 600; }
 .bnav-item.active {
     color: var(--accent);
@@ -493,7 +531,8 @@ body {
 
 /* 大力神杯图标 */
 .trophy-icon {
-    font-size: 26px;
+    width: 26px;
+    height: 26px;
     vertical-align: middle;
     margin-right: 6px;
     display: inline-block;
@@ -535,7 +574,7 @@ body {
 }
 .stat-card:active::after { opacity: 1; }
 .stat-card:active { transform: scale(0.96); border-color: rgba(0,212,170,0.3); }
-.stat-emoji { font-size: 30px; margin-bottom: 6px; }
+.stat-icon { width: 30px; height: 30px; margin-bottom: 6px; }
 .stat-num {
     font-size: 38px;
     font-weight: 900;
@@ -594,6 +633,10 @@ body {
     z-index: 10;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
+    width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .news-scroll-wrap {
     flex: 1;
@@ -901,6 +944,66 @@ body {
     color: var(--accent);
     text-decoration: underline;
     text-underline-offset: 2px;
+}
+
+/* 理性购彩提醒卡片 */
+.lottery-warning-card {
+    background: rgba(255,71,87,0.06);
+    border: 1px solid rgba(255,71,87,0.15);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 12px;
+}
+.lw-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--white-alpha-06);
+}
+.lw-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--red);
+}
+.lw-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+}
+.lw-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.lw-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-light);
+}
+.lw-num {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.lw-text {
+    flex: 1;
+    line-height: 1.5;
+}
+.lw-hotline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--white-alpha-04);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 8px;
 }
 
 .lottery-detail h3 { font-size: 16px; color: var(--accent); margin-bottom: 8px; }
@@ -2105,11 +2208,56 @@ body {
 .bc-detail a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
 
 /* Responsive */
+@media (max-width: 375px) {
+    .content { padding-left: 12px; padding-right: 12px; }
+    .hero-title { font-size: 24px; }
+    .hero-sub { font-size: 15px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .stat-num { font-size: 32px; }
+    .card { padding: 14px; }
+    .match-card { padding: 12px; }
+    .group-team { padding: 8px 10px; }
+    .bnav-item { min-width: 56px; padding: 4px 8px; }
+    .bnav-item .bnav-icon { width: 20px; height: 20px; }
+    .cd-item { min-width: 52px; padding: 8px 10px; }
+    .cd-num { font-size: 24px; }
+}
+
+@media (min-width: 480px) {
+    .content { max-width: 440px; }
+    .stat-grid { grid-template-columns: repeat(4, 1fr); }
+    .bk-row-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
 @media (min-width: 768px) {
     .content { max-width: 580px; }
     .stat-grid { grid-template-columns: repeat(4, 1fr); }
     .bk-row-4 { grid-template-columns: repeat(4, 1fr); }
     .bnav { justify-content: center; gap: 20px; }
+    .card { padding: 20px; }
+    .match-card { padding: 16px; }
+    .hero-title { font-size: 32px; }
+    .hero-sub { font-size: 19px; }
+    .stat-num { font-size: 42px; }
+}
+
+@media (min-width: 1024px) {
+    .content { max-width: 720px; }
+    .hero-title { font-size: 36px; }
+    .hero-sub { font-size: 20px; }
+    .stat-grid { gap: 12px; }
+    .card { padding: 22px; }
+    .match-card { padding: 18px; }
+    .group-tabs { justify-content: center; }
+    .bnav { padding: 0 60px; }
+    .topbar { padding: 0 30px; }
+}
+
+@media (min-width: 1280px) {
+    .content { max-width: 800px; }
+    .hero-title { font-size: 40px; }
+    .stat-num { font-size: 48px; }
+    .card { padding: 24px; }
 }
 
 /* ===== 日间模式特殊覆盖 ===== */
