@@ -272,7 +272,11 @@ function applyTheme(theme) {
     if (btn) {
         const iconEl = btn.querySelector('.theme-icon');
         const labelEl = btn.querySelector('.theme-label');
-        if (iconEl) iconEl.textContent = theme === 'light' ? '🌙' : '☀️';
+        if (iconEl) {
+            iconEl.innerHTML = theme === 'light'
+                ? '<svg class="theme-icon-svg"><use href="#icon-moon"/></svg>'
+                : '<svg class="theme-icon-svg"><use href="#icon-sun"/></svg>';
+        }
         if (labelEl) labelEl.textContent = theme === 'light' ? '日间' : '夜间';
     }
     const meta = document.getElementById('metaThemeColor');

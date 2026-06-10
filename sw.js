@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wc2026-v14';
+const CACHE_NAME = 'wc2026-v15';
 const OFFLINE_URL = '/';
 
 const urlsToCache = [
