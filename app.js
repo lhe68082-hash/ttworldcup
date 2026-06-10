@@ -411,7 +411,7 @@ function renderSchedule() {
             : '<div class="match-vs">VS</div>';
 
         // 主客队名，用data属性存储用于点击
-        return `<div class="match-card ${cardClass}">
+        return `<div class="match-card ${cardClass}" data-date="${m.date.toISOString().slice(0,10)}">
             <div class="match-stage">${m.stageName}</div>
             <div class="match-meta"><span>📅 ${ds} ${ts} (北京时间)</span><span>🏟 ${m.venue}</span></div>
             <div class="match-teams">
@@ -430,6 +430,12 @@ function renderSchedule() {
             <div>${statusHtml}</div>
         </div>`;
     }).join('');
+
+    // 显示/隐藏"返回今日"按钮
+    const todayBtn = document.getElementById('scrollTodayBtn');
+    if (todayBtn) {
+        todayBtn.style.display = filtered.length > 10 ? 'inline-flex' : 'none';
+    }
 }
 
 function updateProgress() {
@@ -441,6 +447,30 @@ function updateProgress() {
     if (fill) fill.style.width = pct + '%';
     setText('playedCount', played);
     setText('remainingCount', total - played);
+}
+
+// ============== 滚动到今日比赛 ==============
+function scrollToToday() {
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const cards = document.querySelectorAll('#scheduleGrid .match-card');
+    let targetEl = null;
+
+    // 找第一个 >= 今天的未结束比赛
+    for (const card of cards) {
+        const cardDate = card.getAttribute('data-date');
+        if (cardDate && cardDate >= today && !card.classList.contains('played')) {
+            targetEl = card;
+            break;
+        }
+    }
+    // 全部比完了就找最后一个
+    if (!targetEl && cards.length > 0) {
+        targetEl = cards[cards.length - 1];
+    }
+
+    if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 }
 
 // ==================== 广播消息栏 ====================
@@ -963,7 +993,18 @@ function initSimBet() {
 
 // ============== 数据同步UI ==============
 function initSyncUI() {
-    if (typeof LotteryAPI === 'undefined') return;
+    if (typeof LotteryAPI === 'undefined') {
+        // 未加载API时显示"暂未开放"
+        const text = document.getElementById('syncText');
+        const btn = document.getElementById('syncBtn');
+        const autoCheck = document.getElementById('syncAutoCheck');
+        const dot = document.getElementById('syncDot');
+        if (dot) dot.className = 'sync-dot inactive';
+        if (text) text.textContent = '🔒 暂未开放';
+        if (btn) { btn.disabled = true; btn.textContent = '暂未开放'; }
+        if (autoCheck) { autoCheck.disabled = true; autoCheck.parentElement.style.opacity = '0.5'; }
+        return;
+    }
     LotteryAPI.onStatusChange(() => updateSyncUI());
     updateSyncUI();
 }

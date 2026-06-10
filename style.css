@@ -655,6 +655,26 @@ body {
     font-weight: 700;
 }
 
+/* Scroll to today button */
+.scroll-today-btn {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    margin: 4px 0 10px;
+    padding: 6px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    background: rgba(0,212,170,0.08);
+    color: var(--accent);
+    font-size: 12px;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+.scroll-today-btn:hover { background: rgba(0,212,170,0.18); }
+.scroll-today-btn.visible { display: inline-flex; }
+
 /* Schedule bracket divider */
 .schedule-bracket-divider {
     display: flex;

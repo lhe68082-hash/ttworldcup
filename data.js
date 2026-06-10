@@ -264,6 +264,9 @@ const GROUP_VENUE_MAP = {
     'GL-4': '费城',       'GL-5': '迈阿密',   'GL-6': '温哥华',
 };
 
+// 小组赛整体日期压缩到 6/11-6/27 (17天72场, 每天~4场)
+const GROUP_DAYS = 17;
+const TOTAL_GROUP_MATCHES = 72;
 const groupTeams = {};
 GROUPS.forEach((g, gi) => {
     const pool = GROUPED_TEAMS[g];
@@ -271,9 +274,13 @@ GROUPS.forEach((g, gi) => {
     groupTeams[g] = pool;
     const pairs = [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];
     pairs.forEach((pair, pi) => {
-        const baseDate = new Date(2026, 5, 11 + gi * 2 + pi);
+        // 均匀压缩到17天内: gi*6+pi ∈ [0,71] → day ∈ [0,16]
+        const seqIndex = gi * 6 + pi;
+        const dayOffset = Math.floor(seqIndex * GROUP_DAYS / TOTAL_GROUP_MATCHES);
+        const baseDate = new Date(2026, 5, 11 + dayOffset);
         const matchId = `G${g}-${pi+1}`;
-        const hours = matchId === 'GA-1' ? 3 : [13, 16, 19, 21][pi % 4];
+        // 北京凌晨/早上 = 美国下午/晚上(合理比赛时段)
+        const hours = matchId === 'GA-1' ? 3 : [0, 3, 6, 9][pi % 4];
         SCHEDULE_DATA.push({
             id: matchId,
             stage: 'group',
