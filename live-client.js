@@ -57,8 +57,7 @@ const LiveData = (() => {
                 return result;
             }
         } catch (e) {
-            console.log('[LiveData] 获取失败:', e.message,
-                '(服务器可能未运行，使用静态数据)');
+            // 服务器可能未运行，使用静态数据
         } finally {
             isPolling = false;
         }
@@ -155,7 +154,6 @@ const LiveData = (() => {
     // ========== 轮询控制 ==========
     function startPolling() {
         stopPolling();
-        console.log('[LiveData] 实时轮询已启动 (间隔=' + POLL_INTERVAL / 1000 + 's)');
         fetchLiveData(); // 首次立即拉取
         scheduleNext();
     }
@@ -178,7 +176,6 @@ const LiveData = (() => {
 
     // ========== 手动同步 ==========
     async function syncNow() {
-        console.log('[LiveData] 手动同步触发...');
         const result = await fetchLiveData();
         const matchApplied = applyMatchUpdates();
         const playerApplied = applyPlayerUpdates();
@@ -191,7 +188,6 @@ const LiveData = (() => {
             renderStandings(activeGroup.getAttribute('data-group') || 'A');
         }
 
-        console.log(`[LiveData] 同步完成: ${matchApplied}场比分, ${playerApplied}名球员`);
         return { matchApplied, playerApplied, source: lastSource, time: lastFetchTime };
     }
 

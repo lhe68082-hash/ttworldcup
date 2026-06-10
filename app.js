@@ -188,8 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initChampions();
     initLottery();
     // 竞彩模拟器可能因 lottery-api.js 加载失败而出错，不影响核心功能
-    try { initSimBet(); } catch(e) { console.warn('竞彩模块加载失败:', e.message); }
-    try { initLedger(); } catch(e) { console.warn('记账本加载失败:', e.message); }
+    try { initSimBet(); } catch(e) { /* 竞彩模块加载失败 */ }
+    try { initLedger(); } catch(e) { /* 记账本加载失败 */ }
     initTeamsGroup();
     initCityDetails();
     initHostCountries();
@@ -657,17 +657,16 @@ function initLiveUpdates() {
                 renderStandings(currentGroup);
             }
 
-            // 有实际数据变更时输出日志
+            // 有实际数据变更时自动刷新界面
             if (applied > 0 || playerApplied > 0) {
-                console.log(`[LiveData] 已应用: ${applied}场比分, ${playerApplied}名球员状态`);
+                // 数据已应用
             }
         });
 
         // 启动轮询
         LiveData.startPolling();
     } else {
-        // 降级：原来的30秒静态刷新
-        console.log('[App] LiveData模块未加载，使用静态刷新模式');
+        // 降级：30秒静态刷新
         setInterval(() => {
             const schedulePage = document.getElementById('schedule');
             if (schedulePage && schedulePage.classList.contains('active')) {
@@ -1076,8 +1075,8 @@ function getBetCount(parlayType, count) {
 function initSimBet() {
     const container = document.getElementById('calcContainer');
     if (!container) return;
-    try { renderCalc(container); } catch(e) { console.warn('renderCalc error:', e); }
-    try { initSyncUI(); } catch(e) { console.warn('initSyncUI error:', e); }
+    try { renderCalc(container); } catch(e) { /* renderCalc error */ }
+    try { initSyncUI(); } catch(e) { /* initSyncUI error */ }
     // 如果 LotteryAPI 不可用，跳过同步
     if (typeof LotteryAPI !== 'undefined' && LotteryAPI.syncMatches) {
         LotteryAPI.syncMatches(false).then(() => {
@@ -1140,10 +1139,7 @@ window.triggerSync = async function() {
     rerenderCalc();
     // 同时触发实时数据同步
     if (typeof LiveData !== 'undefined') {
-        const result = await LiveData.syncNow();
-        if (result && result.matchApplied > 0) {
-            console.log(`[Sync] 实时数据已更新: ${result.matchApplied}场比赛`);
-        }
+        await LiveData.syncNow();
     }
 };
 
@@ -1304,8 +1300,130 @@ function renderLedger() {
         else if (totalNet < 0) netRow.classList.add('negative');
     }
 
+    // 盈亏曲线图
+    renderLedgerChart();
     // 投注分析统计
     renderLedgerAnalysis();
+}
+
+function renderLedgerChart() {
+    const chartSection = document.getElementById('ledgerChartSection');
+    const svg = document.getElementById('ledgerChartSvg');
+    if (!chartSection || !svg) return;
+
+    // 至少3条记录才画曲线
+    if (ledgerData.length < 3) {
+        chartSection.style.display = 'none';
+        return;
+    }
+    chartSection.style.display = 'block';
+
+    // 按日期升序排列
+    const sorted = [...ledgerData].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+
+    // 计算累计盈亏点
+    let cumNet = 0;
+    const points = sorted.map(e => {
+        cumNet += (e.win - e.buy);
+        return { date: e.date, net: e.win - e.buy, cumNet };
+    });
+
+    // 计算Y轴范围
+    const cumValues = points.map(p => p.cumNet);
+    const maxVal = Math.max(...cumValues, 0);
+    const minVal = Math.min(...cumValues, 0);
+    const yRange = maxVal - minVal || 100; // 避免除零
+    const yPad = yRange * 0.15; // 上下留15%边距
+    const yMin = minVal - yPad;
+    const yMax = maxVal + yPad;
+    const ySpan = yMax - yMin;
+
+    // SVG 坐标系
+    const W = 600, H = 280;
+    const padL = 48, padR = 16, padT = 20, padB = 36;
+    const pw = W - padL - padR;  // 绘图宽
+    const ph = H - padT - padB;  // 绘图高
+
+    // 缩放函数
+    const xScale = (i) => points.length === 1 ? padL + pw / 2 : padL + (i / (points.length - 1)) * pw;
+    const yScale = (v) => padT + ph - ((v - yMin) / ySpan) * ph;
+
+    // 零线Y坐标
+    const zeroY = yScale(0);
+
+    // 构建 SVG
+    let svgHtml = '';
+
+    // 背景渐变区域（正负）
+    if (maxVal > 0 && minVal < 0) {
+        // 正区域
+        let posArea = `<path d="M${padL},${zeroY} `;
+        points.forEach((p, i) => {
+            posArea += `L${xScale(i)},${yScale(Math.max(p.cumNet, 0))} `;
+        });
+        posArea += `L${padL + pw},${zeroY} Z" fill="rgba(64,192,87,0.08)" />`;
+        // 负区域
+        let negArea = `<path d="M${padL},${zeroY} `;
+        points.forEach((p, i) => {
+            negArea += `L${xScale(i)},${yScale(Math.min(p.cumNet, 0))} `;
+        });
+        negArea += `L${padL + pw},${zeroY} Z" fill="rgba(255,71,87,0.08)" />`;
+        svgHtml += posArea + negArea;
+    } else if (minVal >= 0) {
+        let area = `<path d="M${padL},${zeroY} `;
+        points.forEach((p, i) => area += `L${xScale(i)},${yScale(p.cumNet)} `);
+        area += `L${padL + pw},${zeroY} Z" fill="rgba(64,192,87,0.08)" />`;
+        svgHtml += area;
+    } else {
+        let area = `<path d="M${padL},${zeroY} `;
+        points.forEach((p, i) => area += `L${xScale(i)},${yScale(p.cumNet)} `);
+        area += `L${padL + pw},${zeroY} Z" fill="rgba(255,71,87,0.08)" />`;
+        svgHtml += area;
+    }
+
+    // 网格线 (Y轴)
+    const gridLines = 5;
+    for (let i = 0; i <= gridLines; i++) {
+        const val = yMin + (ySpan * i / gridLines);
+        const y = yScale(val);
+        svgHtml += `<line x1="${padL}" y1="${y}" x2="${padL + pw}" y2="${y}" stroke="var(--border)" stroke-width="0.5" />`;
+        svgHtml += `<text x="${padL - 4}" y="${y + 4}" text-anchor="end" font-size="9" fill="var(--text-dim)">${val >= 0 ? '+¥' : '-¥'}${Math.abs(val).toFixed(0)}</text>`;
+    }
+
+    // X轴标签（日期，最多显示6个）
+    const labelStep = Math.max(1, Math.ceil(points.length / 5));
+    points.forEach((p, i) => {
+        if (i % labelStep === 0 || i === points.length - 1) {
+            const lbl = p.date.slice(5); // MM-DD
+            svgHtml += `<text x="${xScale(i)}" y="${padT + ph + 16}" text-anchor="middle" font-size="9" fill="var(--text-dim)">${lbl}</text>`;
+        }
+    });
+
+    // 零线（加粗虚线）
+    svgHtml += `<line x1="${padL}" y1="${zeroY}" x2="${padL + pw}" y2="${zeroY}" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5" />`;
+
+    // 曲线分段绘制（正绿负红）
+    let lineD = '';
+    for (let i = 0; i < points.length; i++) {
+        lineD += (i === 0 ? 'M' : 'L') + `${xScale(i)},${yScale(points[i].cumNet)} `;
+    }
+    svgHtml += `<path d="${lineD}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" />`;
+
+    // 数据点
+    points.forEach((p, i) => {
+        const cx = xScale(i), cy = yScale(p.cumNet);
+        const isLast = i === points.length - 1;
+        const dotColor = p.cumNet >= 0 ? 'var(--green)' : 'var(--red)';
+        svgHtml += `<circle cx="${cx}" cy="${cy}" r="${isLast ? 4.5 : 3}" fill="${dotColor}" stroke="var(--bg-card)" stroke-width="1.5" />`;
+
+        // 首尾标注数值
+        if (i === 0 || isLast) {
+            const sign = p.cumNet >= 0 ? '+' : '';
+            svgHtml += `<text x="${cx}" y="${cy - 8}" text-anchor="middle" font-size="10" font-weight="700" fill="${dotColor}">${sign}¥${p.cumNet.toFixed(0)}</text>`;
+        }
+    });
+
+    svg.innerHTML = svgHtml;
 }
 
 function renderLedgerAnalysis() {

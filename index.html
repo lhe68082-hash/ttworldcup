@@ -18,11 +18,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(reg) {
-                    console.log('[App] ServiceWorker 注册成功，作用域:', reg.scope);
-                }).catch(function(err) {
-                    console.warn('[App] ServiceWorker 注册失败:', err);
-                });
+                navigator.serviceWorker.register('/sw.js').catch(function() {});
             });
         }
     </script>
@@ -360,8 +356,13 @@
         <div class="lottery-disclaimer">
             <div class="ld-icon">⚠️</div>
             <div class="ld-content">
-                <div class="ld-title">免责声明</div>
-                <div class="ld-text">本模块仅供娱乐参考，不构成任何投注建议。未成年人（未满18周岁）禁止购彩，请理性对待竞彩游戏，量力而行。实际投注请以<a href="https://www.sporttery.cn" target="_blank">中国体育彩票官方渠道</a>为准。</div>
+                <div class="ld-title">重要提示 · 理性购彩</div>
+                <div class="ld-text">
+                    <p>快乐投注，理性购彩。本工具为<strong>模拟计算器</strong>，所有赔率、投注结果均为模拟数据，<strong>不构成任何投注建议</strong>，不涉及真实资金交易。</p>
+                    <p>未成年人（未满18周岁）<strong>不得购彩和兑奖</strong>。请到<a href="https://www.sporttery.cn" target="_blank">中国体育彩票</a>线下授权实体店购买彩票。国家法律明令禁止互联网售彩，切勿通过任何非正规渠道购买。</p>
+                    <p>量力而行，切勿沉迷。购彩有风险，投注需谨慎。彩票中奖为随机事件，请以娱乐心态参与，合理规划购彩预算。</p>
+                    <p>竞彩官方信息以<a href="https://www.sporttery.cn" target="_blank">中国体育彩票网（sporttery.cn）</a>及体彩官方APP发布为准。如有疑问，可拨打体彩客服热线 95086。</p>
+                </div>
             </div>
         </div>
 
@@ -495,6 +496,18 @@
                 </div>
                 <div class="ledger-sum-row ledger-net" id="ledgerNetRow">
                     <span>📊 净盈亏</span><strong id="sumNet">¥0.00</strong>
+                </div>
+            </div>
+            <!-- 盈亏曲线图 -->
+            <div class="ledger-chart-section" id="ledgerChartSection" style="display:none">
+                <div class="ledger-chart-title">📈 盈亏曲线</div>
+                <div class="ledger-chart-wrap">
+                    <svg class="ledger-chart-svg" id="ledgerChartSvg" viewBox="0 0 600 280" preserveAspectRatio="xMidYMid meet"></svg>
+                </div>
+                <div class="ledger-chart-legend">
+                    <span class="lcl-item"><span class="lcl-dot lcl-dot-profit"></span> 累计盈利</span>
+                    <span class="lcl-item"><span class="lcl-dot lcl-dot-loss"></span> 累计亏损</span>
+                    <span class="lcl-item"><span class="lcl-dot lcl-dot-break"></span> 盈亏平衡线</span>
                 </div>
             </div>
             <!-- 投注分析统计 -->

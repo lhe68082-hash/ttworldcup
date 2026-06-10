@@ -67,7 +67,6 @@ const LotteryAPI = (() => {
         const proxyAvailable = await checkProxy();
 
         if (!proxyAvailable) {
-            console.log('[LotteryAPI] 代理服务器未运行，使用本地模拟数据');
             setStatus('success', 'simulated');
             return { success: true, source: 'simulated', data: generateSimulatedMatches() };
         }
@@ -80,13 +79,11 @@ const LotteryAPI = (() => {
                 syncedMatches = result.data;
                 lastSyncTime = new Date();
                 setStatus('success', 'official');
-                console.log(`[LotteryAPI] 同步成功: ${result.data.length} 场比赛, 来源=${result.source}`);
                 return result;
             } else {
                 throw new Error(result.error || '返回数据为空');
             }
         } catch (e) {
-            console.warn('[LotteryAPI] 同步失败:', e.message);
             // 降级到模拟数据
             setStatus('success', 'simulated');
             return { success: true, source: 'simulated', data: generateSimulatedMatches() };
@@ -102,7 +99,7 @@ const LotteryAPI = (() => {
                 return result;
             }
         } catch (e) {
-            console.warn('[LotteryAPI] 赛果同步失败:', e.message);
+            // 赛果同步失败
         }
         return { success: false, data: [] };
     }
@@ -199,7 +196,6 @@ const LotteryAPI = (() => {
         autoSyncEnabled = true;
         syncMatches(false); // 初始同步
         autoSyncTimer = setInterval(() => syncMatches(false), SYNC_INTERVAL);
-        console.log('[LotteryAPI] 自动同步已启动, 间隔=' + SYNC_INTERVAL / 1000 + '秒');
     }
 
     function stopAutoSync() {
