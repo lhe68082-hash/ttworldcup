@@ -297,7 +297,7 @@ function initDateDisplay() {
 
 // ==================== 倒计时 ====================
 function initCountdown() {
-    const opening = new Date(2026, 5, 11, 0, 0, 0); // 6月11日开幕
+    const opening = new Date(2026, 5, 12, 3, 0, 0); // 6月12日 03:00 揭幕战(北京时间)
     const final = new Date(2026, 6, 19, 0, 0, 0);   // 7月19日决赛
 
     function update() {
@@ -307,7 +307,7 @@ function initCountdown() {
 
         if (now < opening) {
             // 开幕前：倒计时
-            if (titleEl) titleEl.textContent = '距开幕还有';
+            if (titleEl) titleEl.textContent = '揭幕战倒计时';
             const diff = opening - now;
             const d = Math.floor(diff / 86400000);
             const h = Math.floor((diff % 86400000) / 3600000);
