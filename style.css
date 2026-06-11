@@ -228,6 +228,26 @@ body {
     margin-top: 16px;
     opacity: 0.7;
 }
+.key-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-light);
+}
+.key-stats .ks-activated {
+    font-weight: 700;
+    color: var(--accent);
+}
+.key-stats .ks-sep {
+    color: var(--text-dim);
+}
+.key-stats .ks-total {
+    color: var(--text-dim);
+    font-size: 11px;
+}
 
 /* ---------- Top Bar ---------- */
 .topbar {
@@ -1974,6 +1994,31 @@ body {
     color: var(--text-light);
 }
 .ai-dh-item small { color: var(--text-dim); font-size: 10px; }
+.ai-source {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--white-alpha-02);
+    border-radius: 8px;
+    border: 1px solid var(--white-alpha-04);
+}
+.ai-source-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 6px;
+}
+.ai-source-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.ai-source-list span {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--white-alpha-04);
+    color: var(--text-dim);
+}
 
 /* ---------- 球员动态 ---------- */
 .player-status-filter {

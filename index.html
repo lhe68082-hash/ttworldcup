@@ -40,6 +40,7 @@
             <span>🔑 激活进入</span>
         </button>
         <p class="key-error" id="keyError"></p>
+        <div class="key-stats" id="keyStats"></div>
         <p class="key-hint">输入卡密解锁全部功能 · 一卡一用</p>
     </div>
 </div>
@@ -331,6 +332,15 @@
             <span class="ai-badge">⚽ 实时更新</span>
             <span class="ai-disclaimer">* 仅供娱乐参考，不构成投注建议</span>
         </div>
+        <div class="ai-source">
+            <div class="ai-source-title">📋 数据来源</div>
+            <div class="ai-source-list">
+                <span>🏆 FIFA世界排名</span>
+                <span>💰 球员身价估值（Transfermarkt）</span>
+                <span>📈 小组赛实时战绩</span>
+                <span>⚔️ 历史对战记录</span>
+            </div>
+        </div>
     </div>
     <!-- 球员动态 -->
         <div class="card" id="tms-players">
@@ -371,7 +381,6 @@
         <p class="page-desc">中国体育彩票 · 竞彩足球玩法与模拟计算器</p>
         <div class="subnav" id="subnav-lottery">
             <button class="subnav-item" data-anchor="lot-play">🎰 玩法选择</button>
-            <button class="subnav-item" data-anchor="lot-sync">🔄 数据同步</button>
             <button class="subnav-item" data-anchor="lot-analysis">📊 基本面分析</button>
             <button class="subnav-item" data-anchor="lot-official">🔗 官方计算器</button>
             <button class="subnav-item" data-anchor="lot-sim">🧮 模拟计算器</button>
@@ -403,21 +412,6 @@
         </div>
 
         <div class="card" id="lotteryContent"></div>
-        </div>
-
-        <div id="lot-sync">
-        <div class="sync-bar" id="syncBar">
-            <div class="sync-status">
-                <span class="sync-dot" id="syncDot"></span>
-                <span id="syncText">📋 模拟数据</span>
-            </div>
-            <div class="sync-actions">
-                <button class="sync-btn" id="syncBtn" onclick="triggerSync()">🔄 同步官方</button>
-                <label class="sync-auto-label" title="每5分钟自动同步">
-                    <input type="checkbox" id="syncAutoCheck" onchange="toggleAutoSync(this.checked)">
-                    <span>自动</span>
-                </label>
-            </div>
         </div>
 
         <!-- 赛事基本面分析 -->

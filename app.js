@@ -90,6 +90,28 @@ function getKeyUsageInfo(key) {
     return { used: info.devices.length, max: MAX_DEVICES };
 }
 
+// 统计全局卡密激活情况
+function getTotalKeyStats() {
+    const registry = getKeyDeviceRegistry();
+    let activated = 0;
+    let totalDevices = 0;
+    VALID_KEYS.forEach(k => {
+        const info = registry[k];
+        if (info && info.devices && info.devices.length > 0) {
+            activated++;
+            totalDevices += info.devices.length;
+        }
+    });
+    return { activated, total: VALID_KEYS.length, totalDevices };
+}
+
+function renderKeyStats() {
+    const el = document.getElementById('keyStats');
+    if (!el) return;
+    const stats = getTotalKeyStats();
+    el.innerHTML = `<span class="ks-activated">已激活 ${stats.activated}</span><span class="ks-sep">/</span><span class="ks-total">共 ${stats.total} 份</span>`;
+}
+
 function isKeyActivated() {
     const saved = localStorage.getItem(KEY_STORAGE);
     if (!saved) return false;
@@ -178,6 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const overlay = document.getElementById('keyActivationOverlay');
         if (overlay) overlay.style.display = 'none';
     }
+    // 显示卡密激活统计
+    renderKeyStats();
 
     initTheme();
     initBottomNav();
