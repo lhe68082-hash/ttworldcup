@@ -205,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initTheme();
     initBottomNav();
+    initScrollSpy();
     initDateDisplay();
     initCountdown();
     initSchedule();
@@ -280,6 +281,58 @@ window.switchTab = function(tabId) {
     const btn = document.querySelector(`.bnav-item[data-tab="${tabId}"]`);
     if (btn) btn.click();
 };
+
+// ==================== 滚动监听联动（Scroll Spy） ====================
+// 向下滚动页面时，顶部子菜单自动高亮当前所在模块，并水平跟随滚动
+let scrollSpyRaf = null;
+
+function initScrollSpy() {
+    window.addEventListener('scroll', () => {
+        if (scrollSpyRaf) return;
+        scrollSpyRaf = requestAnimationFrame(() => {
+            updateSubnavOnScroll();
+            scrollSpyRaf = null;
+        });
+    }, { passive: true });
+}
+
+function updateSubnavOnScroll() {
+    const activePage = document.querySelector('.page.active');
+    if (!activePage) return;
+
+    const subnav = activePage.querySelector('.subnav.active');
+    if (!subnav) return;
+
+    const buttons = subnav.querySelectorAll('.subnav-item');
+    if (buttons.length === 0) return;
+
+    // 触发线：顶栏(48px) + 子导航(~44px) + 一些余量
+    const triggerY = window.scrollY + 110;
+
+    let activeBtn = null;
+    buttons.forEach(btn => {
+        const anchorId = btn.getAttribute('data-anchor');
+        if (!anchorId) return;
+        const section = document.getElementById(anchorId);
+        if (!section) return;
+        const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+        if (sectionTop <= triggerY) {
+            activeBtn = btn;
+        }
+    });
+
+    // 如果还没滚到任何模块（页面顶部），默认高亮第一个
+    if (!activeBtn && buttons.length > 0) {
+        activeBtn = buttons[0];
+    }
+
+    if (activeBtn && !activeBtn.classList.contains('active')) {
+        buttons.forEach(b => b.classList.remove('active'));
+        activeBtn.classList.add('active');
+        // 水平滚动子导航，让激活按钮居中可见
+        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+}
 
 // ==================== 主题切换 ====================
 function initTheme() {
