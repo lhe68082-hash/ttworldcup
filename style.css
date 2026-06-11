@@ -1876,6 +1876,105 @@ body {
     background: var(--white-alpha-02);
 }
 
+/* ---------- 冠军竞猜 ---------- */
+.cv-vote-btn {
+    padding: 10px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f5a623, #f7b84c);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.cv-vote-btn:active { transform: scale(0.97); }
+.cv-empty { text-align: center; padding: 20px; color: var(--text-dim); font-size: 13px; }
+.cv-results { margin-top: 12px; }
+.cv-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 0;
+    font-size: 12px;
+    border-bottom: 1px solid var(--white-alpha-02);
+}
+.cv-rank { width: 18px; text-align: center; font-weight: 700; color: var(--text-dim); font-size: 11px; flex-shrink: 0; }
+.cv-flag { font-size: 18px; flex-shrink: 0; }
+.cv-name { width: 70px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.cv-bar-wrap { flex: 1; height: 14px; background: var(--white-alpha-04); border-radius: 7px; overflow: hidden; min-width: 40px; }
+.cv-bar { height: 100%; background: linear-gradient(90deg, #f5a623, #ffd966); border-radius: 7px; transition: width 0.4s; min-width: 2px; }
+.cv-votes { width: 32px; text-align: right; font-weight: 700; color: var(--accent); font-size: 11px; flex-shrink: 0; }
+.cv-pct { width: 30px; text-align: right; color: var(--text-dim); font-size: 10px; flex-shrink: 0; }
+
+/* ---------- AI预测 ---------- */
+.ai-predictions { margin-top: 4px; }
+.ai-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 8px;
+    font-size: 11px;
+    border-bottom: 1px solid var(--white-alpha-02);
+    border-radius: 4px;
+    margin-bottom: 2px;
+}
+.ai-rank { width: 22px; text-align: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+.ai-flag { font-size: 16px; flex-shrink: 0; }
+.ai-name { width: 60px; font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.ai-conf-tag {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--white-alpha-04);
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+.ai-host-tag {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(255,215,0,0.12);
+    color: #ffd966;
+    flex-shrink: 0;
+}
+.ai-bar-wrap { flex: 1; height: 8px; background: var(--white-alpha-04); border-radius: 4px; overflow: hidden; min-width: 30px; }
+.ai-bar { height: 100%; border-radius: 4px; transition: width 0.5s; min-width: 2px; }
+.ai-prob { width: 36px; text-align: right; font-weight: 700; color: var(--accent); font-size: 10px; flex-shrink: 0; }
+.ai-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--white-alpha-04);
+    align-items: center;
+}
+.ai-badge {
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--white-alpha-04);
+    color: var(--text-dim);
+}
+.ai-disclaimer { font-size: 9px; color: var(--text-dim); margin-left: auto; font-style: italic; }
+.ai-darkhorses {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255,165,0,0.04);
+    border-radius: 8px;
+    border: 1px dashed rgba(255,165,0,0.15);
+}
+.ai-dh-title { font-size: 12px; font-weight: 700; color: #ffa500; margin-bottom: 6px; }
+.ai-dh-item {
+    display: inline-block;
+    font-size: 11px;
+    margin-right: 12px;
+    margin-bottom: 4px;
+    color: var(--text-light);
+}
+.ai-dh-item small { color: var(--text-dim); font-size: 10px; }
+
 /* ---------- 球员动态 ---------- */
 .player-status-filter {
     display: flex;

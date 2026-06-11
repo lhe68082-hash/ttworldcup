@@ -289,6 +289,8 @@
         <div class="subnav" id="subnav-teams">
             <button class="subnav-item" data-anchor="tms-groups">🏴 分组一览</button>
             <button class="subnav-item" data-anchor="tms-standings">📊 积分榜</button>
+            <button class="subnav-item" data-anchor="tms-champion">👑 冠军竞猜</button>
+            <button class="subnav-item" data-anchor="tms-ai">🤖 AI预测</button>
             <button class="subnav-item" data-anchor="tms-players">🩺 球员动态</button>
             <button class="subnav-item" data-anchor="tms-search">🔍 搜索球队</button>
         </div>
@@ -304,9 +306,33 @@
                 <span class="standings-title">📊 积分榜</span>
                 <span class="standings-hint" id="standingsHint">小组赛开赛后实时更新</span>
             </div>
-            <div class="standings-table" id="standingsTable"></div>
+        <div class="standings-table" id="standingsTable"></div>
+    </div>
+    <!-- 冠军竞猜 -->
+    <div class="card" id="tms-champion">
+        <div class="card-title">👑 冠军竞猜</div>
+        <p class="card-desc">选出你心中的冠军球队，看看大家最看好谁</p>
+        <div style="margin-bottom:10px">
+            <select id="championVoteSelect" style="width:100%;padding:10px 12px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);font-size:14px">
+                <option value="">-- 选择你支持的球队 --</option>
+            </select>
+            <button class="cv-vote-btn" onclick="castChampionVote()" style="margin-top:8px;width:100%">🗳️ 投票</button>
         </div>
-        <!-- 球员动态 -->
+        <div class="cv-results" id="championResults"></div>
+    </div>
+    <!-- AI预测 -->
+    <div class="card" id="tms-ai">
+        <div class="card-title">🤖 AI冠军预测</div>
+        <p class="card-desc">基于球队排名、球员身价、历史战绩等数据综合推算</p>
+        <div class="ai-predictions" id="aiPredictions"></div>
+        <div class="ai-footer">
+            <span class="ai-badge">🔬 算法驱动</span>
+            <span class="ai-badge">📊 数据建模</span>
+            <span class="ai-badge">⚽ 实时更新</span>
+            <span class="ai-disclaimer">* 仅供娱乐参考，不构成投注建议</span>
+        </div>
+    </div>
+    <!-- 球员动态 -->
         <div class="card" id="tms-players">
             <div class="card-title">🩺 球员动态</div>
             <p class="card-desc">核心球员伤停、身价与近期状态追踪</p>
@@ -361,7 +387,7 @@
                     <p>快乐投注，理性购彩。本工具为<strong>模拟计算器</strong>，所有赔率、投注结果均为模拟数据，<strong>不构成任何投注建议</strong>，不涉及真实资金交易。</p>
                     <p>未成年人（未满18周岁）<strong>不得购彩和兑奖</strong>。请到<a href="https://www.sporttery.cn" target="_blank">中国体育彩票</a>线下授权实体店购买彩票。国家法律明令禁止互联网售彩，切勿通过任何非正规渠道购买。</p>
                     <p>量力而行，切勿沉迷。购彩有风险，投注需谨慎。彩票中奖为随机事件，请以娱乐心态参与，合理规划购彩预算。</p>
-                    <p>竞彩官方信息以<a href="https://www.sporttery.cn" target="_blank">中国体育彩票网（sporttery.cn）</a>及体彩官方APP发布为准。如有疑问，可拨打体彩客服热线 95086。</p>
+                    <p>竞彩官方信息以<a href="https://www.sporttery.cn" target="_blank">中国体育彩票网（sporttery.cn）</a>及体彩官方APP发布为准。</p>
                 </div>
             </div>
         </div>

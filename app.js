@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try { initSimBet(); } catch(e) { /* 竞彩模块加载失败 */ }
     try { initLedger(); } catch(e) { /* 记账本加载失败 */ }
     initTeamsGroup();
+    initChampionAndAI();
     initCityDetails();
     initHostCountries();
     initLiveUpdates();
@@ -1834,6 +1835,8 @@ window.showGroup = function(g) {
 
     // 同步更新积分榜
     renderStandings(g);
+    // 刷新AI预测（积分榜数据可能已更新）
+    renderAIPredictions();
 };
 
 // ==================== 积分榜 ====================
@@ -1920,6 +1923,160 @@ window.filterTeams = function() {
     const inp = document.getElementById('teamSearch');
     renderAllTeams(inp ? inp.value : '');
 };
+
+// ==================== 冠军竞猜 ====================
+const CHAMPION_VOTE_KEY = 'wc2026_champion_vote';
+let championVotes = {};
+
+function loadChampionVotes() {
+    try {
+        const saved = localStorage.getItem(CHAMPION_VOTE_KEY);
+        if (saved) championVotes = JSON.parse(saved);
+    } catch(e) { championVotes = {}; }
+}
+
+function saveChampionVotes() {
+    localStorage.setItem(CHAMPION_VOTE_KEY, JSON.stringify(championVotes));
+}
+
+function initChampionVote() {
+    loadChampionVotes();
+    const select = document.getElementById('championVoteSelect');
+    if (!select) return;
+    // 按排名排序所有球队
+    const sorted = [...TEAMS_DATA].sort((a, b) => a.rank - b.rank);
+    select.innerHTML = '<option value="">-- 选择你支持的球队 --</option>' +
+        sorted.map(t => `<option value="${t.name}">${t.flag} ${t.name} (${t.group}组 · #${t.rank})</option>`).join('');
+    renderChampionResults();
+}
+
+window.castChampionVote = function() {
+    const select = document.getElementById('championVoteSelect');
+    if (!select || !select.value) {
+        alert('请先选择一支球队');
+        return;
+    }
+    const team = select.value;
+    championVotes[team] = (championVotes[team] || 0) + 1;
+    saveChampionVotes();
+    select.value = '';
+    renderChampionResults();
+    // 动画反馈
+    const btn = document.querySelector('.cv-vote-btn');
+    if (btn) { btn.textContent = '✅ 投票成功！'; setTimeout(() => { btn.textContent = '🗳️ 投票'; }, 1500); }
+};
+
+function renderChampionResults() {
+    const container = document.getElementById('championResults');
+    if (!container) return;
+    const entries = Object.entries(championVotes).filter(([,c]) => c > 0);
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="cv-empty">还没有人投票，快来投出第一票吧！</div>';
+        return;
+    }
+    entries.sort((a, b) => b[1] - a[1]);
+    const total = entries.reduce((s, [,c]) => s + c, 0);
+    const maxVotes = entries[0][1];
+    container.innerHTML = entries.map(([team, count], i) => {
+        const teamInfo = TEAMS_DATA.find(t => t.name === team);
+        const pct = Math.round((count / total) * 100);
+        const barWidth = Math.round((count / maxVotes) * 100);
+        return `<div class="cv-row">
+            <span class="cv-rank">${i + 1}</span>
+            <span class="cv-flag">${teamInfo ? teamInfo.flag : '⚽'}</span>
+            <span class="cv-name">${team}</span>
+            <div class="cv-bar-wrap"><div class="cv-bar" style="width:${barWidth}%"></div></div>
+            <span class="cv-votes">${count}票</span>
+            <span class="cv-pct">${pct}%</span>
+        </div>`;
+    }).join('');
+}
+
+// ==================== AI预测 ====================
+function renderAIPredictions() {
+    const container = document.getElementById('aiPredictions');
+    if (!container) return;
+
+    // 获取积分榜数据
+    const allStandings = getGroupStandings();
+
+    // 综合评分算法：
+    // - 世界排名分：排名越低越好 (max 40分)
+    // - 东道主加成：+8分
+    // - 小组赛表现：如果有比赛结果，根据积分/净胜球加分 (max 25分)
+    // - 洲际系数：南美/欧洲球队略高
+    const confBonus = { 'UEFA': 5, 'CONMEBOL': 5, 'CAF': 2, 'CONCACAF': 3, 'AFC': 2, 'OFC': 1 };
+
+    const scores = TEAMS_DATA.map(t => {
+        let score = 0;
+        // 排名分 (排名越低分越高，第1名=40, 第100名=0)
+        score += Math.max(0, 40 - t.rank * 0.4);
+        // 东道主加成
+        if (t.host) score += 8;
+        // 洲际加成
+        score += confBonus[t.confederation] || 0;
+
+        // 小组赛表现加成
+        const gs = allStandings[t.group];
+        if (gs) {
+            const standing = gs.find(s => s.team.name === t.name);
+            if (standing && standing.P > 0) {
+                score += standing.Pts * 1.5;
+                score += standing.GD * 0.5;
+                // 小组排名加成
+                const idx = gs.indexOf(standing);
+                if (idx === 0) score += 10;
+                else if (idx === 1) score += 5;
+                else if (idx === 2) score += 2;
+            }
+        }
+        // 轻微随机扰动，避免同分
+        score += Math.random() * 3;
+        return { team: t, score: Math.round(score * 10) / 10 };
+    });
+
+    scores.sort((a, b) => b.score - a.score);
+
+    // 计算概率
+    const totalScore = scores.reduce((s, x) => s + x.score, 0);
+    const top15 = scores.slice(0, 20);
+
+    const maxScore = top15[0].score;
+    const colors = ['#FFD700', '#C0C0C0', '#CD7F32'];
+
+    container.innerHTML = top15.map((item, i) => {
+        const pct = Math.round((item.score / maxScore) * 100);
+        const probability = totalScore > 0 ? ((item.score / totalScore) * 100).toFixed(1) : '0.0';
+        const medal = i < 3 ? ['🥇','🥈','🥉'][i] : '';
+        const rowColor = i < 3 ? colors[i] : '';
+        const confLabel = { 'UEFA':'欧', 'CONMEBOL':'南美', 'CAF':'非', 'CONCACAF':'中美', 'AFC':'亚', 'OFC':'大洋' };
+        return `<div class="ai-row" style="${rowColor ? `border-left:3px solid ${rowColor};padding-left:7px` : ''}">
+            <span class="ai-rank">${medal || (i + 1)}</span>
+            <span class="ai-flag">${item.team.flag}</span>
+            <span class="ai-name">${item.team.name}</span>
+            <span class="ai-conf-tag">${confLabel[item.team.confederation] || ''}</span>
+            ${item.team.host ? '<span class="ai-host-tag">东道主</span>' : ''}
+            <div class="ai-bar-wrap"><div class="ai-bar" style="width:${pct}%;background:${i < 3 ? colors[i] : 'var(--accent)'}"></div></div>
+            <span class="ai-prob">${probability}%</span>
+        </div>`;
+    }).join('');
+
+    // 暗马推荐
+    const darkHorses = scores.filter(s => s.team.rank > 15 && !s.team.host && s.score > 30).slice(0, 3);
+    if (darkHorses.length > 0) {
+        container.innerHTML += `<div class="ai-darkhorses">
+            <div class="ai-dh-title">🐴 潜在黑马</div>
+            ${darkHorses.map(dh => `
+                <span class="ai-dh-item">${dh.team.flag} ${dh.team.name} <small>(#${dh.team.rank}, 评分:${dh.score})</small></span>
+            `).join('')}
+        </div>`;
+    }
+}
+
+function initChampionAndAI() {
+    initChampionVote();
+    renderAIPredictions();
+}
 
 // ==================== 球队详情弹窗（球员+H2H） ====================
 let currentTeamName = '';
