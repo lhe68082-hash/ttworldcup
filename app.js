@@ -375,8 +375,9 @@ function initDateDisplay() {
 
 // ==================== 倒计时 ====================
 function initCountdown() {
-    const opening = new Date(2026, 5, 12, 3, 0, 0); // 6月12日 03:00 揭幕战(北京时间)
-    const final = new Date(2026, 6, 19, 0, 0, 0);   // 7月19日决赛
+    // 使用 ISO 8601 +08:00 明确北京时间，消除时区歧义
+    const opening = new Date('2026-06-12T03:00:00+08:00'); // 6月12日 03:00 揭幕战
+    const final   = new Date('2026-07-19T20:00:00+08:00'); // 7月19日 20:00 决赛（与赛程一致）
 
     function update() {
         const now = new Date();
@@ -2106,8 +2107,10 @@ function renderAIPredictions() {
                 else if (idx === 2) score += 2;
             }
         }
-        // 轻微随机扰动，避免同分
-        score += Math.random() * 3;
+        // 确定性去重：用球队名hash做微小差异，避免同分且每次结果一致
+        let hash = 0;
+        for (let c of t.name) hash = ((hash << 5) - hash + c.charCodeAt(0)) | 0;
+        score += (Math.abs(hash) % 30) / 10; // 0~2.9 的确定性偏移
         return { team: t, score: Math.round(score * 10) / 10 };
     });
 
@@ -2115,13 +2118,13 @@ function renderAIPredictions() {
 
     // 计算概率
     const totalScore = scores.reduce((s, x) => s + x.score, 0);
-    const top15 = scores.slice(0, 20);
+    const top20 = scores.slice(0, 20);
 
-    const maxScore = top15[0].score;
+    const maxScore = top20[0].score;
     const colors = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
-    container.innerHTML = top15.map((item, i) => {
-        const pct = Math.round((item.score / maxScore) * 100);
+    container.innerHTML = top20.map((item, i) => {
+        const barPct = totalScore > 0 ? Math.round((item.score / totalScore) * 100) : 0;
         const probability = totalScore > 0 ? ((item.score / totalScore) * 100).toFixed(1) : '0.0';
         const medal = i < 3 ? ['🥇','🥈','🥉'][i] : '';
         const rowColor = i < 3 ? colors[i] : '';
@@ -2132,7 +2135,7 @@ function renderAIPredictions() {
             <span class="ai-name">${item.team.name}</span>
             <span class="ai-conf-tag">${confLabel[item.team.confederation] || ''}</span>
             ${item.team.host ? '<span class="ai-host-tag">东道主</span>' : ''}
-            <div class="ai-bar-wrap"><div class="ai-bar" style="width:${pct}%;background:${i < 3 ? colors[i] : 'var(--accent)'}"></div></div>
+            <div class="ai-bar-wrap"><div class="ai-bar" style="width:${barPct}%;background:${i < 3 ? colors[i] : 'var(--accent)'}"></div></div>
             <span class="ai-prob">${probability}%</span>
         </div>`;
     }).join('');

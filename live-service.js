@@ -450,12 +450,22 @@ function statusLabel(status) {
     return map[status] || status;
 }
 
+// 尝试加载球员数据
+let PLAYER_STATUS_DATA = [];
+try {
+    const data = require('./data.js');
+    PLAYER_STATUS_DATA = data.PLAYER_STATUS_DATA || [];
+    console.log('[live-service] 球员数据已加载:', PLAYER_STATUS_DATA.length, '队');
+} catch (e) {
+    console.log('[live-service] 球员数据加载失败（前端模式正常）:', e.message);
+}
+
 // ========== 主API: 获取全部实时数据 ==========
 async function getAllLiveData(scheduleData) {
     const matchScores = await getLiveMatchScores(scheduleData);
 
-    // 生成球员动态 (基于当前时间)
-    const playerUpdates = generatePlayerUpdates([]);
+    // 生成球员动态 (基于真实球员数据)
+    const playerUpdates = generatePlayerUpdates(PLAYER_STATUS_DATA);
 
     return {
         success: true,

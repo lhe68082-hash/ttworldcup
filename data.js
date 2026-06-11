@@ -315,43 +315,43 @@ GROUPS.forEach((g, gi) => {
 // ===== 淘汰赛精确赛程 (来源: FIFA官方, 均为北京时间 UTC+8) =====
 const KO_SCHEDULE = {
     // ---------- 1/16决赛: 6月28日-7月4日, 共16场 ----------
-    'r32-1':  { date: '2026-06-29T03:00', venue: '洛杉矶' },
-    'r32-2':  { date: '2026-06-30T01:00', venue: '休斯顿' },
-    'r32-3':  { date: '2026-06-30T04:30', venue: '波士顿' },
-    'r32-4':  { date: '2026-06-30T09:00', venue: '蒙特雷' },
-    'r32-5':  { date: '2026-07-01T01:00', venue: '达拉斯' },
-    'r32-6':  { date: '2026-07-01T05:00', venue: '纽约/新泽西' },
-    'r32-7':  { date: '2026-07-01T09:00', venue: '墨西哥城' },
-    'r32-8':  { date: '2026-07-02T00:00', venue: '亚特兰大' },
-    'r32-9':  { date: '2026-07-02T04:00', venue: '西雅图' },
-    'r32-10': { date: '2026-07-02T08:00', venue: '旧金山湾区' },
-    'r32-11': { date: '2026-07-03T03:00', venue: '洛杉矶' },
-    'r32-12': { date: '2026-07-03T07:00', venue: '迈阿密' },
-    'r32-13': { date: '2026-07-03T11:00', venue: '温哥华' },
-    'r32-14': { date: '2026-07-04T02:00', venue: '达拉斯' },
-    'r32-15': { date: '2026-07-04T06:00', venue: '迈阿密' },
-    'r32-16': { date: '2026-07-04T09:30', venue: '堪萨斯城' },
+    'r32-1':  { date: '2026-06-29T03:00+08:00', venue: '洛杉矶' },
+    'r32-2':  { date: '2026-06-30T01:00+08:00', venue: '休斯顿' },
+    'r32-3':  { date: '2026-06-30T04:30+08:00', venue: '波士顿' },
+    'r32-4':  { date: '2026-06-30T09:00+08:00', venue: '蒙特雷' },
+    'r32-5':  { date: '2026-07-01T01:00+08:00', venue: '达拉斯' },
+    'r32-6':  { date: '2026-07-01T05:00+08:00', venue: '纽约/新泽西' },
+    'r32-7':  { date: '2026-07-01T09:00+08:00', venue: '墨西哥城' },
+    'r32-8':  { date: '2026-07-02T00:00+08:00', venue: '亚特兰大' },
+    'r32-9':  { date: '2026-07-02T04:00+08:00', venue: '西雅图' },
+    'r32-10': { date: '2026-07-02T08:00+08:00', venue: '旧金山湾区' },
+    'r32-11': { date: '2026-07-03T03:00+08:00', venue: '洛杉矶' },
+    'r32-12': { date: '2026-07-03T07:00+08:00', venue: '迈阿密' },
+    'r32-13': { date: '2026-07-03T11:00+08:00', venue: '温哥华' },
+    'r32-14': { date: '2026-07-04T02:00+08:00', venue: '达拉斯' },
+    'r32-15': { date: '2026-07-04T06:00+08:00', venue: '迈阿密' },
+    'r32-16': { date: '2026-07-04T09:30+08:00', venue: '堪萨斯城' },
     // ---------- 1/8决赛: 7月5日-7月8日, 共8场 ----------
-    'r16-1':  { date: '2026-07-05T01:00', venue: '休斯顿' },
-    'r16-2':  { date: '2026-07-05T05:00', venue: '费城' },
-    'r16-3':  { date: '2026-07-06T04:00', venue: '纽约/新泽西' },
-    'r16-4':  { date: '2026-07-06T08:00', venue: '墨西哥城' },
-    'r16-5':  { date: '2026-07-07T03:00', venue: '达拉斯' },
-    'r16-6':  { date: '2026-07-07T08:00', venue: '西雅图' },
-    'r16-7':  { date: '2026-07-08T00:00', venue: '亚特兰大' },
-    'r16-8':  { date: '2026-07-08T04:00', venue: '温哥华' },
+    'r16-1':  { date: '2026-07-05T01:00+08:00', venue: '休斯顿' },
+    'r16-2':  { date: '2026-07-05T05:00+08:00', venue: '费城' },
+    'r16-3':  { date: '2026-07-06T04:00+08:00', venue: '纽约/新泽西' },
+    'r16-4':  { date: '2026-07-06T08:00+08:00', venue: '墨西哥城' },
+    'r16-5':  { date: '2026-07-07T03:00+08:00', venue: '达拉斯' },
+    'r16-6':  { date: '2026-07-07T08:00+08:00', venue: '西雅图' },
+    'r16-7':  { date: '2026-07-08T00:00+08:00', venue: '亚特兰大' },
+    'r16-8':  { date: '2026-07-08T04:00+08:00', venue: '温哥华' },
     // ---------- 1/4决赛: 7月9日-7月12日, 共4场 ----------
-    'qf-1':   { date: '2026-07-10T04:00', venue: '波士顿' },
-    'qf-2':   { date: '2026-07-11T03:00', venue: '洛杉矶' },
-    'qf-3':   { date: '2026-07-12T05:00', venue: '迈阿密' },
-    'qf-4':   { date: '2026-07-12T09:00', venue: '堪萨斯城' },
+    'qf-1':   { date: '2026-07-10T04:00+08:00', venue: '波士顿' },
+    'qf-2':   { date: '2026-07-11T03:00+08:00', venue: '洛杉矶' },
+    'qf-3':   { date: '2026-07-12T05:00+08:00', venue: '迈阿密' },
+    'qf-4':   { date: '2026-07-12T09:00+08:00', venue: '堪萨斯城' },
     // ---------- 半决赛: 7月14日-7月15日, 共2场 ----------
-    'sf-1':   { date: '2026-07-15T03:00', venue: '达拉斯' },
-    'sf-2':   { date: '2026-07-16T03:00', venue: '亚特兰大' },
+    'sf-1':   { date: '2026-07-15T03:00+08:00', venue: '达拉斯' },
+    'sf-2':   { date: '2026-07-16T03:00+08:00', venue: '亚特兰大' },
     // ---------- 三四名决赛: 7月18日 ----------
-    '3rd-1':  { date: '2026-07-18T20:00', venue: '迈阿密' },
+    '3rd-1':  { date: '2026-07-18T20:00+08:00', venue: '迈阿密' },
     // ---------- 决赛: 7月19日 ----------
-    'final-1':{ date: '2026-07-19T20:00', venue: '纽约/新泽西' },
+    'final-1':{ date: '2026-07-19T20:00+08:00', venue: '纽约/新泽西' },
 };
 
 const KO_ROUNDS = [
@@ -1924,7 +1924,7 @@ const PLAYER_STATUS_DATA = [
     // ---- 意大利 ----
     { team: '意大利', teamFlag: '🇮🇹', players: [
         { name: '多纳鲁马', enName: 'Gianluigi_Donnarumma', pos: '门将', num: 21, club: '巴黎圣日耳曼', status: 'healthy', statusLabel: '健康', marketValue: '€4500万', valueColor: 'normal', recentForm: '法甲赛季表现出色', note: '2021欧洲杯MVP', updated: '2026-06-04' },
-        { name: '托纳利', enName: 'Sandro_Tonali', pos: '中场', num: 8, club: '纽卡斯尔', status: 'suspended', statusLabel: '⛔ 停赛', marketValue: '€8000万', valueColor: 'gold', recentForm: '复出后状态良好', note: '赌球禁赛期满，可出战', updated: '2026-06-08' },
+        { name: '托纳利', enName: 'Sandro_Tonali', pos: '中场', num: 8, club: '纽卡斯尔', status: 'healthy', statusLabel: '健康', marketValue: '€8000万', valueColor: 'gold', recentForm: '禁赛期满，复出后状态良好', note: '中场节拍器，意大利攻防转换核心', updated: '2026-06-08' },
     ]},
     // ---- 荷兰 ----
     { team: '荷兰', teamFlag: '🇳🇱', players: [
@@ -1941,7 +1941,7 @@ const PLAYER_STATUS_DATA = [
     ]},
     // ---- 韩国 ----
     { team: '韩国', teamFlag: '🇰🇷', players: [
-        { name: '孙兴慜', enName: 'Son_Heung-min', pos: '前锋', num: 7, club: '热刺', status: 'healthy', statusLabel: '健康', marketValue: '€4000万', valueColor: 'gold', recentForm: '英超赛季18球10助', note: '韩国队长，精神领袖', updated: '2026-06-08' },
+        { name: '孙兴慜', enName: 'Son_Heung-min', pos: '前锋', num: 7, club: '热刺', status: 'healthy', statusLabel: '健康', marketValue: '€4000万', valueColor: 'normal', recentForm: '英超赛季18球10助', note: '韩国队长，精神领袖', updated: '2026-06-08' },
     ]},
     // ---- 墨西哥 ----
     { team: '墨西哥', teamFlag: '🇲🇽', players: [
@@ -2325,3 +2325,8 @@ const H2H_DATA = {
         '法国': { record:'法国 3胜 vs 马里 0胜 · 0平', wcMatches:'世界杯无交手', last:'2022友谊赛 法国1-0马里', highlight:'殖民历史渊源·法语区足球' },
     },
 };
+
+// ========== Node.js require() 兼容（服务端导入用） ==========
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { PLAYER_STATUS_DATA, KO_SCHEDULE, KO_ROUNDS, H2H_DATA, TEAMS_DATA };
+}
