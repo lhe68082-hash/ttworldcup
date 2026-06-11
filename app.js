@@ -1338,10 +1338,9 @@ function renderLedgerChart() {
 
     // 至少3条记录才画曲线
     if (ledgerData.length < 3) {
-        chartSection.style.display = 'none';
+        svg.innerHTML = `<text x="300" y="130" text-anchor="middle" font-size="13" fill="var(--text-dim)">📊 添加至少 3 条记录后显示盈亏曲线</text><text x="300" y="152" text-anchor="middle" font-size="11" fill="var(--text-dim)" opacity="0.6">↑ 在上方添加购彩记录即可生成图表</text>`;
         return;
     }
-    chartSection.style.display = 'block';
 
     // 按日期升序排列
     const sorted = [...ledgerData].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
