@@ -112,6 +112,9 @@ const LiveData = (() => {
             const match = SCHEDULE_DATA.find(m => m.id === update.id);
             if (!match) continue;
 
+            // 手动录入的真实赛果不受API数据覆盖
+            if (match._manual) continue;
+
             // 只更新有变化的数据
             const statusChanged = match.status !== update.status;
             const scoreChanged = !match.score

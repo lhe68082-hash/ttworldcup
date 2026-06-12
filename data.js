@@ -384,9 +384,28 @@ KO_ROUNDS.forEach(round => {
     }
 });
 
+// ========== 真实赛果（手动录入，优先级最高） ==========
+// 格式: '比赛ID': { home: 主队进球, away: 客队进球 }
+// 比赛结束后在此录入，将覆盖模拟数据及API数据
+const MANUAL_RESULTS = {
+    'GA-1': { home: 2, away: 0 }, // 墨西哥 2:0 南非
+};
+
+(function applyManualResults() {
+    for (const [id, score] of Object.entries(MANUAL_RESULTS)) {
+        const m = SCHEDULE_DATA.find(x => x.id === id);
+        if (m && m.home !== '待定') {
+            m.status = 'played';
+            m.score = { home: score.home, away: score.away };
+            m._manual = true; // 标记为手动录入，防止被覆盖
+            delete m._fallback;
+        }
+    }
+})();
+
 // ========== 时间回退：自动为已过时比赛生成占位比分 ==========
 // 当官方API不可用时，根据当前时间自动标记已结束的比赛
-// 真实API数据（来自 live-service.js + server.js）会覆盖此回退数据
+// 真实赛果（MANUAL_RESULTS）和API数据均会覆盖此回退
 (function applyTimeBasedFallback() {
     const now = new Date();
     const FALLBACK_MARK = '⏳ 模拟';
