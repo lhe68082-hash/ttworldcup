@@ -121,6 +121,7 @@ const LiveData = (() => {
             if (statusChanged || scoreChanged) {
                 match.status = update.status;
                 match.score = { home: update.homeScore, away: update.awayScore };
+                delete match._fallback; // 清除模拟回退标记，以真实数据为准
                 applied++;
             }
         }

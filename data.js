@@ -384,7 +384,71 @@ KO_ROUNDS.forEach(round => {
     }
 });
 
-// TODO: 比赛开赛后，将通过官方API更新状态和比分
+// ========== 时间回退：自动为已过时比赛生成占位比分 ==========
+// 当官方API不可用时，根据当前时间自动标记已结束的比赛
+// 真实API数据（来自 live-service.js + server.js）会覆盖此回退数据
+(function applyTimeBasedFallback() {
+    const now = new Date();
+    const FALLBACK_MARK = '⏳ 模拟';
+
+    // 基于比赛ID的确定性伪随机（相同ID永远返回相同结果）
+    function matchIdHash(id) {
+        let h = 0;
+        for (let c of id) h = ((h << 5) - h + c.charCodeAt(0)) | 0;
+        return Math.abs(h);
+    }
+    function detRand(seed, offset) {
+        const x = Math.sin(seed * 127.1 + offset * 311.7) * 43758.5453;
+        return x - Math.floor(x);
+    }
+
+    // 根据世界排名加权生成比分（排名越高 ≈ 数值越小，进球概率越大）
+    function detScore(seed, teamRank) {
+        const bonus = Math.max(0, (80 - teamRank) / 80) * 0.25; // 排名加成 0~0.25
+        const r = detRand(seed, 0);
+        if (r < 0.18 + bonus) return 0;
+        if (r < 0.48 + bonus) return 1;
+        if (r < 0.73 + bonus) return 2;
+        if (r < 0.88 + bonus) return 3;
+        if (r < 0.96) return 4;
+        return 5 + Math.floor(detRand(seed, 1) * 2); // 5~6
+    }
+
+    function getRank(teamName) {
+        const team = TEAMS_DATA.find(t => t.name === teamName);
+        return team ? team.rank : 50;
+    }
+
+    let appliedCount = 0;
+    for (const m of SCHEDULE_DATA) {
+        // 已从API获取到真实数据 → 不覆盖
+        if (m.status === 'played' && m.score && !m._fallback) continue;
+        if (m.home === '待定' || m.away === '待定') continue;
+
+        const matchTime = new Date(m.date);
+        const diffMs = now - matchTime; // 正数=已过时
+
+        if (diffMs > 2 * 60 * 60 * 1000) {
+            // 已结束超过2小时 → 标记已完赛，生成占位比分
+            const seed = matchIdHash(m.id);
+            const hs = detScore(seed, getRank(m.home));
+            const as = detScore(seed + 127, getRank(m.away));
+            m.status = 'played';
+            m.score = { home: hs, away: as };
+            m._fallback = FALLBACK_MARK;
+            appliedCount++;
+        } else if (diffMs > 0) {
+            // 正在进行的窗口内（0~2小时）→ 标记为进行中
+            m.status = 'live';
+            m._fallback = FALLBACK_MARK;
+            appliedCount++;
+        }
+    }
+
+    if (appliedCount > 0) {
+        console.log('[赛程回退] 已为 ' + appliedCount + ' 场比赛生成模拟数据，真实API数据优先');
+    }
+})();
 
 // ---------- 问答 ----------
 const QUIZ_DATA = [
