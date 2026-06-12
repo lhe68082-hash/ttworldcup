@@ -288,7 +288,7 @@ GROUPS.forEach((g, gi) => {
     const pool = GROUPED_TEAMS[g];
     if (!pool || pool.length < 4) return;
     groupTeams[g] = pool;
-    const pairs = [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];
+    const pairs = [[0,1],[2,3],[0,2],[1,3],[3,0],[1,2]]; // 标准FIFA：MD1=1v2+3v4, MD2=1v3+2v4, MD3=4v1+2v3
     pairs.forEach((pair, pi) => {
         const seqIndex = gi * 6 + pi; // 0-71
         const { day, index } = getDayInfo(seqIndex);
