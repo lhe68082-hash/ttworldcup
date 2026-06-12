@@ -459,6 +459,14 @@ function initSchedule() {
     renderBracket();
 }
 
+// ==================== 辅助：比分/对阵文本 ====================
+// 已完赛但无赛果 → 显示"待更新"；有赛果 → 显示":"；未开赛 → 显示"VS"
+function getMatchVsText(m) {
+    if (m.score) return ':';
+    if (m.status === 'played' || m._noResult) return '<span style="color:var(--text-dim);font-size:10px">待更新</span>';
+    return 'VS';
+}
+
 // ==================== 淘汰赛对阵表渲染 ====================
 function renderBracket() {
     const container = document.getElementById('bracketContainer');
@@ -469,10 +477,10 @@ function renderBracket() {
     const stageConfig = {
         'final': { title: '🏆 决赛 · 7月19日', venue: '📍 纽约/新泽西 · 大都会人寿体育场', cls: 'final-match' },
         '3rd': { title: '🥉 三四名决赛 · 7月18日', venue: '📍 迈阿密', cls: '' },
-        'sf': { title: '🔥 半决赛 · 7月14-15日', venue: '', cls: '' },
-        'qf': { title: '💥 1/4决赛 · 7月9-12日', venue: '', cls: '' },
+        'sf': { title: '🔥 半决赛 · 7月15-16日', venue: '', cls: '' },
+        'qf': { title: '💥 1/4决赛 · 7月10-12日', venue: '', cls: '' },
         'r16': { title: '⚡ 1/8决赛 · 7月5-8日 · 8场', venue: '', cls: '' },
-        'r32': { title: '🎯 1/16决赛 · 6月28日-7月4日 · 16场', venue: '', cls: '' },
+        'r32': { title: '🎯 1/16决赛 · 6月29日-7月4日 · 16场', venue: '', cls: '' },
     };
 
     let html = '';
@@ -487,9 +495,10 @@ function renderBracket() {
         if (matches.length === 1) {
             const m = matches[0];
             const hasResult = m.score !== null;
+            const vsText = m.score ? '<span style="color:var(--text-dim)">:</span>' : (m.status === 'played' ? '<span style="color:var(--text-dim);font-size:11px">待更新</span>' : 'VS');
             html += `<div class="bk-match ${cfg.cls}">
                 <div class="bk-team"><span>${m.homeFlag}</span><span>${m.home}</span>${hasResult ? `<span style="font-weight:900;color:var(--accent)">${m.score.home}</span>` : ''}</div>
-                <div class="bk-vs">${hasResult ? '<span style="color:var(--text-dim)">:</span>' : 'VS'}</div>
+                <div class="bk-vs">${vsText}</div>
                 <div class="bk-team"><span>${m.awayFlag}</span><span>${m.away}</span>${hasResult ? `<span style="font-weight:900;color:var(--blue)">${m.score.away}</span>` : ''}</div>
             </div>`;
             if (cfg.venue) html += `<div class="bk-venue">${cfg.venue}</div>`;
@@ -498,9 +507,10 @@ function renderBracket() {
             html += '<div class="bk-row-2">';
             matches.forEach(m => {
                 const hasResult = m.score !== null;
+                const vsText2 = m.score ? '<span style="color:var(--text-dim)">:</span>' : (m.status === 'played' ? '<span style="color:var(--text-dim);font-size:11px">待更新</span>' : 'VS');
                 html += `<div class="bk-match">
                     <div class="bk-team"><span style="font-size:20px">${m.homeFlag}</span><span style="font-size:11px">${m.home}</span>${hasResult ? `<span style="font-weight:900;color:var(--accent);font-size:12px">${m.score.home}</span>` : ''}</div>
-                    <div class="bk-vs">VS</div>
+                    <div class="bk-vs">${vsText2}</div>
                     <div class="bk-team"><span style="font-size:20px">${m.awayFlag}</span><span style="font-size:11px">${m.away}</span>${hasResult ? `<span style="font-weight:900;color:var(--blue);font-size:12px">${m.score.away}</span>` : ''}</div>
                 </div>`;
             });
@@ -547,9 +557,10 @@ function renderBracket() {
 
 function renderBracketMiniMatch(m) {
     const hasResult = m.score !== null;
+    const vsText = m.score ? ':' : (m.status === 'played' ? '<span style="color:var(--text-dim);font-size:9px">待更新</span>' : 'VS');
     return `<div class="bk-match">
         <div class="bk-team"><span style="font-size:16px">${m.homeFlag}</span><span style="font-size:10px">${m.home}</span>${hasResult ? `<span style="font-weight:900;color:var(--accent);font-size:11px">${m.score.home}</span>` : ''}</div>
-        <span class="bk-vs-sm">${hasResult ? ':' : 'VS'}</span>
+        <span class="bk-vs-sm">${vsText}</span>
         <div class="bk-team"><span style="font-size:16px">${m.awayFlag}</span><span style="font-size:10px">${m.away}</span>${hasResult ? `<span style="font-weight:900;color:var(--blue);font-size:11px">${m.score.away}</span>` : ''}</div>
     </div>`;
 }
@@ -581,9 +592,10 @@ function renderSchedule() {
         else if (m.status === 'live') { statusHtml = '<span class="match-status live-tag">● LIVE</span>'; cardClass='live'; }
         else { statusHtml = '<span class="match-status upcoming">未开始</span>'; }
 
+        const noResult = m.status === 'played' && !m.score;
         const scoreHtml = m.score
             ? `<div class="match-score"><span class="ms-home">${m.score.home}</span><span class="ms-sep">:</span><span class="ms-away">${m.score.away}</span></div>`
-            : '<div class="match-vs">VS</div>';
+            : (noResult ? '<div class="match-vs" style="color:var(--text-dim)">等待赛果</div>' : '<div class="match-vs">VS</div>');
 
         // 主客队名，用data属性存储用于点击
         return `<div class="match-card ${cardClass}" data-date="${m.date.toISOString().slice(0,10)}">
@@ -682,7 +694,7 @@ function generateLiveMessages() {
     const now = new Date();
 
     const live = SCHEDULE_DATA.filter(m => m.status === 'live');
-    const recent = SCHEDULE_DATA.filter(m => m.status === 'played').slice(-3);
+    const recent = SCHEDULE_DATA.filter(m => m.status === 'played' && m.score).slice(-3);
     const upcoming = SCHEDULE_DATA.filter(m => m.status !== 'played' && m.date > now).slice(0, 3);
 
     if (live.length > 0) {

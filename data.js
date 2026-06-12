@@ -314,7 +314,7 @@ GROUPS.forEach((g, gi) => {
 
 // ===== 淘汰赛精确赛程 (来源: FIFA官方, 均为北京时间 UTC+8) =====
 const KO_SCHEDULE = {
-    // ---------- 1/16决赛: 6月28日-7月4日, 共16场 ----------
+    // ---------- 1/16决赛: 6月29日-7月4日(北京时间), 共16场 ----------
     'r32-1':  { date: '2026-06-29T03:00+08:00', venue: '洛杉矶' },
     'r32-2':  { date: '2026-06-30T01:00+08:00', venue: '休斯顿' },
     'r32-3':  { date: '2026-06-30T04:30+08:00', venue: '波士顿' },
@@ -386,9 +386,10 @@ KO_ROUNDS.forEach(round => {
 
 // ========== 真实赛果（手动录入，优先级最高） ==========
 // 格式: '比赛ID': { home: 主队进球, away: 客队进球 }
-// 比赛结束后在此录入，将覆盖模拟数据及API数据
+// ⚠️ 比赛结束后请及时在此录入真实比分，所有数据必须以真实赛果为准
 const MANUAL_RESULTS = {
-    'GA-1': { home: 2, away: 0 }, // 墨西哥 2:0 南非
+    'GA-1': { home: 2, away: 0 }, // 6/12 墨西哥 2:0 南非（揭幕战）
+    'GA-2': { home: 2, away: 1 }, // 6/12 韩国 2:1 捷克
 };
 
 (function applyManualResults() {
@@ -397,75 +398,40 @@ const MANUAL_RESULTS = {
         if (m && m.home !== '待定') {
             m.status = 'played';
             m.score = { home: score.home, away: score.away };
-            m._manual = true; // 标记为手动录入，防止被覆盖
-            delete m._fallback;
+            m._manual = true; // 标记为手动录入，防止被API/回退覆盖
         }
     }
 })();
 
-// ========== 时间回退：自动为已过时比赛生成占位比分 ==========
-// 当官方API不可用时，根据当前时间自动标记已结束的比赛
-// 真实赛果（MANUAL_RESULTS）和API数据均会覆盖此回退
+// ========== 时间回退：仅更新比赛状态，不生成虚假比分 ==========
+// 当官方API不可用时，根据当前时间自动标记比赛状态（live/played）
+// 绝不会生成模拟比分 —— 比分必须来自 MANUAL_RESULTS 或官方API
 (function applyTimeBasedFallback() {
     const now = new Date();
-    const FALLBACK_MARK = '⏳ 模拟';
-
-    // 基于比赛ID的确定性伪随机（相同ID永远返回相同结果）
-    function matchIdHash(id) {
-        let h = 0;
-        for (let c of id) h = ((h << 5) - h + c.charCodeAt(0)) | 0;
-        return Math.abs(h);
-    }
-    function detRand(seed, offset) {
-        const x = Math.sin(seed * 127.1 + offset * 311.7) * 43758.5453;
-        return x - Math.floor(x);
-    }
-
-    // 根据世界排名加权生成比分（排名越高 ≈ 数值越小，进球概率越大）
-    function detScore(seed, teamRank) {
-        const bonus = Math.max(0, (80 - teamRank) / 80) * 0.25; // 排名加成 0~0.25
-        const r = detRand(seed, 0);
-        if (r < 0.18 + bonus) return 0;
-        if (r < 0.48 + bonus) return 1;
-        if (r < 0.73 + bonus) return 2;
-        if (r < 0.88 + bonus) return 3;
-        if (r < 0.96) return 4;
-        return 5 + Math.floor(detRand(seed, 1) * 2); // 5~6
-    }
-
-    function getRank(teamName) {
-        const team = TEAMS_DATA.find(t => t.name === teamName);
-        return team ? team.rank : 50;
-    }
-
     let appliedCount = 0;
     for (const m of SCHEDULE_DATA) {
-        // 已从API获取到真实数据 → 不覆盖
-        if (m.status === 'played' && m.score && !m._fallback) continue;
+        // 已有真实比分 → 跳过
+        if (m.status === 'played' && m.score) continue;
+        // 已标记为进行中 → 跳过
+        if (m.status === 'live') continue;
         if (m.home === '待定' || m.away === '待定') continue;
 
         const matchTime = new Date(m.date);
-        const diffMs = now - matchTime; // 正数=已过时
+        const diffMs = now - matchTime;
 
-        if (diffMs > 2 * 60 * 60 * 1000) {
-            // 已结束超过2小时 → 标记已完赛，生成占位比分
-            const seed = matchIdHash(m.id);
-            const hs = detScore(seed, getRank(m.home));
-            const as = detScore(seed + 127, getRank(m.away));
+        if (diffMs > 2.5 * 60 * 60 * 1000) {
+            // 已结束超过2.5小时 → 标记已完赛（无比分，UI将显示"等待赛果"）
             m.status = 'played';
-            m.score = { home: hs, away: as };
-            m._fallback = FALLBACK_MARK;
+            m._noResult = true;
             appliedCount++;
         } else if (diffMs > 0) {
-            // 正在进行的窗口内（0~2小时）→ 标记为进行中
+            // 正在进行的窗口内 → 标记为进行中
             m.status = 'live';
-            m._fallback = FALLBACK_MARK;
             appliedCount++;
         }
     }
-
     if (appliedCount > 0) {
-        console.log('[赛程回退] 已为 ' + appliedCount + ' 场比赛生成模拟数据，真实API数据优先');
+        console.log('[赛程回退] ' + appliedCount + ' 场比赛状态已自动更新（无虚假比分生成）');
     }
 })();
 
