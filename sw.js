@@ -1,18 +1,18 @@
-const CACHE_NAME = 'wc2026-v15';
-const OFFLINE_URL = '/';
+const CACHE_NAME = 'wc2026-v16';
+const OFFLINE_URL = './';
 
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/icon.svg',
-  '/app.js',
-  '/data.js',
-  '/keys.js',
-  '/live-client.js',
-  '/match-registry.js',
-  '/lottery-api.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './style.css',
+  './icon.svg',
+  './app.js',
+  './data.js',
+  './keys.js',
+  './live-client.js',
+  './match-registry.js',
+  './lottery-api.js',
+  './manifest.json'
 ];
 
 // 安装：缓存资源
@@ -87,10 +87,10 @@ self.addEventListener('push', event => {
   const data = event.data.json();
   const options = {
     body: data.body || '世界杯助手有新消息！',
-    icon: '/icon.png',
-    badge: '/badge.png',
+    icon: './icon.svg',
+    badge: './icon.svg',
     vibrate: [100, 50, 100],
-    data: { url: data.url || '/' },
+    data: { url: data.url || './' },
     actions: [
       { action: 'open', title: '查看' },
       { action: 'close', title: '忽略' }
@@ -105,6 +105,6 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
   if (event.action === 'close') return;
   event.waitUntil(
-    clients.openWindow(event.notification.data.url || '/')
+    clients.openWindow(event.notification.data.url || './')
   );
 });

@@ -102,6 +102,17 @@ body {
         radial-gradient(ellipse at 50% 50%, rgba(255,212,59,0.04) 0%, transparent 60%);
 }
 
+body.is-locked {
+    overflow: hidden;
+}
+
+body.is-locked .topbar,
+body.is-locked .content,
+body.is-locked .bnav {
+    visibility: hidden;
+    pointer-events: none;
+}
+
 /* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 0; height: 0; }
 
@@ -160,6 +171,7 @@ body {
     width: 60%;
 }
 .key-label {
+    display: block;
     font-size: 14px;
     font-weight: 700;
     color: var(--text);
@@ -230,9 +242,10 @@ body {
 }
 .key-stats {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 2px;
     margin-top: 12px;
     font-size: 12px;
     color: var(--text-light);
@@ -247,6 +260,13 @@ body {
 .key-stats .ks-total {
     color: var(--text-dim);
     font-size: 11px;
+}
+.key-security-note {
+    margin-top: 10px;
+    font-size: 10px;
+    line-height: 1.5;
+    color: var(--text-dim);
+    opacity: 0.75;
 }
 
 /* ---------- Top Bar ---------- */
@@ -535,15 +555,28 @@ body {
     margin-bottom: 16px;
 }
 .stat-card {
+    display: block;
+    width: 100%;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 18px 12px;
     text-align: center;
+    color: var(--text);
+    font-family: var(--font);
     cursor: pointer;
     transition: all 0.3s;
     position: relative;
     overflow: hidden;
+}
+.stat-card:focus-visible,
+.bnav-item:focus-visible,
+.subnav-item:focus-visible,
+.theme-toggle-btn:focus-visible,
+.key-btn:focus-visible,
+.ps-overlay-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
 }
 .stat-card::after {
     content: '';
@@ -818,6 +851,20 @@ body {
 }
 .search-inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,170,0.1); }
 .search-inp::placeholder { color: var(--text-dim); }
+.search-feedback {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-light);
+}
+.search-empty {
+    padding: 18px 14px;
+    text-align: center;
+    color: var(--text-dim);
+    background: var(--bg-card);
+    border: 1px dashed var(--border-active);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+}
 
 .team-cards { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .team-card-item {

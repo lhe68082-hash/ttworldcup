@@ -28,6 +28,7 @@ const KEY_STORAGE = 'hw2026_activated_key';
 const DEVICE_KEY = 'hw2026_device_id';
 const KEY_DEVICES_KEY = 'hw2026_key_devices';
 const MAX_DEVICES = 3; // 每个卡密最多绑定3个设备
+let appInitialized = false;
 
 // 生成/获取设备唯一ID
 function getDeviceId() {
@@ -109,7 +110,10 @@ function renderKeyStats() {
     const el = document.getElementById('keyStats');
     if (!el) return;
     const stats = getTotalKeyStats();
-    el.innerHTML = `<span class="ks-activated">已激活 ${stats.activated}</span><span class="ks-sep">/</span><span class="ks-total">共 ${stats.total} 份</span>`;
+    el.innerHTML = `
+        <span class="ks-activated">本设备统计：已使用 ${stats.activated} 张卡</span>
+        <span class="ks-total">卡密总数 ${stats.total} 张</span>
+    `;
 }
 
 function isKeyActivated() {
@@ -160,10 +164,12 @@ function activateKey() {
     // 注册设备
     registerDeviceToKey(key);
     localStorage.setItem(KEY_STORAGE, key);
+    unlockApp(false);
+    initAppOnce();
 
     if (errorEl) {
         const usageInfo = getKeyUsageInfo(key);
-        errorEl.innerHTML = `✅ 激活成功！<br><small style="color:var(--green);">已在设备列表注册（${usageInfo.used}/${MAX_DEVICES}）</small>`;
+        errorEl.innerHTML = `✅ 激活成功！<br><small style="color:var(--green);">本卡已绑定设备 ${usageInfo.used}/${MAX_DEVICES}</small>`;
         errorEl.style.color = 'var(--green)';
     }
     if (btn) {
@@ -178,30 +184,24 @@ function activateKey() {
             overlay.style.transition = 'opacity 0.4s ease';
             setTimeout(() => {
                 overlay.style.display = 'none';
+                overlay.setAttribute('aria-hidden', 'true');
             }, 400);
         }
     }, 1000);
 }
 
-// 回车键激活
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        const overlay = document.getElementById('keyActivationOverlay');
-        if (overlay && overlay.style.display !== 'none') {
-            activateKey();
-        }
+function unlockApp(hideOverlay = true) {
+    document.body.classList.remove('is-locked');
+    const overlay = document.getElementById('keyActivationOverlay');
+    if (overlay && hideOverlay) {
+        overlay.style.display = 'none';
+        overlay.setAttribute('aria-hidden', 'true');
     }
-});
+}
 
-// ---------- 初始化 ----------
-document.addEventListener('DOMContentLoaded', () => {
-    // 卡密验证：已激活则隐藏验证界面
-    if (isKeyActivated()) {
-        const overlay = document.getElementById('keyActivationOverlay');
-        if (overlay) overlay.style.display = 'none';
-    }
-    // 显示卡密激活统计
-    renderKeyStats();
+function initAppOnce() {
+    if (appInitialized) return;
+    appInitialized = true;
 
     initTheme();
     initBottomNav();
@@ -222,6 +222,31 @@ document.addEventListener('DOMContentLoaded', () => {
     initLiveUpdates();
     initNewsTicker();
     initPlayerStatus();
+}
+
+// 回车键激活
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        const overlay = document.getElementById('keyActivationOverlay');
+        if (overlay && overlay.style.display !== 'none') {
+            activateKey();
+        }
+    }
+});
+
+// ---------- 初始化 ----------
+document.addEventListener('DOMContentLoaded', () => {
+    // 卡密验证：已激活则隐藏验证界面
+    if (isKeyActivated()) {
+        unlockApp();
+        initAppOnce();
+    } else {
+        document.body.classList.add('is-locked');
+        initTheme();
+        initDateDisplay();
+    }
+    // 显示卡密激活统计
+    renderKeyStats();
 });
 
 // ==================== 底部导航 ====================
@@ -367,6 +392,7 @@ function toggleTheme() {
 function initDateDisplay() {
     const el = document.getElementById('dateDisplay');
     function update() {
+        if (!el) return;
         el.textContent = new Date().toLocaleDateString('zh-CN', { month:'2-digit', day:'2-digit', weekday:'short' });
     }
     update();
@@ -377,7 +403,7 @@ function initDateDisplay() {
 function initCountdown() {
     // 使用 ISO 8601 +08:00 明确北京时间，消除时区歧义
     const opening = new Date('2026-06-12T03:00:00+08:00'); // 6月12日 03:00 揭幕战
-    const final   = new Date('2026-07-19T20:00:00+08:00'); // 7月19日 20:00 决赛（与赛程一致）
+    const final   = new Date('2026-07-20T03:00:00+08:00'); // 北京时间7月20日 03:00 决赛（当地时间7月19日）
 
     function update() {
         const now = new Date();
@@ -581,7 +607,7 @@ function renderSchedule() {
 
     // 更新刷新指示器
     const refEl = document.getElementById('scheduleRefresh');
-    if (refEl) refEl.innerHTML = `<span class="live-indicator"></span> 更新于 ${new Date().toLocaleTimeString('zh-CN')}`;
+    if (refEl) refEl.innerHTML = `<span class="live-indicator"></span> 本地数据更新于 ${new Date().toLocaleTimeString('zh-CN')}`;
 
     grid.innerHTML = filtered.map(m => {
         const ds = m.date.toLocaleDateString('zh-CN', { month:'2-digit', day:'2-digit' });
@@ -666,7 +692,7 @@ function initNewsTicker() {
     if (!scroll) return;
 
     const now = new Date();
-    const opening = new Date(2026, 5, 11, 0, 0, 0); // 6月11日开幕
+    const opening = new Date('2026-06-12T03:00:00+08:00');
 
     let messages;
     if (now < opening) {
@@ -765,7 +791,7 @@ function initLiveUpdates() {
                 renderBracket();
             }
             const refEl = document.getElementById('scheduleRefresh');
-            if (refEl) refEl.innerHTML = `<span class="live-indicator"></span> 更新于 ${new Date().toLocaleTimeString('zh-CN')}`;
+            if (refEl) refEl.innerHTML = `<span class="live-indicator"></span> 本地数据更新于 ${new Date().toLocaleTimeString('zh-CN')}`;
             renderStandings(currentGroup);
         }, 30000);
     }
@@ -841,7 +867,7 @@ function renderPlayerStatus() {
 
     // 更新时间
     const now = new Date();
-    const opening = new Date(2026, 5, 11, 0, 0, 0);
+    const opening = new Date('2026-06-12T03:00:00+08:00');
     if (timeEl) {
         let liveStatus = '';
         if (typeof LiveData !== 'undefined') {
@@ -851,9 +877,9 @@ function renderPlayerStatus() {
             }
         }
         if (now < opening) {
-            timeEl.textContent = `🕐 赛前动态 · 更新于 ${now.toLocaleDateString('zh-CN')}${liveStatus} · 开赛后实时更新`;
+            timeEl.textContent = `🕐 赛前动态 · 更新于 ${now.toLocaleDateString('zh-CN')}${liveStatus} · 开赛后更新`;
         } else {
-            timeEl.textContent = `🔴 实时更新 · ${now.toLocaleDateString('zh-CN')} ${now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}${liveStatus}`;
+            timeEl.textContent = `🔴 数据更新 · ${now.toLocaleDateString('zh-CN')} ${now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}${liveStatus}`;
         }
     }
 }
@@ -1939,7 +1965,7 @@ function renderStandings(group) {
 
     const hasResults = gs.some(t => t.P > 0);
     if (hint) {
-        hint.textContent = hasResults ? '✅ 实时更新中' : '小组赛开赛后实时更新';
+        hint.textContent = hasResults ? '✅ 已根据当前赛果更新' : '小组赛开赛后更新';
     }
 
     if (gs.length === 0) {
@@ -1989,9 +2015,26 @@ function renderStandings(group) {
 }
 
 function renderAllTeams(filter = '') {
-    const list = filter ? TEAMS_DATA.filter(t => t.name.includes(filter) || t.confederation.includes(filter.toUpperCase())) : TEAMS_DATA;
+    const keyword = String(filter || '').trim();
+    const keywordLower = keyword.toLowerCase();
+    const list = keyword ? TEAMS_DATA.filter(t =>
+        t.name.includes(keyword) ||
+        t.confederation.toLowerCase().includes(keywordLower) ||
+        t.group.toLowerCase().includes(keywordLower) ||
+        String(t.rank).includes(keyword)
+    ) : TEAMS_DATA;
     const grid = document.getElementById('teamsGrid');
     if (!grid) return;
+    const feedback = document.getElementById('teamSearchFeedback');
+    if (feedback) {
+        feedback.textContent = keyword ? `找到 ${list.length} 支球队` : '输入球队名称、小组、排名或大洲缩写进行搜索';
+    }
+
+    if (list.length === 0) {
+        grid.innerHTML = '<div class="search-empty">没有找到符合条件的球队</div>';
+        return;
+    }
+
     grid.innerHTML = list.map(t => `<div class="team-card-item" data-team="${t.name}" data-flag="${t.flag}">
         <span class="tc-flag">${t.flag}</span>
         <div class="tc-info">
@@ -2010,7 +2053,12 @@ function renderAllTeams(filter = '') {
 
 window.filterTeams = function() {
     const inp = document.getElementById('teamSearch');
-    renderAllTeams(inp ? inp.value : '');
+    const value = inp ? inp.value : '';
+    renderAllTeams(value);
+    if (value.trim()) {
+        const section = document.getElementById('teamsGrid');
+        if (section) section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 };
 
 // ==================== 冠军竞猜 ====================

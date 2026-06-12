@@ -13,35 +13,36 @@
     <meta name="apple-mobile-web-app-title" content="世界杯助手">
     <link rel="apple-touch-icon" href="icon.svg">
     <title>花生世界杯助手</title>
-    <link rel="stylesheet" href="style.css?v=20260610a">
+    <link rel="stylesheet" href="style.css?v=20260612b">
     <!-- Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').catch(function() {});
+                navigator.serviceWorker.register('./sw.js').catch(function() {});
             });
         }
     </script>
 </head>
-<body>
+<body class="is-locked">
 
 <!-- ======== 卡密验证界面 ======== -->
-<div class="key-activation-overlay" id="keyActivationOverlay">
+<div class="key-activation-overlay" id="keyActivationOverlay" role="dialog" aria-modal="true" aria-labelledby="keyActivationTitle">
     <div class="key-activation-card">
         <div class="key-logo">🥜</div>
-        <h1 class="key-title">花生世界杯助手</h1>
+        <h1 class="key-title" id="keyActivationTitle">花生世界杯助手</h1>
         <p class="key-subtitle">FIFA World Cup 2026™</p>
         <div class="key-divider"></div>
-        <p class="key-label">请输入激活卡密</p>
+        <label class="key-label" for="keyInput">请输入激活卡密</label>
         <div class="key-input-row">
-            <input type="text" id="keyInput" class="key-input" placeholder="HW2026-XXXX-XXXX-XXXX" maxlength="24" autocomplete="off" autofocus>
+            <input type="text" id="keyInput" class="key-input" placeholder="HW2026-XXXX-XXXX-XXXX" maxlength="24" autocomplete="off" autofocus aria-describedby="keyError keyStats keyHint">
         </div>
-        <button class="key-btn" id="keyActivateBtn" onclick="activateKey()">
+        <button class="key-btn" id="keyActivateBtn" onclick="activateKey()" aria-label="激活并进入花生世界杯助手">
             <span>🔑 激活进入</span>
         </button>
-        <p class="key-error" id="keyError"></p>
+        <p class="key-error" id="keyError" role="status" aria-live="polite"></p>
         <div class="key-stats" id="keyStats"></div>
-        <p class="key-hint">输入卡密解锁全部功能 · 一卡一用</p>
+        <p class="key-hint" id="keyHint">输入卡密解锁全部功能 · 每个卡密最多绑定 3 台设备</p>
+        <p class="key-security-note">提示：当前静态版仅做前端校验，正式售卖建议接入后端校验。</p>
     </div>
 </div>
 
@@ -49,7 +50,7 @@
 <header class="topbar">
     <div class="topbar-logo">🥜 花生世界杯助手</div>
     <div style="display:flex;align-items:center;gap:10px;">
-        <button class="theme-toggle-btn" id="themeToggle" title="切换日间/夜间模式"><span class="theme-icon">☀️</span><span class="theme-label">夜间</span></button>
+        <button class="theme-toggle-btn" id="themeToggle" title="切换日间/夜间模式" aria-label="切换日间或夜间模式"><span class="theme-icon">☀️</span><span class="theme-label">夜间</span></button>
         <div class="topbar-date" id="dateDisplay"></div>
     </div>
 </header>
@@ -62,33 +63,33 @@
         <div class="hero">
             <div class="hero-badge"><span class="trophy-icon">🏆</span> FIFA WORLD CUP 2026™</div>
             <h1 class="hero-title"><span class="hosts">美国 · 加拿大 · 墨西哥</span><br><span class="hero-sub">48队 · 104场 · 1个冠军</span></h1>
-            <p class="hero-desc">第23届世界杯 · 2026年6月12日—7月19日</p>
+            <p class="hero-desc">第23届世界杯 · 北京时间 2026年6月12日—7月20日</p>
 
             <div class="stat-grid">
-                <div class="stat-card" onclick="switchTab('schedule')">
+                <button class="stat-card" onclick="switchTab('schedule')" type="button" aria-label="查看赛程">
                     <div class="stat-emoji">📅</div>
                     <div class="stat-num">104</div>
                     <div class="stat-label">总比赛数</div>
                     <div class="stat-arrow">查看赛程 ›</div>
-                </div>
-                <div class="stat-card" onclick="switchTab('teams')">
+                </button>
+                <button class="stat-card" onclick="switchTab('teams')" type="button" aria-label="查看分组">
                     <div class="stat-emoji">🏴</div>
                     <div class="stat-num">48</div>
                     <div class="stat-label">参赛球队</div>
                     <div class="stat-arrow">查看分组 ›</div>
-                </div>
-                <div class="stat-card" onclick="switchTab('encyclopedia')">
+                </button>
+                <button class="stat-card" onclick="switchTab('encyclopedia')" type="button" aria-label="查看赛事百科">
                     <div class="stat-emoji">📚</div>
                     <div class="stat-num">3</div>
                     <div class="stat-label">主办国家</div>
                     <div class="stat-arrow">查看百科 ›</div>
-                </div>
-                <div class="stat-card" onclick="switchTab('encyclopedia')">
+                </button>
+                <button class="stat-card" onclick="switchTab('encyclopedia')" type="button" aria-label="查看主办城市">
                     <div class="stat-emoji">🏟</div>
                     <div class="stat-num">16</div>
                     <div class="stat-label">主办城市</div>
                     <div class="stat-arrow">查看百科 ›</div>
-                </div>
+                </button>
             </div>
 
             <div class="countdown-box" id="countdownBox">
@@ -144,7 +145,7 @@
             <div class="card-text">
                 <p>2026年国际足联世界杯由<strong>美国、加拿大、墨西哥</strong>联合主办，首次扩军至<strong>48支球队</strong>，共<strong>104场比赛</strong>。这是世界杯历史上首次由三个国家共同承办。小组赛每组前2名+8个最佳第三名晋级32强淘汰赛，出线率大幅提升至67%。</p>
                 <ul class="dot-list">
-                    <li><b>举办时间：</b>2026年6月12日—7月19日（北京时间 UTC+8）</li>
+                    <li><b>举办时间：</b>2026年6月12日—7月20日（北京时间 UTC+8；当地时间6月11日开幕、7月19日决赛）</li>
                     <li><b>参赛球队：</b>48支（历史首次扩军）</li>
                     <li><b>总场次：</b>104场（小组72场 + 1/16决赛16场 + 淘汰赛16场）</li>
                     <li><b>卫冕冠军：</b>🇦🇷 阿根廷</li>
@@ -239,7 +240,8 @@
 
     <!-- ======== Tab 3: 赛程 ======== -->
     <section id="schedule" class="page">
-        <div class="page-title">📅 赛程·实时</div>
+        <div class="page-title">📅 赛程·北京时间</div>
+        <p class="page-desc">赛程按北京时间展示；赛果来自内置/同步数据，请以官方发布为准。</p>
         <div class="subnav" id="subnav-schedule">
             <button class="subnav-item" data-anchor="sch-progress">📊 比赛进度</button>
             <button class="subnav-item" data-anchor="sch-list">📋 赛程列表</button>
@@ -305,7 +307,7 @@
         <div class="standings-section" id="tms-standings">
             <div class="standings-header">
                 <span class="standings-title">📊 积分榜</span>
-                <span class="standings-hint" id="standingsHint">小组赛开赛后实时更新</span>
+                <span class="standings-hint" id="standingsHint">小组赛开赛后更新</span>
             </div>
         <div class="standings-table" id="standingsTable"></div>
     </div>
@@ -329,7 +331,7 @@
         <div class="ai-footer">
             <span class="ai-badge">🔬 算法驱动</span>
             <span class="ai-badge">📊 数据建模</span>
-            <span class="ai-badge">⚽ 实时更新</span>
+            <span class="ai-badge">⚽ 数据更新</span>
             <span class="ai-disclaimer">* 仅供娱乐参考，不构成投注建议</span>
         </div>
         <div class="ai-source">
@@ -346,7 +348,7 @@
         <div class="card" id="tms-players">
             <div class="card-title">🩺 球员动态</div>
             <p class="card-desc">核心球员伤停、身价与近期状态追踪</p>
-            <input type="text" class="ps-search-inp" placeholder="🔍 搜索球员姓名..." id="playerSearch" oninput="renderPlayerStatus()">
+            <input type="text" class="ps-search-inp" placeholder="🔍 搜索球员姓名..." id="playerSearch" oninput="renderPlayerStatus()" aria-label="搜索球员姓名">
             <div class="player-status-filter" id="playerStatusFilter"></div>
             <div class="player-status-grid" id="playerStatusGrid"></div>
             <button class="ps-view-all-btn" id="psViewAllBtn" onclick="showAllPlayers()">👥 查看全部球员</button>
@@ -359,9 +361,9 @@
             <div class="ps-overlay-inner">
                 <div class="ps-overlay-header">
                     <span class="ps-overlay-title">👥 全部球员动态</span>
-                    <button class="ps-overlay-close" onclick="closeAllPlayers()">✕</button>
+                    <button class="ps-overlay-close" onclick="closeAllPlayers()" aria-label="关闭全部球员动态">✕</button>
                 </div>
-                <input type="text" class="ps-search-inp" placeholder="🔍 搜索球员姓名..." id="psOverlaySearch" oninput="renderAllPlayers()">
+                <input type="text" class="ps-search-inp" placeholder="🔍 搜索球员姓名..." id="psOverlaySearch" oninput="renderAllPlayers()" aria-label="在全部球员中搜索姓名">
                 <div class="player-status-filter" id="psOverlayFilter"></div>
                 <div class="player-status-grid" id="psOverlayGrid"></div>
                 <div class="player-status-footer">
@@ -370,7 +372,8 @@
             </div>
         </div>
         <div id="tms-search">
-        <input type="text" class="search-inp" placeholder="🔍 搜索球队..." id="teamSearch" oninput="filterTeams()">
+        <input type="text" class="search-inp" placeholder="🔍 搜索球队..." id="teamSearch" oninput="filterTeams()" aria-label="搜索球队名称或大洲">
+        <div class="search-feedback" id="teamSearchFeedback" role="status" aria-live="polite">输入球队名称或大洲缩写进行搜索</div>
         </div>
         <div class="team-cards" id="teamsGrid"></div>
     </section>
@@ -559,23 +562,23 @@
 
 <!-- 底部5键导航 -->
 <nav class="bnav" id="bnav">
-    <button class="bnav-item active" data-tab="home">
+    <button class="bnav-item active" data-tab="home" aria-label="首页">
         <span class="bnav-icon">🏠</span>
         <span class="bnav-label">首页</span>
     </button>
-    <button class="bnav-item" data-tab="encyclopedia">
+    <button class="bnav-item" data-tab="encyclopedia" aria-label="百科">
         <span class="bnav-icon">📚</span>
         <span class="bnav-label">百科</span>
     </button>
-    <button class="bnav-item" data-tab="schedule">
+    <button class="bnav-item" data-tab="schedule" aria-label="赛程">
         <span class="bnav-icon">📅</span>
         <span class="bnav-label">赛程</span>
     </button>
-    <button class="bnav-item" data-tab="teams">
+    <button class="bnav-item" data-tab="teams" aria-label="球队和积分榜">
         <span class="bnav-icon">🏴</span>
         <span class="bnav-label">球队/积分榜</span>
     </button>
-    <button class="bnav-item bnav-lottery" data-tab="lottery">
+    <button class="bnav-item bnav-lottery" data-tab="lottery" aria-label="竞彩游戏">
         <span class="bnav-icon">🎰</span>
         <span class="bnav-label">竞彩</span>
     </button>
@@ -586,6 +589,6 @@
 <script src="lottery-api.js?v=20260609f"></script>
 <script src="match-registry.js?v=20260610a"></script>
 <script src="live-client.js?v=20260610a"></script>
-<script src="app.js?v=20260609f"></script>
+<script src="app.js?v=20260612b"></script>
 </body>
 </html>

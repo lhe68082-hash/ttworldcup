@@ -2,12 +2,12 @@
   "name": "花生世界杯助手",
   "short_name": "世界杯助手",
   "description": "2026世界杯赛事资讯、竞彩模拟、球队百科，一站式世界杯观赛工具",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#121926",
   "theme_color": "#121926",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "./",
   "lang": "zh-CN",
   "icons": [
     {
