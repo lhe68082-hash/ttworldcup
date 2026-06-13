@@ -388,8 +388,12 @@ KO_ROUNDS.forEach(round => {
 // 格式: '比赛ID': { home: 主队进球, away: 客队进球 }
 // ⚠️ 比赛结束后请及时在此录入真实比分，所有数据必须以真实赛果为准
 const MANUAL_RESULTS = {
-    'GA-1': { home: 2, away: 0 }, // 6/12 墨西哥 2:0 南非（揭幕战）
-    'GA-2': { home: 2, away: 1 }, // 6/12 韩国 2:1 捷克
+    // ===== 6月12日 =====
+    'GA-1': { home: 2, away: 0 }, // 墨西哥 2:0 南非（揭幕战）
+    'GA-2': { home: 2, away: 1 }, // 韩国 2:1 捷克
+    // ===== 6月13日 =====
+    'GB-1': { home: 1, away: 1 }, // 加拿大 1:1 波黑
+    'GD-1': { home: 4, away: 1 }, // 美国 4:1 巴拉圭
 };
 
 (function applyManualResults() {
